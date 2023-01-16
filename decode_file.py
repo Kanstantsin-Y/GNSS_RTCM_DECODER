@@ -1,5 +1,5 @@
 
-import os, sys
+import os
 import shutil
 import argparse
 import glob
@@ -174,8 +174,8 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
 # astr = r"-c cfg.jsn RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\H7-A3.rtcm3 RTCM3_TEST_DATA\\"
 # ARGS = r"-c cfg.json RTCM3_TEST_DATA\\"
 # ARGS = r"-c cfg.json RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 RTCM3_TEST_DATA\\"
-# ARGS = r"-i RTCM3_TEST_DATA\renable_HCA_and_TLOCK.ini RTCM3_TEST_DATA\reference-3msg.rtcm3"
-ARGS = None    
+ARGS = r"-i RTCM3_TEST_DATA\enable_HCA_and_TLOCK.ini RTCM3_TEST_DATA\reference-3msg.rtcm3"
+# ARGS = None    
 
 if __name__ == '__main__':
 
