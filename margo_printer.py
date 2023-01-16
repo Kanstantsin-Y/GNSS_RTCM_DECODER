@@ -9,7 +9,7 @@ from cons_file_logger import LOGGER_CF as logger
 
 
 class MargoControls:
-    """Defines some parametrs to control MARGO performance"""
+    """Defines some parameters to control MARGO performance"""
 
     __slots__ = ('half_cycle_enable', 'lock_time_enable' , 'gps_utc_shift', 'glo_lit_tab')
     
@@ -23,7 +23,7 @@ class MargoControls:
 
 
 class MargoCore():
-    '''Utilitary methods of MARGO converter'''
+    '''Utility methods of MARGO converter'''
     
     _DEFAULT_CONTROLS = MargoControls()
 
@@ -70,22 +70,22 @@ class MargoCore():
     # Controls total width and fractional part width in representation of observables.  
     __FORMAT_COLUMNS = {'C':(15,3), 'L':(15,3), 'D':(9,3), 'S':(6,2), 'T':(10,3), 'A':(4,0) }
 
-    # Encodes file tipe in accordance with MARGO spec.
+    # Encodes file type in accordance with MARGO spec.
     __MARGO_FILE_ID = { 'C':0, 'L':1, 'D':2, 'S':3, 'T':4, 'A':5 }
 
     # Defines max. number of sats for each constellation (number of columns in .obs file)
     __MAX_SATS = {'G':32, 'R':24, 'E':36, 'S':38, 'Q':5, 'B':37, 'I':14}
     
     @classmethod
-    def FORMAT(cls, parametr):
-        rv = cls.__FORMAT_COLUMNS.get(parametr)
-        assert rv != None, f"Parametr {parametr} not supported by FORMAT()."
+    def FORMAT(cls, parameter):
+        rv = cls.__FORMAT_COLUMNS.get(parameter)
+        assert rv != None, f"parameter {parameter} not supported by FORMAT()."
         return rv
 
     @classmethod
-    def MARGO_FILE_ID(cls, parametr):
-        rv = cls.__MARGO_FILE_ID.get(parametr)
-        assert rv != None, f"Parametr {parametr} not supported by MARGO_FILE_ID()."
+    def MARGO_FILE_ID(cls, parameter):
+        rv = cls.__MARGO_FILE_ID.get(parameter)
+        assert rv != None, f"Parameter {parameter} not supported by MARGO_FILE_ID()."
         return rv
 
     @classmethod
@@ -148,7 +148,7 @@ class MargoCore():
     def ObservablesMSMtoPrintBuffer(self, pdata:ObservablesMSM):
         """
         Return a dictionary of the form {'file_name':'string of observables'}.
-        Return empty dictionary if 'pdata' is empty or incosistent.
+        Return empty dictionary if 'pdata' is empty or inconsistent.
         """
 
         rv = dict()
@@ -238,7 +238,7 @@ class MargoCore():
         return rv
 
     def make_header(self, ofile_name:str):
-        '''Genearte two string of a header for MARGO file'''
+        '''Generate two string of a header for MARGO file'''
         gnss = ofile_name[0]
         param = ofile_name[1]
         width,frc = self.FORMAT(param)
@@ -288,7 +288,7 @@ class MSMtoMARGO():
         self.io.format = 'MARGO'
         
         # if not self.io.data_spec < self.io.actual_spec:
-        #     logger.warning(f"Specification wasn't implemented completly in '{self.io.format}'.")
+        #     logger.warning(f"Specification wasn't implemented completely in '{self.io.format}'.")
 
         return
     
@@ -301,7 +301,7 @@ class MSMtoMARGO():
         self.__ofiles = {}
 
     def __create_ofile(self, oname:str)->bool:
-        '''Craete new MARGO file and fill header'''
+        '''Create new MARGO file and fill header'''
 
         path = os.path.join(self.__wd, self.core.DIRNAME(oname[0]))
         
@@ -336,7 +336,7 @@ class MSMtoMARGO():
 
     def print_ObservablesMSM(self, obs:ObservablesMSM):
         '''Print data from ObservablesMSM data block'''
-        # Make raw-of-values for each parametr to be printed 
+        # Make raw-of-values for each parameter to be printed 
         pbuf = self.core.ObservablesMSMtoPrintBuffer(obs)
         
         if not pbuf:
@@ -360,5 +360,5 @@ class MSMtoMARGO():
         if print_func:
             print_func(iblock)
         else:
-            #Paranoid check. Issue should be catched at PrinterTop level.
+            #Paranoid check. Issue should be caught at PrinterTop level.
             assert print_func, f"Printer does not support {dtype}"

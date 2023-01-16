@@ -1,6 +1,6 @@
 
 
-# Utilitary tools and tables for RTCM
+# Utility tools and tables for RTCM
 
     
 #------------------------------------------------------------------------------------------------

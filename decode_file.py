@@ -21,7 +21,7 @@ DEFAULT_CONFIG = "decode_file.ini"
 def create_work_folder(src_file_path) -> str | None:
     '''
     Create a new folder for decoding products.
-    If folder alraedy exists - delete content. 
+    If folder already exists - delete content. 
     Return path to the folder if everything OK.
     Else return None.
     '''
@@ -40,7 +40,7 @@ def create_work_folder(src_file_path) -> str | None:
     # Create new empty directory
     try:
         os.makedirs(fld)
-        print(f'Craeted work folder.')
+        print(f'Created work folder.')
     except OSError as oe:
         print(f"Work folder wasn't created")
         print(f"{type(oe)}: {oe}")
@@ -73,11 +73,11 @@ def init_logger(path):
         print(f"{type(er)}: {er}")
     else:
         #Initial record
-        welcom_msg = f"New log file was created."
-        log.write(welcom_msg+'\n')
-        log.write('-'*len(welcom_msg)+'\n')
+        welcome_msg = f"New log file was created."
+        log.write(welcome_msg+'\n')
+        log.write('-'*len(welcome_msg)+'\n')
         log.close()
-        print(welcom_msg)
+        print(welcome_msg)
         #Init logger. Opens file 'path' in append mode
         logger.init_2CH(path, 'RTCMDEC')
 
@@ -140,7 +140,7 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
             logger.console('Progress: {0:2.2%} bytes, {1:d} messages, {2:d} p-errors, {3:d} d-errors'.format(
                             float(bytes_processed)/float(file_size),
                             main_rtcm_decoder.dec_attempts,
-                            main_rtcm_decoder.parce_errors,
+                            main_rtcm_decoder.parse_errors,
                             main_rtcm_decoder.dec_errors ))
             
             chunk = f.read(2**12)
@@ -283,7 +283,7 @@ if __name__ == '__main__':
         print("-"*80)
         print(f"Started decoding: {file}")
         if decode_rtcm_file(file, boxed_controls):
-            print("Finished successfuly.")
+            print("Finished successfully.")
         else:
             print("Decoding was terminated.")
 

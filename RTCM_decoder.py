@@ -13,13 +13,13 @@ from cons_file_logger import LOGGER_CF as logger
 #--- Exceptions for upper level of RTCM decoder ---------------------------------------------
 
 class ExceptionDecoderInit(Exception):
-    '''Exception called during decoder initialisation'''
+    '''Exception called during decoder initialization'''
 
 class ExceptionDecoderDecode(Exception):
     '''Exception called during/after method ".decode()" executed '''
 
 def catch_decoder_exceptions(func):
-    """Decorator. Implements processing of decoder-related exeptions"""
+    """Decorator. Implements processing of decoder-related exceptions"""
     def catch_exception_wrapper(*args, **kwargs):
         try:
             rv = func(*args, **kwargs)
@@ -71,7 +71,7 @@ class DecoderTop():
             raise ExceptionDecoderInit(f"Incorrect 'io' type in {type(new_decoder)}")
 
         if new_decoder.io.subset == 'UNDEF':
-            raise ExceptionDecoderInit(f'Interface not definedin {type(new_decoder)}')
+            raise ExceptionDecoderInit(f'Interface not defined in {type(new_decoder)}')
 
         if new_decoder.io.decode == SubDecoderInterface.default_decode:
             raise ExceptionDecoderInit(f"Virtual method 'decode' not defined in {type(new_decoder)}")
@@ -131,7 +131,7 @@ class DecoderTop():
             # Check, whether any bytes were skipped after synch had already happened
             if (not self._skipped_some_bytes) and (tail_length < tail_0) and (self._synchronized):
                 self._skipped_some_bytes = True
-                self._synchronized = False # re-syncked and CRC not checked
+                self._synchronized = False # re-synched and CRC not checked
 
             # Check, whether full message available 
             if tail_length < 6: # not enough data to decode
@@ -147,8 +147,8 @@ class DecoderTop():
                     ret_list.append(self._tail[0:msg_length])
                     self._tail = self._tail[msg_length:]
                     # Check, if there were any errors before this message
-                    # Anomalies between messages with successive CRC encounted
-                    # Anomalies befor the first and after the last successive CRC are skipped 
+                    # Anomalies between messages with successive CRC encountered
+                    # Anomalies before the first and after the last successive CRC are skipped 
                     if (self._skipped_some_bytes):
                         self.__pars_err_cnt += 1
                         self._skipped_some_bytes = False
@@ -156,7 +156,7 @@ class DecoderTop():
                     self._synchronized = True
                 else:
                     # Shift out 'D3' and go to the next iteration.
-                    # Error will be encounted during the next iteration
+                    # Error will be encountered during the next iteration
                     self._tail = self._tail[1:]
         else:
             pass
@@ -168,8 +168,8 @@ class DecoderTop():
     def __rebase_to_D3(self):
         '''Finds first RTCM synchro byte.
 
-        If exists, all data befor first synchro byte would be deleted,
-        returns length of the new chunck.
+        If exists, all data before first synchro byte would be deleted,
+        returns length of the new chunk.
         Else, deletes all data, returns 0.
         '''
         if self._tail == b'':
@@ -189,7 +189,7 @@ class DecoderTop():
         if synch_ok:
             return tail_len
         
-        # Aquire 'D3' byte. Main search loop
+        # Acquire 'D3' byte. Main search loop
         ptr = 1
         while not synch_ok:
             ofs = self._tail.find(bytes.fromhex('D3'), ptr)
@@ -211,18 +211,18 @@ class DecoderTop():
         return len(self._tail)
 
     @property
-    def parce_errors(self):
-        '''Returnes number of errors on message extraction stage'''
+    def parse_errors(self):
+        '''Returns number of errors on message extraction stage'''
         return self.__pars_err_cnt
     
     @property
     def dec_errors(self):
-        '''Returnes number of errors on message decoding stage'''
+        '''Returns number of errors on message decoding stage'''
         return self.__dec_attempts - self.__dec_succeeded
     
     @property
     def dec_attempts(self):
-        '''Returnes total number of decoding attempt'''
+        '''Returns total number of decoding attempt'''
         return self.__dec_attempts
     
 #----------------------------------------------------------------------------------------------
@@ -241,7 +241,7 @@ class DecoderTop():
     @staticmethod
     @catch_bits_exceptions
     def mcrc(buf:bytes)->bool:
-        '''Chech, whether buf contains full and valid RTCM message.'''        
+        '''Check, whether buf contains full and valid RTCM message.'''        
         data_len = Bits.getbitu(buf, 14, 10) +3
         crc_calc = CRC24Q.calc(buf[0:data_len])
         crc_get = Bits.getbitu(buf, data_len*8, 24)
@@ -262,7 +262,7 @@ class SubDecoderInterface():
         'io' defines:
             1. Required subset of RTCM messages to be supported in the sub-decoder -'io_spec.keys()'.
             2. Appropriate data types returned as a result of decoding - 'io_spec.values()'.
-            3. Set of actualy implemented messages - 'actual_messages'.
+            3. Set of actually implemented messages - 'actual_messages'.
             3. Virtual method 'decode' which must be redefined in
             sub-decoder implementation.
     '''
@@ -319,7 +319,7 @@ class SubDecoderInterface():
 
     @staticmethod
     def __make_LEGO_spec(bare:bool) -> dict:
-        '''Defines IN/OUT interface of Legasy observables decoder'''
+        '''Defines IN/OUT interface of Legacy observables decoder'''
         return {}
     
     @staticmethod
@@ -330,7 +330,7 @@ class SubDecoderInterface():
 
 
 # def _save_some_test_data(msg_list):
-#     '''Utilitary function. Accepts a banch or RTCM messages.
+#     '''Utility function. Accepts a bunch or RTCM messages.
 #         Makes some test files.'''
 
 #     f = open('reference-3msg.rtcm3','wb')
@@ -341,11 +341,11 @@ class SubDecoderInterface():
 #     f.write(b'-'.join([msg_list[0], msg_list[1], msg_list[2]]))
 #     f.close()
 
-#     f = open('reference-3msg-noizeBefore.rtcm3','wb')
+#     f = open('reference-3msg-noiseBefore.rtcm3','wb')
 #     f.write(b''.join([b'abra-cadabra', msg_list[0], msg_list[1], msg_list[2]]))
 #     f.close()
 
-#     f = open('reference-3msg-noizeAfter.rtcm3','wb')
+#     f = open('reference-3msg-noiseAfter.rtcm3','wb')
 #     f.write(b''.join([msg_list[0], msg_list[1], msg_list[2], b'abra-cadabra']))
 #     f.close()
     

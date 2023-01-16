@@ -4,14 +4,14 @@ import logging
 __all__ = ['LOGGER_CF']
 
 class LoggerConsFile():
-    '''Singletone class implementing logging.Logger() instance.'''
+    '''Singleton class implementing logging.Logger() instance.'''
 
     def __init__(self) -> None:
         self.logger = None
         self.ready = False
     
     def init_2CH(self, file_name='default_log.txt', logger_id='LogDcd'):
-        ''' Create Logger() instanse and setup logging parameters'''
+        ''' Create Logger() instance and setup logging parameters'''
         
         assert (not self.ready), f'Logger already exists. Deinit first, then setup anew.'
         

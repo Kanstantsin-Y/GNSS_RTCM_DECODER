@@ -77,7 +77,7 @@ class PrinterTop():
     def register_printer(self, new_printer: object)->bool:
         '''
         Register new subset of data types for printing.
-        Return True if registered successfuly else False
+        Return True if registered successfully else False
         '''
         rv = False
         if not self.exist:
@@ -142,7 +142,7 @@ class SubPrinterInterface():
         'SubPrinterInterface' named 'io'.
         'io' defines:
             1. Required range of data classes to be processed (printed) - 'data_spec'.
-            3. Set of data classes being actualy implemented 'actual_spec'.
+            3. Set of data classes being actually implemented 'actual_spec'.
             3. Virtual method 'print' which must be redefined in sub-printer implementation.
             4. Virtual method 'close' which must be redefined in sub-printer implementation.
                'close' used to finalize sub-printer work properly. 
@@ -158,7 +158,7 @@ class SubPrinterInterface():
     
     @staticmethod
     def make_specs(format) -> set:
-        '''Return set of reqired data types to be supported'''
+        '''Return set of required data types to be supported'''
         assert format in _SPECS_LIST.keys(), f"Undefined printing format."
         specs = _SPECS_LIST.get(format)
         rv = (dtype for dtypes in specs.values() for dtype in dtypes)

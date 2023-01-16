@@ -26,7 +26,7 @@ class DecoderControls():
         self.__MARGO_ok = False
     
     def _read_ini(self, ini_file:str)->bool:
-        """Read *ini file. Return true if there is somthing in it."""
+        """Read *ini file. Return true if there is something in it."""
         self.__ini.read(ini_file)
         rv = len(self.__ini.sections()) != 0
         if not rv:
@@ -92,7 +92,7 @@ class DecoderControls():
     
     def update_from_file(self, ini_file:str):
         """Update controls from *.ini file"""
-        # Update is possible only after initialisation
+        # Update is possible only after initialization
         if not self.__ini_ok:
             return
         

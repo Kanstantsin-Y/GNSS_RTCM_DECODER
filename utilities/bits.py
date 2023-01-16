@@ -13,7 +13,7 @@ class ExceptionBitsError(Exception):
 
 
 def catch_bits_exceptions(func):
-    """Decorator. Implements processing of exeptions in Bits methods"""
+    """Decorator. Implements processing of exceptions in Bits methods"""
     def catch_exception_wrapper(*args, **kwargs):
         try:
             rv = func(*args, **kwargs)
@@ -34,7 +34,7 @@ class Bits():
     
     @classmethod
     def getbitu(cls, buf: bytes, start_pos: int, length: int)->int:
-        '''Extracts unsigned data field from 'bytes' varable '''
+        '''Extracts unsigned data field from 'bytes' variable '''
         
         if (length < 1) or (length > cls.MAX_BIT_WIDTH) or (start_pos < 0):
             raise ExceptionBitsError(f'getbitu length:{length=},{start_pos=}')
@@ -56,7 +56,7 @@ class Bits():
 
     @classmethod
     def getbits(cls, buf: bytes, start_pos: int, length: int)->int:
-        '''Extracts signed data field from 'bytes' varable'''
+        '''Extracts signed data field from 'bytes' variable'''
         
         acc = cls.getbitu(buf, start_pos, length)
         # Extend sign

@@ -6,7 +6,7 @@
 
 
 class ObservablesMSM():
-    '''Represents products of MSMx or Legacy messsage decoding'''
+    '''Represents products of MSMx or Legacy message decoding'''
     
     __slots__ = ('hdr', 'obs', 'aux', 'subset', 'nsat', 'nsign')
 
@@ -48,9 +48,9 @@ class _ObservablesHdrMSM():
         self.day = 0
 
 class _ObservablesObs:
-    ''' Iplements container for observables.
+    ''' Implements container for observables.
     
-    Here and below diffrent observable are grouped in pairs in {'sat_number':'obs_value'}
+    Here and below different observable are grouped in pairs in {'sat_number':'obs_value'}
     manner. Then, grouped by signal/frequency slot implication. Available signals encoded in
     RINEX manner. Number of available frequency slots, as well as 
     number of observables in each slot may deviate. See __make_example() to get a clue
@@ -59,10 +59,10 @@ class _ObservablesObs:
     __slots__ = ('rng', 'phs', 'ltm', 'hca', 'dpl', 'c2n')
      
     def __init__(self) -> None:
-        # 'rng' containes code range measurements grouped by signal
+        # 'rng' contains code range measurements grouped by signal
         #There would be an empty dict if there are no code measurements in this message
         self.rng : dict[str, dict[int,float]] = {}     # [m],
-        # 'phs' containes carrier phase range measurements grouped by signal
+        # 'phs' contains carrier phase range measurements grouped by signal
         # There would be an empty dict if there are no phase measurements in this message
         self.phs : dict[str, dict[int,float]] = {}     # [m],
         # 'lock_time' contains time interval in [ms] 'phase' has been locked for the moment
@@ -70,9 +70,9 @@ class _ObservablesObs:
         self.ltm : dict[str, dict[int,int]] = {}      # [ms],
         # 'hca' depicts half-cycle ambiguity in phase measurements when True. 
         # There would be an empty dict if there are no HC info in this message. If so, HC
-        # ambigiuty assumed already resolved.
+        # ambiguity assumed already resolved.
         self.hca : dict[str, dict[int,bool]] = {} 
-        # 'dpl' containes phase rate measurements grouped by signal
+        # 'dpl' contains phase rate measurements grouped by signal
         # There would be an empty dict if there are no doppler meas. in this message
         self.dpl : dict[str, dict[int,float]] = {}    # [Hz]
         # 'c2n' - carrier to noise ratio
@@ -103,7 +103,7 @@ class _ObservablesAuxMSM:
         self.clk_steer: dict[int,str] = {'code':2, 'val':"UNDEF"}
         # [df412],b2, external clock indicator       
         self.clk_ext: dict[int,str] = {'code':3, 'val':"UNDEF"}
-        # [df417],b1, divergence free smothing indicator       
+        # [df417],b1, divergence free smoothing indicator       
         self.smth_indc: dict[int,str] = {'code':0, 'val':"UNDEF"}
         # [df418],b3, divergence free interval      
         self.smth_intr: dict[int,str] = {'code':0, 'val':"NOSMTH"}     
