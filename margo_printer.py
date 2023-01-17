@@ -270,8 +270,8 @@ class MSMtoMARGO():
         self.core = MargoCore(ctrls)
 
         self._map_printers = {
-            ObservablesMSM : self.print_ObservablesMSM,
-            BareObservablesMSM4567 : self.print_BareObservablesMSM4567
+            ObservablesMSM : self.__print_ObservablesMSM,
+            BareObservablesMSM4567 : self.__print_BareObservablesMSM4567
         }
                 
         self.__wd = work_dir
@@ -283,8 +283,8 @@ class MSMtoMARGO():
         self.io.data_spec = SubPrinterInterface.make_specs('MARGO')
         self.io.actual_spec = set()
         self.io.actual_spec.update(self._map_printers.keys())
-        self.io.print = self.print
-        self.io.close = self.close
+        self.io.print = self.__print
+        self.io.close = self.__close
         self.io.format = 'MARGO'
         
         # if not self.io.data_spec < self.io.actual_spec:
@@ -292,7 +292,7 @@ class MSMtoMARGO():
 
         return
     
-    def close(self):
+    def __close(self):
         '''Close all opened files'''
         if len(self.__ofiles):
             for itm in self.__ofiles.values():
@@ -319,7 +319,7 @@ class MSMtoMARGO():
         finally:
             return rv
 
-    def append(self, ofile:str, line:str)->bool:
+    def __append(self, ofile:str, line:str)->bool:
         '''Append a new row of observables to the file.
         If file doesn't exist, create new file and fill header, then append'''
 
@@ -334,7 +334,7 @@ class MSMtoMARGO():
 
         self.__ofiles[ofile].write(line)
 
-    def print_ObservablesMSM(self, obs:ObservablesMSM):
+    def __print_ObservablesMSM(self, obs:ObservablesMSM):
         '''Print data from ObservablesMSM data block'''
         # Make raw-of-values for each parameter to be printed 
         pbuf = self.core.ObservablesMSMtoPrintBuffer(obs)
@@ -347,13 +347,13 @@ class MSMtoMARGO():
             # Make textual representation of values
             column_format = self.core.FORMAT(ptype)
             obs_string = self.core.format_obs_string(obs,*column_format)
-            self.append(f, obs_string)
+            self.__append(f, obs_string)
         
-    def print_BareObservablesMSM4567(self, obs:BareObservablesMSM4567):
+    def __print_BareObservablesMSM4567(self, obs:BareObservablesMSM4567):
         pass
 
     #@catch_printer_asserts
-    def print(self, iblock:object):
+    def __print(self, iblock:object):
         '''Margo printer'''
         dtype = type(iblock)
         print_func = self._map_printers.get(dtype)

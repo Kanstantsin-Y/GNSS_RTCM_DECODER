@@ -247,3 +247,22 @@ class MSMT:
         '''Converts DF402 index into time, [ms]'''
         return 0 if t==0 else (1<<(4+t))
     
+    @staticmethod
+    def isDF405_OK(x: int)->bool:
+        return (x & 0xfffff) != 0x80000
+
+    @staticmethod
+    def isDF406_OK(x: int)->bool:
+        return (x & 0xffffff) != 0x800000
+ 
+    @staticmethod
+    def isDF400_OK(x: int)->bool:
+        return (x & 0x7fff) != 0x4000
+
+    @staticmethod
+    def isDF401_OK(x: int)->bool:
+        return (x & 0x3fffff) != 0x200000
+
+    @staticmethod
+    def isDF404_OK(x: int)->bool:
+        return (x & 0x7fff) != 0x4000

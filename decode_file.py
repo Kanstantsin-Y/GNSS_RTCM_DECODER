@@ -7,7 +7,7 @@ import glob
 from cons_file_logger import LOGGER_CF as logger
 
 from RTCM_decoder import DecoderTop as RtcmDecoderTop
-from sub_decoders.RTCM_MSM import Subdecoder_RTCM_MSM47
+from sub_decoders import SubdecoderMSM4567, SubdecoderMSM123
 
 from printer_top import PrinterTop
 from margo_printer import MargoControls, MSMtoMARGO
@@ -98,21 +98,24 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
     if not wfld:
         return rv
 
-    lfile = wfld + '//' + make_log_file_name(fpath)
+    lfile = os.path.join(wfld,make_log_file_name(fpath))
     init_logger(lfile)
 
     # Init RTCM decoder and add subdecoders.
     main_rtcm_decoder = RtcmDecoderTop()
-    msm47 = Subdecoder_RTCM_MSM47(bare_data=False)
-    main_rtcm_decoder.register_decoder(msm47)
+    msm4567 = SubdecoderMSM4567(bare_data=False)
+    msm123 = SubdecoderMSM123(bare_data=False)
+    
+    main_rtcm_decoder.register_decoder(msm4567)
+    main_rtcm_decoder.register_decoder(msm123)
 
     # Use embedded defaults if there are no controls from caller.
     user_ctrls = boxed_controls.MARGO if boxed_controls != None else None
     
     # Implement printers
     main_margo_printer = PrinterTop('MARGO')
-    msm47_to_margo = MSMtoMARGO(wfld, user_ctrls)
-    if not main_margo_printer.register_printer(msm47_to_margo):
+    msm_to_margo = MSMtoMARGO(wfld, user_ctrls)
+    if not main_margo_printer.add_subprinter(msm_to_margo.io):
         logger.error(f"Sub-printer 'MSMtoMARGO' wasn't registered")
 
     if not main_margo_printer.ready:
@@ -256,7 +259,7 @@ if __name__ == '__main__':
                 files.append(full_path)
             else:
                 print(f"{full_path} is not file.")
-    # If args.source[0] is directory interact with user.
+    # If args.source[0] is directory, interact with user.
     else:
         fpattern = '.'.join(['*',args.rtcm_ext])
         path = os.path.abspath(args.source[0])

@@ -6,19 +6,20 @@
 
 
 class ObservablesMSM():
-    '''Represents products of MSMx or Legacy message decoding'''
+    '''Represents products of MSMx message decoding'''
     
-    __slots__ = ('hdr', 'obs', 'aux', 'subset', 'nsat', 'nsign')
+    __slots__ = ('hdr', 'obs', 'aux', 'subset') #, 'nsat', 'nsign'
 
     def __init__(self) -> None:
 
-        # 'subset' may have value from {MSM1, MSM2,...,MSM7}
+        # 'subset' may have value from {MSM4, MSM5, MSM6, MSM7}
         # 'subset' == '' indicates default state of all fields.
         self.subset = ''
         self.obs = _ObservablesObs()
         self.hdr = _ObservablesHdrMSM()
         self.aux = _ObservablesAuxMSM()
-        
+
+
 class _ObservablesHdrMSM():
     ''' RTCM header data. Common for all sats.'''
     
@@ -109,7 +110,7 @@ class _ObservablesAuxMSM:
         self.smth_intr: dict[int,str] = {'code':0, 'val':"NOSMTH"}     
     
 class _ObservablesAuxLeg:
-    '''Auxiliary data specific for MSM messages.'''
+    '''Auxiliary data specific for Legacy messages.'''
 
     __slots__ = ('rs_id',)
     
@@ -118,21 +119,6 @@ class _ObservablesAuxLeg:
         self.rs_id: int = 42
 
 # ----------------------------------------------------------------------------------
-
-class BareObservablesMSM4567():
-    ''' Bare RTCM MSM4, MSM5, MSM6, MSM7 signal data.'''
-
-    __slots__ = ('hdr', 'sat', 'sgn')
-
-    def __init__(self) -> None:
-        self.hdr = _BareObservablesHdrMSM()
-        self.sat = _BareObservablesSatDataMSM4567()
-        self.sgn = _BareObservablesSignalDataMSM4567()
-
-    def clear(self) -> None:
-        self.hdr.clear()
-        self.sat.clear()
-        self.sgn.clear()
 
 class _BareObservablesHdrMSM():
     ''' Bare RTCM MSM header data. Common for all sats.'''
@@ -189,3 +175,58 @@ class _BareObservablesSignalDataMSM4567():
         self.c2n : tuple[int] = ()
         self.phase_rate_fine : tuple[int] = ()
 
+class BareObservablesMSM4567():
+    ''' Bare RTCM MSM4, MSM5, MSM6, MSM7 signal data.'''
+
+    __slots__ = ('hdr', 'sat', 'sgn')
+
+    def __init__(self) -> None:
+        self.hdr = _BareObservablesHdrMSM()
+        self.sat = _BareObservablesSatDataMSM4567()
+        self.sgn = _BareObservablesSignalDataMSM4567()
+
+    def clear(self) -> None:
+        self.hdr.clear()
+        self.sat.clear()
+        self.sgn.clear()
+
+
+class _BareObservablesSatDataMSM123():
+    ''' Bare RTCM MSM1, MSM2, MSM3 satellite data.'''
+
+    __slots__ = ('rng_rough')
+
+    def __init__(self) -> None:
+        self.clear()
+
+    def clear(self) -> None:
+        self.rng_rough : tuple[int] = ()
+
+class _BareObservablesSignalDataMSM123():
+    ''' Bare RTCM MSM1, MSM2, MSM3 signal data.'''
+
+    __slots__ = ('rng_fine','phase_fine','lock_time','hc_indc')
+    
+    def __init__(self) -> None:
+        self.clear()
+
+    def clear(self) -> None:
+        self.rng_fine : tuple[int] = ()
+        self.phase_fine : tuple[int] = ()
+        self.lock_time : tuple[int] = ()
+        self.hc_indc : tuple[int] = ()
+
+class BareObservablesMSM123():
+    ''' Bare RTCM MSM4, MSM5, MSM6, MSM7 signal data.'''
+
+    __slots__ = ('hdr', 'sat', 'sgn')
+
+    def __init__(self) -> None:
+        self.hdr = _BareObservablesHdrMSM()
+        self.sat = _BareObservablesSatDataMSM123()
+        self.sgn = _BareObservablesSignalDataMSM123()
+
+    def clear(self) -> None:
+        self.hdr.clear()
+        self.sat.clear()
+        self.sgn.clear()

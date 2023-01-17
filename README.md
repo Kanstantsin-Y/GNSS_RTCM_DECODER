@@ -35,9 +35,3 @@ conversion into textual representation. Main purpose - representation of GNSS da
 - Robust binary data decoder. Primary RTCM decoder implements extraction of RTCM messages from input byte flow. Supports processing of files started with unaligned message, data gaps. Anomalies in input byte flow reported via the logger. May be easily modified to process real time byte flow from COM port, socket, etc.
 - Dual channel logger. Provides sending of service information to file and to console in parallel. Message severity levels could be configured individually.
 - User interface implemented via command prompt options + .ini file parameters. There is one mandatory .ini file - contains some 'mast have' parameters for proper decoder operation and one additional file, which can be referenced from the command prompt to provide some additional settings.
-
-
-
-
-     
-

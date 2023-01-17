@@ -2,7 +2,7 @@
 #--- Dependencies ---------------------------------------------------------------------------
 
 from data_types.observables import ObservablesMSM
-from data_types.observables import BareObservablesMSM4567
+from data_types.observables import BareObservablesMSM4567, BareObservablesMSM123
 
 from utilities.bits import Bits  
 from utilities.bits import catch_bits_exceptions
@@ -308,7 +308,7 @@ class SubDecoderInterface():
 
         messages = (1071, 1072, 1073)
         messages = [m+i*10 for i in range (7) for m in messages]
-        output_format = BareObservablesMSM4567 if bare else ObservablesMSM
+        output_format = BareObservablesMSM123 if bare else ObservablesMSM
         rv = dict().fromkeys(messages,output_format)
         return rv
 
