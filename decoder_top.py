@@ -258,8 +258,7 @@ class SubDecoderInterface():
     ''' Sub decoder interface.
     
         Each instance of sub-decoder must implement an instance of
-        'DecoderInterface' named 'io'.
-        'io' defines:
+        'DecoderInterface' named for example 'io'. 'io' defines:
             1. Required subset of RTCM messages to be supported in the sub-decoder -'io_spec.keys()'.
             2. Appropriate data types returned as a result of decoding - 'io_spec.values()'.
             3. Set of actually implemented messages - 'actual_messages'.
