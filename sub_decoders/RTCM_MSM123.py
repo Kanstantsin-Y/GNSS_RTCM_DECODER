@@ -6,14 +6,14 @@ from math import isnan
 from data_types.observables import ObservablesMSM
 from data_types.observables import BareObservablesMSM123
 
-from RTCM_decoder import SubDecoderInterface
+from decoder_top import SubDecoderInterface
 from utilities.RTCM_utilities import MSMT
 
 from utilities.bits import Bits
 from utilities.bits import ExceptionBitsError
 from utilities.bits import catch_bits_exceptions
 
-from cons_file_logger import LOGGER_CF as logger
+from logger import LOGGER_CF as logger
 
 
 #--- Exceptions ----------------------------------------------------------------------------------

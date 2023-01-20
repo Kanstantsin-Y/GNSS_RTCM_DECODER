@@ -4,13 +4,13 @@ import shutil
 import argparse
 import glob
 
-from cons_file_logger import LOGGER_CF as logger
+from logger import LOGGER_CF as logger
 
-from RTCM_decoder import DecoderTop as RtcmDecoderTop
+from decoder_top import DecoderTop as RtcmDecoderTop
 from sub_decoders import SubdecoderMSM4567, SubdecoderMSM123
 
 from printer_top import PrinterTop
-from margo_printer import MargoControls, MSMtoMARGO
+from printers.margo_printer import MSMtoMARGO
 from controls import BoxWithDecoderControls, DecoderControls
 
 VERSION = "1.01"
@@ -106,8 +106,8 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
     msm4567 = SubdecoderMSM4567(bare_data=False)
     msm123 = SubdecoderMSM123(bare_data=False)
     
-    main_rtcm_decoder.register_decoder(msm4567)
-    main_rtcm_decoder.register_decoder(msm123)
+    main_rtcm_decoder.register_decoder(msm4567.io)
+    main_rtcm_decoder.register_decoder(msm123.io)
 
     # Use embedded defaults if there are no controls from caller.
     user_ctrls = boxed_controls.MARGO if boxed_controls != None else None
@@ -151,7 +151,7 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
         # self._save_some_test_data(rtcm3_lines)
     
     except KeyboardInterrupt:
-        logger.error(f"Processing terminated by user.")
+        logger.error(f"Processing terminated by the user.")
     except FileNotFoundError as fe:
         logger.error(f"Got FileNotFoundError exception.")
         logger.error(f"{type(fe)}: {fe}")
@@ -259,7 +259,7 @@ if __name__ == '__main__':
                 files.append(full_path)
             else:
                 print(f"{full_path} is not file.")
-    # If args.source[0] is directory, interact with user.
+    # If args.source[0] is directory, interact with the user.
     else:
         fpattern = '.'.join(['*',args.rtcm_ext])
         path = os.path.abspath(args.source[0])

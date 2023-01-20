@@ -2,8 +2,7 @@
 #--- Dependencies ---------------------------------------------------------------------------
 
 from data_types.observables import ObservablesMSM, BareObservablesMSM4567
-
-from cons_file_logger import LOGGER_CF as logger
+from logger import LOGGER_CF as logger
 
 #--- Specification of input data types for different printers -------------------------------
 

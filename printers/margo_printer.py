@@ -5,7 +5,7 @@ from printer_top import SubPrinterInterface
 from data_types.observables import ObservablesMSM, BareObservablesMSM4567
 from utilities.RTCM_utilities import MSMT
 
-from cons_file_logger import LOGGER_CF as logger
+from logger import LOGGER_CF as logger
 
 
 class MargoControls:

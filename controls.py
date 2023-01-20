@@ -1,7 +1,7 @@
 
 
 from configparser import ConfigParser
-from margo_printer import MargoControls
+from printers.margo_printer import MargoControls
 
 
 

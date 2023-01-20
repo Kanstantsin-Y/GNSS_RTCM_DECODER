@@ -4,7 +4,7 @@ __all__=['Bits','ExceptionBitsError','ExceptionBitsWrn','catch_bits_exceptions']
 
 #--- Exceptions -----------------------------------------------------------------------------------
 
-from cons_file_logger import LOGGER_CF as logger
+from logger import LOGGER_CF as logger
 
 class ExceptionBitsError(Exception):
     '''Hook error in Bits methods'''

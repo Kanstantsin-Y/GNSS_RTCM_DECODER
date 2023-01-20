@@ -8,8 +8,88 @@ from utilities.bits import Bits
 from utilities.bits import catch_bits_exceptions
 from utilities.CRC24Q import CRC24Q
 
-from cons_file_logger import LOGGER_CF as logger
+from logger import LOGGER_CF as logger
 
+
+#----------------------------------------------------------------------------------------------
+
+class SubDecoderInterface():
+    ''' Sub decoder interface.
+    
+        Each instance of sub-decoder must implement an instance of
+        'DecoderInterface' named for example 'io'. 'io' defines:
+            1. Required subset of RTCM messages to be supported in the sub-decoder -'io_spec.keys()'.
+            2. Appropriate data types returned as a result of decoding - 'io_spec.values()'.
+            3. Set of actually implemented messages - 'actual_messages'.
+            3. Virtual method 'decode' which must be redefined in
+            sub-decoder implementation.
+    '''
+
+    @staticmethod
+    def __make_MSM47O_spec(bare:bool) -> dict:
+        '''Defines IN/OUT interface of sub-decoder'''
+
+        messages = (1074, 1075, 1076, 1077)
+        messages = [m+i*10 for i in range (7) for m in messages]
+        output_format = BareObservablesMSM4567 if bare else ObservablesMSM
+        rv = dict().fromkeys(messages,output_format)
+        return rv
+
+    @staticmethod
+    def __make_MSM13O_spec(bare:bool) -> dict:
+        '''Defines IN/OUT interface of sub-decoder'''
+
+        messages = (1071, 1072, 1073)
+        messages = [m+i*10 for i in range (7) for m in messages]
+        output_format = BareObservablesMSM123 if bare else ObservablesMSM
+        rv = dict().fromkeys(messages,output_format)
+        return rv
+
+    @staticmethod
+    def __make_MSME_spec(bare:bool) -> dict:
+        '''Defines IN/OUT interface of MSM ephemeris decoder'''
+        return {}
+
+    @staticmethod
+    def __make_LEGO_spec(bare:bool) -> dict:
+        '''Defines IN/OUT interface of Legacy observables decoder'''
+        return {}
+    
+    @staticmethod
+    def __make_LEGE_spec(bare:bool) -> dict:
+        '''Defines IN/OUT interface of Legacy ephemeris decoder'''
+        return {}
+
+    @staticmethod
+    def __make_MSME_spec(bare:bool) -> dict:
+        '''Defines IN/OUT interface of Legacy ephemeris decoder'''
+        return {}
+
+    @staticmethod
+    def default_decode(buf:bytes):
+        '''Stub for virtual method decode()'''
+        raise NotImplementedError(f"Virtual method 'decode' not defined")
+
+    _RTCM_MSG_SUBSETS = {
+        'LEGO' : __make_LEGO_spec,
+        'LEGE' : __make_LEGE_spec,
+        'MSM13O' : __make_MSM13O_spec,
+        'MSM47O' : __make_MSM47O_spec,
+        'MSME' : __make_MSME_spec
+    }
+
+    def __init__(self, subset:str , bare:bool = False) -> None:
+        
+        spec_generator = self._RTCM_MSG_SUBSETS.get(subset)
+        assert spec_generator != None, f"Sub-decoder {subset} not found."
+        
+        self.decode = self.default_decode
+        self.io_spec = spec_generator(bare)
+        self.subset = subset
+        self.actual_messages : set[int] = set()
+        return
+    
+    
 #--- Exceptions for upper level of RTCM decoder ---------------------------------------------
 
 class ExceptionDecoderInit(Exception):
@@ -36,13 +116,6 @@ def catch_decoder_exceptions(func):
 
 #----------------------------------------------------------------------------------------------
 
-
-
-
-#----------------------------------------------------------------------------------------------
-
-_RTCM_MSG_SUBSETS : tuple[str,...] = ('UNDEF', 'LEGO', 'LEGE', 'MSM13O', 'MSM47O', 'MSME')
-
 class DecoderTop():
     '''Combines decoders for RTCM message subsets and implements outer interface'''
 
@@ -56,60 +129,48 @@ class DecoderTop():
         self.__pars_err_cnt: int = 0
         self.__dec_attempts: int = 0
         self.__dec_succeeded: int = 0
+        return
 
 #--- RTCM decoding frame -----------------------------------------------------------------------------
 
     @catch_decoder_exceptions
-    def register_decoder(self, new_decoder: object):
+    def register_decoder(self, io: SubDecoderInterface):
         '''Register new subset of decoded messages'''
         
         # Validate interface attributes
-        if not 'io' in new_decoder.__dict__:
-            raise ExceptionDecoderInit(f"No 'io' instance in sub-decoder {type(new_decoder)}")
-        
-        if not isinstance(new_decoder.io, SubDecoderInterface):
-            raise ExceptionDecoderInit(f"Incorrect 'io' type in {type(new_decoder)}")
+        if not isinstance(io, SubDecoderInterface):
+            raise ExceptionDecoderInit(f"Incorrect 'io' type in {type(io)}")
 
-        if new_decoder.io.subset == 'UNDEF':
-            raise ExceptionDecoderInit(f'Interface not defined in {type(new_decoder)}')
+        if io.decode == SubDecoderInterface.default_decode:
+            raise ExceptionDecoderInit(f"Virtual method 'decode' not defined in {type(io)}")
 
-        if new_decoder.io.decode == SubDecoderInterface.default_decode:
-            raise ExceptionDecoderInit(f"Virtual method 'decode' not defined in {type(new_decoder)}")
+        if len(io.actual_messages) == 0:
+            raise ExceptionDecoderInit(f"Empty message list. Update or delete subdecoder {type(io)}")
 
-        if len(new_decoder.io.actual_messages) == 0:
-            raise ExceptionDecoderInit(f"Empty message list. Update or delete subdecoder {type(new_decoder)}")
-
-        self.decoders.update({new_decoder.io.subset:new_decoder.io})
+        self.decoders.update({io.subset:io})
 
         return
 
     @catch_decoder_exceptions
     def decode(self, msg: bytes):
         
+        rv = None
         self.__dec_attempts += 1
 
-        #Find decoder
+        # Find decoder
         num = self.mnum(msg)
         dec = None
-        for d in self.decoders.values():
-            if num in d.io_spec.keys():
-                dec = d
+        for dec in self.decoders.values():
+            if (num in dec.io_spec.keys()) and (num in dec.actual_messages):
+                # Decode
+                rv = dec.decode(msg)
+                if isinstance(rv, dec.io_spec[num]):
+                    self.__dec_succeeded += 1
+                else:
+                    raise ExceptionDecoderDecode(f"Decoder {dec.subset} returned unexpected result for msg {num}")
                 break
         else:
             raise ExceptionDecoderDecode(f"Decoder not found, message {num}")
-
-        if not num in dec.actual_messages:
-            raise ExceptionDecoderDecode(f"Decoder {dec.subset} does not support message {num}")
-
-        # Decode
-        rv = dec.decode(msg)
-
-        if rv != None:
-            # Check result type 
-            if not isinstance(rv, dec.io_spec[num]):
-                raise ExceptionDecoderDecode(f"Decoder {dec.subset} returned unexpected result for msg {num}")
-            
-            self.__dec_succeeded += 1
         
         return rv
 
@@ -248,84 +309,6 @@ class DecoderTop():
         return crc_calc == crc_get
 
 #----------------------------------------------------------------------------------------------
-
-    
-
-
-#----------------------------------------------------------------------------------------------
-
-class SubDecoderInterface():
-    ''' Sub decoder interface.
-    
-        Each instance of sub-decoder must implement an instance of
-        'DecoderInterface' named for example 'io'. 'io' defines:
-            1. Required subset of RTCM messages to be supported in the sub-decoder -'io_spec.keys()'.
-            2. Appropriate data types returned as a result of decoding - 'io_spec.values()'.
-            3. Set of actually implemented messages - 'actual_messages'.
-            3. Virtual method 'decode' which must be redefined in
-            sub-decoder implementation.
-    '''
-
-    def __init__(self, subset:str = 'UNDEF', bare:bool = False) -> None:
-                                
-        match subset:
-            case 'MSM47O':
-                self.io_spec = self.__make_MSM47O_spec(bare)
-            case 'MSM13O':
-                self.io_spec = self.__make_MSM13O_spec(bare)
-            case 'MSME':
-                self.io_spec = self.__make_MSM13E_spec(bare)
-            case 'LEGO':
-                self.io_spec = self.__make_LEGO_spec(bare)
-            case 'LEGE':
-                self.io_spec = self.__make_LEGE_spec(bare)
-            case _:
-                self.io_spec = {}
-
-        self.subset = subset if len(self.io_spec) else 'UNDEF'
-        self.decode = self.default_decode
-        self.actual_messages : set[int] = set()
-    
-    @staticmethod
-    def default_decode(buf:bytes):
-        '''Stub for virtual method decode()'''
-        raise NotImplementedError(f"Virtual method 'decode' not defined")
-
-    @staticmethod
-    def __make_MSM47O_spec(bare:bool) -> dict:
-        '''Defines IN/OUT interface of sub-decoder'''
-
-        messages = (1074, 1075, 1076, 1077)
-        messages = [m+i*10 for i in range (7) for m in messages]
-        output_format = BareObservablesMSM4567 if bare else ObservablesMSM
-        rv = dict().fromkeys(messages,output_format)
-        return rv
-
-    @staticmethod
-    def __make_MSM13O_spec(bare:bool) -> dict:
-        '''Defines IN/OUT interface of sub-decoder'''
-
-        messages = (1071, 1072, 1073)
-        messages = [m+i*10 for i in range (7) for m in messages]
-        output_format = BareObservablesMSM123 if bare else ObservablesMSM
-        rv = dict().fromkeys(messages,output_format)
-        return rv
-
-    @staticmethod
-    def __make_MSM13E_spec(bare:bool) -> dict:
-        '''Defines IN/OUT interface of MSM ephemeris decoder'''
-        return {}
-
-    @staticmethod
-    def __make_LEGO_spec(bare:bool) -> dict:
-        '''Defines IN/OUT interface of Legacy observables decoder'''
-        return {}
-    
-    @staticmethod
-    def __make_LEGE_spec(bare:bool) -> dict:
-        '''Defines IN/OUT interface of Legacy ephemeris decoder'''
-        return {}
-
 
 
 # def _save_some_test_data(msg_list):
