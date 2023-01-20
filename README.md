@@ -35,4 +35,9 @@ conversion into textual representation. Main purpose - representation of GNSS da
 - Low memory consumption. Input file processed in chunk-by-chunk manner, thus even big files will not cause any memory violation issues.
 - Robust binary data decoder. Primary RTCM decoder implements extraction of RTCM messages from input byte flow. Supports processing of files started with unaligned message, having data gaps or alien garbage. Anomalies in input byte flow reported via the logger. May be easily modified to process real time byte flow from COM port, socket, etc.
 - Dual channel logger. Provides sending of service information to file and to console in parallel. Message severity levels could be configured individually.
-- User interface implemented via command prompt options + .ini file parameters. There is one mandatory .ini file - contains some 'mast have' parameters for proper decoder operation and one additional file, which can be referenced from the command prompt to provide some additional settings.
+- User interface implemented via command line options + .ini file parameters. There is one mandatory .ini file - contains some 'mast have' parameters for proper decoder operation and one additional file, which can be referenced from the command prompt to provide some additional settings.
+
+
+Run **start_decoder.py** to decode RTCM file. Check [this](DOCs/CommandLineArgs.md) for command line arguments.
+
+

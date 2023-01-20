@@ -17,10 +17,10 @@ class LoggerConsFile():
         
         # Instantiate new logger
         self.logger = logging.getLogger(logger_id)
-        # Create new severity level 'CONSOL' for information messages
-        # which are not critical but mandatory for transmission. 
-        self.CONSOLE = logging.CRITICAL
-        logging.addLevelName(self.CONSOLE, 'CONSOLE')
+        # Create new severity level 'PROGRESS' for information messages
+        # which are not critical but required for transmission al. 
+        self.PROGRESS = logging.CRITICAL
+        logging.addLevelName(self.PROGRESS, 'PROGRESS')
 
         # Create handlers for two data flows:
         # _c - console
@@ -74,9 +74,9 @@ class LoggerConsFile():
         if self.ready:
             self.logger.critical(msg)
         
-    def console(self, msg):
+    def progress(self, msg):
         if self.ready:
-            self.logger.log(self.CONSOLE, msg)
+            self.logger.log(self.PROGRESS, msg)
     
 
 LOGGER_CF = LoggerConsFile()

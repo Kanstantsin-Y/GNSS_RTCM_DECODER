@@ -94,14 +94,14 @@ MARGO file structure.
 |   ...   |  ...   |  ...   |  ...   |  ...   |  ...   |  ...   |  ...
 |  TIMEy  |  NaN   | OBS2y  |  OBS3y |  NaN   |  OBS5y |  ...   | OBSxy
 
-MARGO file consists of comma-separated numeric values and 'NaN' marks, indicating absence for measurement. First two rows are 
+MARGO file consists of comma-separated numeric values and 'NaN' marks, indicating absence of measurement. First two rows are 
 header which contains some utility data.
 
 * TYPE - numeric value, encodes type of parameters stored in this file (0 - code range, 1 - phase range).
 * SAT1, SAT2, ..., SATx - 1-based satellite number. Maximum number x is GNSS specific.
-* CF1, CF2, CF3,..., CFx - carrier frequency of definite satellite/signal. CF1..CFx values will have equal values for all GNSS signal except GLONASS.
-GLONASS CF values consider literal numbers. Information about mapping of satellite numbers to literals provided to converter via .ini file. Edit mapping if necessary.
-* TIME1, TIME2, TIMEy - time marks. All measurements in the raw belong to the same time. Units - [ms]. Meaning - time starting from the beginning of current GPS week. Time marks in all files (GLONASS, GALILEO, ...) converted to GPS. Such conversion requires an additional parameters - GPS2UTC shift - provided to converter via *.ini file. GPS2UTC may be edited when reasonable.
+* CF1, CF2, CF3,..., CFx - carrier frequency of definite satellite/signal. CF1..CFx values will have equal values for all GNSS signals except GLONASS.
+GLONASS CF values consider literal numbers. Information about mapping of satellite numbers to literals provided to converter via .ini file. Edit file to change mapping if necessary.
+* TIME1, TIME2, TIMEy - time marks. All measurements in the raw belong to the same time. Units - [ms]. Meaning - time starting from the beginning of current GPS week. Time marks in all files (GLONASS, GALILEO, ...) converted to GPS time. Such conversion requires an additional parameters - GPS2UTC shift - provided to converter via *.ini file. GPS2UTC may be edited when reasonable.
 * OBS11,...,OBSxy - observables - values of target parameter. 'NaN' marks cases, when there are no available observables.
 
 X - number of columns

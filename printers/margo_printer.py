@@ -27,8 +27,8 @@ class MargoCore():
     
     _DEFAULT_CONTROLS = MargoControls()
 
-    def __init__(self, ctrl: MargoControls = _DEFAULT_CONTROLS) -> None:
-        self.ctrl = ctrl
+    def __init__(self, ctrl: MargoControls) -> None:
+        self.ctrl = ctrl if ctrl != None else self._DEFAULT_CONTROLS
     
     @property
     def literals(self):

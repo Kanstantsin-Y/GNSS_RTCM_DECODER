@@ -140,7 +140,7 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
                 xblock = main_rtcm_decoder.decode(msg)
                 main_margo_printer.print(xblock)
 
-            logger.console('Progress: {0:2.2%} bytes, {1:d} messages, {2:d} p-errors, {3:d} d-errors'.format(
+            logger.progress('{0:2.2%}, {1:d} messages, p-d errors {2:d}-{3:d}.'.format(
                             float(bytes_processed)/float(file_size),
                             main_rtcm_decoder.dec_attempts,
                             main_rtcm_decoder.parse_errors,
@@ -177,8 +177,8 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
 # astr = r"-c cfg.jsn RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\H7-A3.rtcm3 RTCM3_TEST_DATA\\"
 # ARGS = r"-c cfg.json RTCM3_TEST_DATA\\"
 # ARGS = r"-c cfg.json RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 RTCM3_TEST_DATA\\"
-ARGS = r"-i RTCM3_TEST_DATA\enable_HCA_and_TLOCK.ini RTCM3_TEST_DATA\reference-3msg.rtcm3"
-# ARGS = None    
+# ARGS = r"E:\PROJECTS\PY\RTCM_DECODER\RTCM3_TEST_DATA\H7-A2.rtcm3"
+ARGS = None    
 
 if __name__ == '__main__':
 
