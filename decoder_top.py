@@ -154,25 +154,22 @@ class DecoderTop():
     @catch_decoder_exceptions
     def decode(self, msg: bytes):
         
-        rv = None
-        self.__dec_attempts += 1
-
         # Find decoder
         num = self.mnum(msg)
         dec = None
         for dec in self.decoders.values():
             if (num in dec.io_spec.keys()) and (num in dec.actual_messages):
                 # Decode
+                self.__dec_attempts += 1
                 rv = dec.decode(msg)
                 if isinstance(rv, dec.io_spec[num]):
                     self.__dec_succeeded += 1
+                    return rv
                 else:
                     raise ExceptionDecoderDecode(f"Decoder {dec.subset} returned unexpected result for msg {num}")
-                break
         else:
-            raise ExceptionDecoderDecode(f"Decoder not found, message {num}")
-        
-        return rv
+            logger.info(f"Decoder not found, message {num}")
+
 
 #--- RTCM parsing frame -----------------------------------------------------------------------------
 

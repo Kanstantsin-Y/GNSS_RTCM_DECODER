@@ -24,7 +24,7 @@ Run decoder with --help key to see command line arguments.
 >  -ext EXT             EXT regarded as an extension in RTCM file names. Default: rtcm3
 
 
-### SRC [SRC]
+### SRC [SRC ...]
 
 SRC provides path to the file to be decoded. Multiple files declaration is available - they will be processed one by one,
 decoding products will be placed in separate folders. If SRC provides path to the directory, decoder will scan it for RTCM

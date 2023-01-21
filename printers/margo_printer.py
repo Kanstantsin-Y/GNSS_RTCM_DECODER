@@ -68,7 +68,7 @@ class MargoCore():
         return cls.__OFILE_LT1.keys()
     
     # Controls total width and fractional part width in representation of observables.  
-    __FORMAT_COLUMNS = {'C':(15,3), 'L':(15,3), 'D':(9,3), 'S':(6,2), 'T':(10,3), 'A':(4,0) }
+    __FORMAT_COLUMNS = {'C':(15,3), 'L':(15,4), 'D':(15,3), 'S':(15,3), 'T':(10,3), 'A':(4,0) }
 
     # Encodes file type in accordance with MARGO spec.
     __MARGO_FILE_ID = { 'C':0, 'L':1, 'D':2, 'S':3, 'T':4, 'A':5 }
@@ -190,8 +190,9 @@ class MargoCore():
             if fn == '':
                 continue
             values = pattern[:]
+            lam = self.make_lambdas(gnss,slot)
             for sat,val in obs.items():
-                values[sat] = val
+                values[sat] = -val/lam[sat-1]
             rv.update( {fn:values} )
         # Carrier-to-noise ratio
         for slot, obs in pdata.obs.c2n.items():
@@ -245,7 +246,7 @@ class MargoCore():
                 
         line1 = (sat+1 for sat in range(self.MAX_SATS(gnss)) )
         line1 =  ','.join([f'{x:{width}d}' for x in line1])
-        line1 = ','.join( [f'{self.MARGO_FILE_ID(param):10d}', line1, '\n'] )
+        line1 = ','.join( [f'{self.MARGO_FILE_ID(param):10d}', line1] ) + '\n'
         
         # Set minimal width to represent frequencies correctly
         width = 9 if width < 9 else width
@@ -255,7 +256,7 @@ class MargoCore():
         frequencies = self.make_crr_frq(gnss,sgn)
         cf = MSMT.crr_frq(gnss,sgn)
         line2 =  ','.join([f'{float(x):{width}.{frc}f}' for x in frequencies])
-        line2 = ','.join( [f'{float(cf):{10}.{frc}f}', line2, '\n'] )
+        line2 = ','.join( [f'{float(cf):{10}.{frc}f}', line2] ) + '\n'
         
         return line1, line2
 
