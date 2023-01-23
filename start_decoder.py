@@ -178,8 +178,8 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
 # astr = r"-c cfg.jsn RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\H7-A3.rtcm3 RTCM3_TEST_DATA\\"
 # ARGS = r"-c cfg.json RTCM3_TEST_DATA\\"
 # ARGS = r"-c cfg.json RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 RTCM3_TEST_DATA\\"
-ARGS = r"d:\NTL_work\OBS\2023\myDecoder\01.19\H7V3-A2.rtcm3"
-# ARGS = None    
+# ARGS = r"d:\NTL_work\OBS\2023\myDecoder\01.19\myDecoder\H7V3-A1.rtcm3"
+ARGS = None    
 
 if __name__ == '__main__':
 

@@ -117,8 +117,8 @@ class MargoCore():
         """Convert any time to GPS time.  """
         
         if src_gnss == 'B':
-            rv = time - 14000
-            return rv + 604800000 if (rv < 0) else rv
+            rv = time + 14000
+            return rv - 604800000 if (rv >= 604800000) else rv
         elif src_gnss == 'R':
             rv = time + day*86400000 - (10800-utc_shift)*1000
             return rv+604800000 if rv < 0 else rv
