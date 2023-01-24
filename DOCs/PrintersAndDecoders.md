@@ -11,8 +11,10 @@
 | 'LEGE'           | 1019, 1020              | no            | Ephemerids GPS, GLONASS| Not defined  
 
 [1]: 'MSM47O' and 'MSM13O' decoders may produce optionally two types of outputs:
+
     - 'ObservablesMSM'. Contains data fields from the message, scaled in accordance with RTCM specification and represented in floating-point
     format (where needed).
+    
     - 'BareObservablesMSM4567', 'BareObservablesMSM123'. Contains data from the message in integer, not scaled form as it was transmitted.
     Output data format defined during sub-decoder initialization.      
 
