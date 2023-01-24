@@ -68,7 +68,7 @@ class MargoCore():
         return cls.__OFILE_LT1.keys()
     
     # Controls total width and fractional part width in representation of observables.  
-    __FORMAT_COLUMNS = {'C':(15,3), 'L':(15,4), 'D':(15,3), 'S':(15,3), 'T':(10,3), 'A':(4,0) }
+    __FORMAT_COLUMNS = {'C':(15,3), 'L':(15,4), 'D':(15,3), 'S':(15,2), 'T':(10,3), 'A':(4,0) }
 
     # Encodes file type in accordance with MARGO spec.
     __MARGO_FILE_ID = { 'C':0, 'L':1, 'D':2, 'S':3, 'T':4, 'A':5 }
@@ -133,7 +133,7 @@ class MargoCore():
         if sgn not in ('1C','1P','2C','2P'):
             return frq
 
-        df = 0.5625 if sgn in ('1C','1P') else 0.4325 
+        df = 0.5625 if sgn in ('1C','1P') else 0.4375 
         LT = self.literals
         frq = tuple((fc + df*LT[sat])  for sat,fc in enumerate(frq,start=1))
         return frq

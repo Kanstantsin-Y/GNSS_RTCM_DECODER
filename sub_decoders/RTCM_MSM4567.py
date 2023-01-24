@@ -299,7 +299,7 @@ class BareObservablesMSM4567Decoder(Bits):
         # Calc. number of frequency bins per sat.
         M = src.hdr.sgn_mask.bit_count()
         mask = (1<<M)-1
-        slots_per_sat = tuple((((src.hdr.cell_mask >> M*i) & mask).bit_count() for i in range(0,sat_num)))
+        slots_per_sat = tuple((((src.hdr.cell_mask >> M*i) & mask) for i in range(0,sat_num)))
         
         # Choose scalers (fine/coarse resolution)
         if (self.is_msm7() or self.is_msm6()):
@@ -348,10 +348,18 @@ class BareObservablesMSM4567Decoder(Bits):
                 phase_rate_ok = False
             
             # Pass through signals of satellite 'sat'
-            for i in range(slots):
+            i = 0
+            while slots:
+                
                 # sgn - RINEX literal - code of signal
                 sgn = sgn_map[i]
-
+                i += 1
+                slotExist = slots & 0x01
+                slots = slots >> 1
+    
+                if (slotExist) == 0:
+                    continue
+                
                 # Make fine code range 
                 if rng_ok:
                     if checkers['rng'](src.sgn.rng_fine[sgn_idx]):
