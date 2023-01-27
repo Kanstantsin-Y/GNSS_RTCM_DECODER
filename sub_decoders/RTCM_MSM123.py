@@ -294,7 +294,7 @@ class BareObservablesMSM123Decoder(Bits):
                 slotExist = slots & 0x01
                 slots = slots >> 1
     
-                if (slotExist) == 0:
+                if (slotExist == 0):
                     continue
 
                 # Make fine code range

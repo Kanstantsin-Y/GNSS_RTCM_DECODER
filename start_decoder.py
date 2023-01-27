@@ -1,7 +1,6 @@
 
 import os
 import shutil
-import argparse
 import glob
 
 from logger import LOGGER_CF as logger
@@ -12,19 +11,20 @@ from sub_decoders import SubdecoderMSM4567, SubdecoderMSM123
 from printer_top import PrinterTop
 from printers.margo_printer import MSMtoMARGO
 from controls import BoxWithDecoderControls, DecoderControls
+from argparse import ArgumentParser as ArgParser
 
 VERSION = "1.01"
-DEFAULT_CONFIG = "decode_file.ini"
+DEFAULT_CONFIG = "defaults.ini"
+FILE_CHUNCK_LEN: int = 2**12 
+ARGS = None
 
 #..............................................................................               
 
 def create_work_folder(src_file_path) -> str | None:
-    '''
-    Create a new folder for decoding products.
+    """ Create a new folder for decoding products.
     If folder already exists - delete content. 
     Return path to the folder if everything OK.
-    Else return None.
-    '''
+    Else return None."""
         
     fld, ext = os.path.splitext(src_file_path)
 
@@ -51,7 +51,7 @@ def create_work_folder(src_file_path) -> str | None:
 #..............................................................................               
 
 def make_log_file_name(src_file_path):
-    '''Make name for log file. Based on source file name.'''
+    """Make name for log file. Based on source file name."""
 
     fpath, fname = os.path.split(src_file_path)
     fname, ext = os.path.splitext(fname)
@@ -61,7 +61,7 @@ def make_log_file_name(src_file_path):
 #..............................................................................               
 
 def init_logger(path):
-    '''Create log file and init logger'''
+    """Create log file and init logger."""
         
     try:
         log = open(path,'w')
@@ -130,7 +130,7 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
         file_size = os.path.getsize(fpath)
         bytes_processed = 0
         
-        chunk = f.read(2**12)
+        chunk = f.read(FILE_CHUNCK_LEN)
         while len(chunk):
                         
             bytes_processed += len(chunk)
@@ -173,24 +173,12 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
 
     return rv
 
-
-
-# astr = r"-c cfg.jsn RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\H7-A3.rtcm3 RTCM3_TEST_DATA\\"
-# ARGS = r"-c cfg.json RTCM3_TEST_DATA\\"
-# ARGS = r"-c cfg.json RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 RTCM3_TEST_DATA\\"
-# ARGS = r"d:\NTL_work\OBS\2023\myDecoder\01.19\myDecoder\H7V3-A1.rtcm3"
-ARGS = None    
-
-if __name__ == '__main__':
-
-    ctrl_strg = DecoderControls()
-    ctrl_strg.init_from_file(DEFAULT_CONFIG)
-    boxed_controls = ctrl_strg.boxed_controls
-
-    # sys.exit()
-
-    #Setup argument parser. See https://docs.python.org/3/library/argparse.html#module-argparse for help
-    arg_parser = argparse.ArgumentParser(description='Convert some RTCM files.')
+def create_argument_parser(description: str = 'No description') -> ArgParser:
+    """ Setup argument parser.
+    See https://docs.python.org/3/library/argparse.html#module-argparse for help.
+    """
+    arg_parser = ArgParser(description)
+    
     # Arbitrary argument: configuration file.
     arg_parser.add_argument (
         '-i','--ini',
@@ -226,44 +214,39 @@ if __name__ == '__main__':
         help = 'EXT regarded as an extension in RTCM file names. Default: rtcm3'
     )
 
-    #Parse arguments
-    if ARGS==None:
-        args = arg_parser.parse_args()
-    else:
-        args = arg_parser.parse_args(ARGS.split(' '))
-    
-    # Process additional controls
-    if args.ini_file != None:
-        ctrl_strg.update_from_file(args.ini_file)
-        print(args.ini_file)
-        boxed_controls = ctrl_strg.boxed_controls
+    return arg_parser
+
+def create_list_of_source_files(f_arguments: list[str], rtcm_ext: str='rtcm3') -> list[str]:
+    """ Create list of source  files.
+    Implements formal check of files listed in f_arguments.
+    Implements interactive interface if 'f_arguments' specifies directory."""
 
     # Make list of source files to be processed
     # Two scenarios:
-    # 1. Files listed directly in args.source.
-    # 2. Source folder specified in args.source. Folder should be scanned and
+    # 1. Files listed directly in f_arguments.
+    # 2. Source folder specified in f_arguments. Folder should be scanned and
     #    list of source files should be specified interactively.    
     
-    # Check, weather args.source is directory  
+    # Check, weather f_arguments specifies directory.  
     src_is_dir = False
-    if len(args.source) == 1:
-        path = os.path.abspath(args.source[0])
+    if len(f_arguments) == 1:
+        path = os.path.abspath(f_arguments[0])
         src_is_dir = (not os.path.isfile(path)) and os.path.isdir(path)
 
     files = []
     # If not directory, check files in args.source
     # for consistency and fill list of files.
     if not src_is_dir:
-        for path in args.source:
+        for path in f_arguments:
             full_path = os.path.abspath(path)
             if (os.path.isfile(full_path)):
                 files.append(full_path)
             else:
-                print(f"{full_path} is not file.")
-    # If args.source[0] is directory, interact with the user.
+                print(f"{full_path} is not a file.")
+    # If f_arguments[0] is a directory, interact with the user.
     else:
-        fpattern = '.'.join(['*',args.rtcm_ext])
-        path = os.path.abspath(args.source[0])
+        fpattern = '.'.join(['*',rtcm_ext])
+        path = os.path.abspath(f_arguments[0])
         pattern = os.path.join(path,fpattern)
         # Find files matching pattern
         dir = glob.glob(pattern)
@@ -281,7 +264,32 @@ if __name__ == '__main__':
                 print("Incorrect input. Use space separated indexes.")
             else:
                 files = [dir[i] for i in idx]
+    
+    return files
 
+
+def main(local_args: str|None = None)-> None:
+
+    ctrl_strg = DecoderControls()
+    ctrl_strg.init_from_file(DEFAULT_CONFIG)
+    boxed_controls = ctrl_strg.boxed_controls
+
+    #Parse arguments
+    arg_parser = create_argument_parser("Convert some RTCM files")
+    if local_args==None:
+        # Parse command prompt args.
+        args = arg_parser.parse_args()
+    else:
+        # Parse explicitly defined args.
+        args = arg_parser.parse_args(local_args.split(' '))
+    
+    # Process additional controls
+    if args.ini_file != None:
+        ctrl_strg.update_from_file(args.ini_file)
+        print(args.ini_file)
+        boxed_controls = ctrl_strg.boxed_controls
+
+    files = create_list_of_source_files(args.source, args.rtcm_ext)
 
     for file in files:
         print("-"*80)
@@ -292,3 +300,15 @@ if __name__ == '__main__':
             print("Decoding was terminated.")
 
     pass
+
+# astr = r"-c cfg.jsn RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\H7-A3.rtcm3 RTCM3_TEST_DATA\\"
+# ARGS = r"-c cfg.json RTCM3_TEST_DATA\\"
+# ARGS = r"-c cfg.json RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 RTCM3_TEST_DATA\\"
+# ARGS = r"RTCM3_TEST_DATA\reference-3msg.rtcm3"
+# ARGS = r"-i addons.ini d:\NTL_work\OBS\2023\myDecoder\01.19\H7V3-A2.rtcm3"
+#ARGS = None    
+
+
+if __name__ == '__main__':
+    
+    main(ARGS)
