@@ -152,7 +152,7 @@ class MargoCore():
         """
 
         rv = dict()
-        gnss = pdata.hdr.gnss
+        gnss = pdata.atr.gnss
         
         assert ( gnss in self.GNSSTUPLE() ), f"Got {gnss=} in ObservablesMSM. Not supported"
         
@@ -166,7 +166,7 @@ class MargoCore():
        
         # Code range observables
         for slot, obs in pdata.obs.rng.items():
-            fn = self.make_obs_file_name(gnss,'C', slot, pdata.subset)
+            fn = self.make_obs_file_name(gnss,'C', slot, pdata.atr.subset)
             if fn == '':
                 continue
             values = pattern[:]
@@ -175,7 +175,7 @@ class MargoCore():
             rv.update( {fn:values} )
         # Carrier phase observables
         for slot, obs in pdata.obs.phs.items():
-            fn = self.make_obs_file_name(gnss,'L', slot, pdata.subset)
+            fn = self.make_obs_file_name(gnss,'L', slot, pdata.atr.subset)
             if fn == '':
                 continue
             values = pattern[:]
@@ -186,7 +186,7 @@ class MargoCore():
             rv.update( {fn:values} )
         # Doppler measurements
         for slot, obs in pdata.obs.dpl.items():
-            fn = self.make_obs_file_name(gnss,'D', slot, pdata.subset)
+            fn = self.make_obs_file_name(gnss,'D', slot, pdata.atr.subset)
             if fn == '':
                 continue
             values = pattern[:]
@@ -196,7 +196,7 @@ class MargoCore():
             rv.update( {fn:values} )
         # Carrier-to-noise ratio
         for slot, obs in pdata.obs.c2n.items():
-            fn = self.make_obs_file_name(gnss,'S', slot, pdata.subset)
+            fn = self.make_obs_file_name(gnss,'S', slot, pdata.atr.subset)
             if fn == '':
                 continue
             values = pattern[:]
@@ -206,7 +206,7 @@ class MargoCore():
         # Lock time
         if self.LT_EN:
             for slot, obs in pdata.obs.ltm.items():
-                fn = self.make_obs_file_name(gnss,'T', slot, pdata.subset)
+                fn = self.make_obs_file_name(gnss,'T', slot, pdata.atr.subset)
                 if fn == '':
                     continue
                 values = pattern[:]
@@ -216,7 +216,7 @@ class MargoCore():
         # Half cycle ambiguity indicator
         if self.HC_EN:
             for slot, obs in pdata.obs.hca.items():
-                fn = self.make_obs_file_name(gnss,'A', slot, pdata.subset)
+                fn = self.make_obs_file_name(gnss,'A', slot, pdata.atr.subset)
                 if fn == '':
                     continue
                 values = pattern[:]

@@ -8,16 +8,60 @@
 class ObservablesMSM():
     '''Represents products of MSMx message decoding'''
     
-    __slots__ = ('hdr', 'obs', 'aux', 'subset') #, 'nsat', 'nsign'
+    __slots__ = ('hdr', 'obs', 'aux', 'atr')
 
     def __init__(self) -> None:
 
-        # 'subset' may have value from {MSM4, MSM5, MSM6, MSM7}
-        # 'subset' == '' indicates default state of all fields.
-        self.subset = ''
         self.obs = _ObservablesObs()
         self.hdr = _ObservablesHdrMSM()
         self.aux = _ObservablesAuxMSM()
+        self.atr = Attributes()
+
+
+class Attributes():
+    """Some auxiliary parameters accompanying block of measurements"""
+
+    __slots__ = ('gnss', 'subset', 'msg_number')
+
+    def __init__(self) -> None:
+        self.clear()
+
+    def clear(self)->None:
+        # 'gnss' encodes GNSS in RINEX style: G, R, E, B, I ... 
+        # 'gnss' == '' - default value - indicates empty structure
+        self.gnss: str = ''
+        # String literal used to identify subset of RTCM MSM messages.
+        # Range: { MSM1, MSM2, MSM3, MSM4, MSM5, MSM6, MSM7 }
+        self.subset: str = ''
+        self.msg_number: int = 0
+
+    @property
+    def is_msm7(self)->bool:
+        return self.subset == "MSM7"
+    
+    @property
+    def is_msm6(self)->bool:
+        return self.subset == "MSM6" 
+    
+    @property
+    def is_msm5(self)->bool:
+        return self.subset == "MSM5"
+
+    @property
+    def is_msm4(self)->bool:
+        return self.subset == "MSM4"
+
+    @property
+    def is_msm3(self)->bool:
+        return self.subset == "MSM3"
+    
+    @property
+    def is_msm2(self)->bool:
+        return self.subset == "MSM2"
+
+    @property
+    def is_msm1(self)->bool:
+        return self.subset == "MSM1"
 
 
 class _ObservablesHdrMSM():
@@ -26,11 +70,6 @@ class _ObservablesHdrMSM():
     __slots__ = ('gnss', 'signals', 'sats', 'time', 'day')
 
     def __init__(self) -> None:
-        # 'gnss' encodes GNSS in RINEX style: G, R, E, B, I ... 
-        # 'gnss' == '' - default value - indicates empty structure
-        # Defaults for other fields do not indicate 'initial state'
-        # as their defaults are valid values for empty message.
-        self.gnss : str = ''
         # 'signals' lists available frequency slots/signals in RINEX style
         #  and encodes corresponding carrier frequencies. 
         self.signals: dict[str:float] = {}
@@ -42,7 +81,6 @@ class _ObservablesHdrMSM():
         self.day : int = 0
 
     def _make_example(self):
-        self. gnss = 'G'
         self.signals = {'1C':1575.42, '2C':1227.6 }  #[band:kHz]
         self.sats = (1, 2, 5, 32)
         self.time = 420525000                         # [ms]
@@ -123,7 +161,7 @@ class _ObservablesAuxLeg:
 class _BareObservablesHdrMSM():
     ''' Bare RTCM MSM header data. Common for all sats.'''
     
-    __slots__ = ('msg_num', 'rs_id', 'time', 'MMB',
+    __slots__ = ('rs_id', 'time', 'MMB',
                  'IODS', 'clk_steer', 'clk_ext',
                  'smth_indc', 'smth_intr', 'sat_mask',
                  'sgn_mask', 'cell_mask')
@@ -132,7 +170,6 @@ class _BareObservablesHdrMSM():
         self.clear()
 
     def clear(self) -> None:
-        self.msg_num : int = 0
         self.rs_id : int = 0
         self.time : int = 0
         self.MMB : int = 0
@@ -178,18 +215,28 @@ class _BareObservablesSignalDataMSM4567():
 class BareObservablesMSM4567():
     ''' Bare RTCM MSM4, MSM5, MSM6, MSM7 signal data.'''
 
-    __slots__ = ('hdr', 'sat', 'sgn')
+    __slots__ = ('hdr', 'sat', 'sgn', 'atr')
 
     def __init__(self) -> None:
+        self.atr = Attributes()
         self.hdr = _BareObservablesHdrMSM()
         self.sat = _BareObservablesSatDataMSM4567()
         self.sgn = _BareObservablesSignalDataMSM4567()
 
     def clear(self) -> None:
+        self.atr.clear()
         self.hdr.clear()
         self.sat.clear()
         self.sgn.clear()
+        
+    @property
+    def time(self) -> int:
+        return self.hdr.time & 0x7ffffff if self.atr.gnss == 'R' else self.hdr.time
 
+    @property
+    def day(self) -> int:
+        return (self.hdr.time>>27) & 0x07 if self.atr.gnss == 'R' else 0
+    
 
 class _BareObservablesSatDataMSM123():
     ''' Bare RTCM MSM1, MSM2, MSM3 satellite data.'''
@@ -219,14 +266,16 @@ class _BareObservablesSignalDataMSM123():
 class BareObservablesMSM123():
     ''' Bare RTCM MSM4, MSM5, MSM6, MSM7 signal data.'''
 
-    __slots__ = ('hdr', 'sat', 'sgn')
+    __slots__ = ('hdr', 'sat', 'sgn', 'gnss', 'subset')
 
     def __init__(self) -> None:
+        self.atr = Attributes()
         self.hdr = _BareObservablesHdrMSM()
         self.sat = _BareObservablesSatDataMSM123()
         self.sgn = _BareObservablesSignalDataMSM123()
 
     def clear(self) -> None:
+        self.atr.clear()
         self.hdr.clear()
         self.sat.clear()
         self.sgn.clear()

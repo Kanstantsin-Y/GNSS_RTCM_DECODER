@@ -109,12 +109,9 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
     main_rtcm_decoder.register_decoder(msm4567.io)
     main_rtcm_decoder.register_decoder(msm123.io)
 
-    # Use embedded defaults if there are no controls from caller.
-    user_ctrls = boxed_controls.MARGO if boxed_controls != None else None
-    
     # Implement printers
     main_margo_printer = PrinterTop('MARGO')
-    msm_to_margo = MSMtoMARGO(wfld, user_ctrls)
+    msm_to_margo = MSMtoMARGO(wfld, boxed_controls.MARGO)
     if not main_margo_printer.add_subprinter(msm_to_margo.io):
         logger.error(f"Sub-printer 'MSMtoMARGO' wasn't registered")
 
@@ -147,7 +144,7 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
                             main_rtcm_decoder.parse_errors,
                             main_rtcm_decoder.dec_errors ))
             
-            chunk = f.read(2**12)
+            chunk = f.read(FILE_CHUNCK_LEN)
     
         # self._save_some_test_data(rtcm3_lines)
     
@@ -305,7 +302,7 @@ def main(local_args: str|None = None)-> None:
 # ARGS = r"-c cfg.json RTCM3_TEST_DATA\\"
 # ARGS = r"-c cfg.json RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 RTCM3_TEST_DATA\\"
 # ARGS = r"RTCM3_TEST_DATA\reference-3msg.rtcm3"
-# ARGS = r"-i addons.ini d:\NTL_work\OBS\2023\myDecoder\01.19\H7V3-A2.rtcm3"
+ARGS = r"-i addons.ini d:\NTL_work\OBS\2023\myDecoder\01.19\H7V3-A2.rtcm3"
 #ARGS = None    
 
 
