@@ -5,7 +5,7 @@
     
 #------------------------------------------------------------------------------------------------
 class MSMT:
-    CRNG_1MS = 299792.458 # [m]
+    CRNG_1MS: float = 299792.458 # [m]
 
     MSM7_MSG_LIST = {1077:'G', 1087:'R', 1097:'E', 1107:'S', 1117:'Q', 1127:'B', 1137:'I'}
     MSM6_MSG_LIST = {1076:'G', 1086:'R', 1096:'E', 1106:'S', 1116:'Q', 1126:'B', 1136:'I'}
@@ -125,7 +125,7 @@ class MSMT:
     }
 
     @classmethod
-    def rnx_lit(cls, gnss:str, msm_code:int)->str:
+    def rnx_lit(cls, gnss:str, msm_code:int)->str|None:
         '''Convert MSM signal code to RINEX signal ID.
         
         'gnss' - gnss letter (RINEX style),

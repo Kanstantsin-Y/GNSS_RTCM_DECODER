@@ -138,7 +138,7 @@ class MargoCore():
         frq = tuple((fc + df*LT[sat])  for sat,fc in enumerate(frq,start=1))
         return frq
 
-    def make_lambdas(self, gnss, sgn)->dict:
+    def make_lambdas(self, gnss, sgn)->tuple[float]:
         '''Create dict of carrier wave lengths for all sats of a given GNSS and signal, [m]
         There will be equal values in a tuple for all sats for all GNSS except Glonass'''
         frequencies = self.make_crr_frq(gnss,sgn) # [MHz]
@@ -264,9 +264,9 @@ class MargoCore():
 
 class MSMtoMARGO():
     
-    def __init__(self, work_dir=None, ctrls = None):
+    def __init__(self, work_dir: str, ctrls: MargoControls|None = None):
         
-        assert (work_dir and os.path.isdir(work_dir)), f"Output directory {work_dir} not found"
+        assert (os.path.isdir(work_dir)), f"Output directory {work_dir} not found"
         
         self.core = MargoCore(ctrls)
 
@@ -288,9 +288,6 @@ class MSMtoMARGO():
         self.io.close = self.__close
         self.io.format = 'MARGO'
         
-        # if not self.io.data_spec < self.io.actual_spec:
-        #     logger.warning(f"Specification wasn't implemented completely in '{self.io.format}'.")
-
         return
     
     def __close(self):
@@ -306,34 +303,30 @@ class MSMtoMARGO():
 
         path = os.path.join(self.__wd, self.core.DIRNAME(oname[0]))
         
-        rv = False
         try:
             if not os.path.isdir(path):
                 os.makedirs(path)
             path = os.path.join(path, oname)
             self.__ofiles[oname] = open(path,'w')
+            return True
         except OSError as oe:
             logger.error(f"Failed to create target file '{path}'.")
             logger.error(f"{type(oe)}: {oe}")
-        else:
-            rv = True
-        finally:
-            return rv
+            return False
 
     def __append(self, ofile:str, line:str)->bool:
         '''Append a new row of observables to the file.
         If file doesn't exist, create new file and fill header, then append'''
-
-        # fid: os.FileIO = None
         if ofile not in self.__ofiles.keys():
             if self.__create_ofile(ofile):
                 h1,h2 = self.core.make_header(ofile)
                 self.__ofiles[ofile].write(h1)
                 self.__ofiles[ofile].write(h2)
             else:
-                return
+                return False
 
         self.__ofiles[ofile].write(line)
+        return True
 
     def __print_ObservablesMSM(self, obs:ObservablesMSM):
         '''Print data from ObservablesMSM data block'''

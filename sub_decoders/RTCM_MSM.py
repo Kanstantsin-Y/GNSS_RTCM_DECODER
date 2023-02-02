@@ -2,7 +2,7 @@
 #--- Dependencies -------------------------------------------------------------------------
 
 #from math import isnan
-
+from typing import Any
 from data_types.observables import ObservablesMSM, Attributes
 from data_types.observables import BareObservablesMSM4567, BareObservablesMSM123
 
@@ -38,8 +38,8 @@ class BareObservablesMSM17Decoder(Bits):
 
     def __init__(self) -> None:
         super().__init__()
-        self._ready = False
-        self.bd = None
+        self._ready: bool = False
+        self.bd: BareObservablesMSM123|BareObservablesMSM4567
 
     @property
     def ready(self)->bool:
@@ -84,7 +84,7 @@ class BareObservablesMSM17Decoder(Bits):
         return
     
     @catch_bits_exceptions
-    def get_msg_num(self, buf: bytes)->bool:
+    def get_msg_num(self, buf: bytes)->int:
         return self.getbitu(buf, 24, 12)
     
     def __extract_hdr(self, buf:bytes, offset: int):
@@ -290,7 +290,7 @@ class Bare2Scaled():
     __SCALERS45 = {
         'rng':(2**-24),               #DF400
         'phs':(2**-29),               #DF401
-        'dpl':0.0001,                 #DF404
+        'dpl':(0.0001),               #DF404
         'ltm':MSMT.unpack_tlock4,     #DF402
         'c2n':1                       #DF403
     }
@@ -308,11 +308,11 @@ class Bare2Scaled():
     }
 
     def __init__(self) -> None:
-        self.sgn_map = tuple()
-        self.slots_per_sat = tuple()
-        self.sat_list = tuple()
+        self.sgn_map : tuple[str, ...] = (str(),)
+        self.slots_per_sat : tuple[int, ...] = (int(),)
+        self.sat_list : tuple[int, ...] = (int(),)
         
-    def convert(self, src: BareObservablesMSM4567|BareObservablesMSM123) -> ObservablesMSM|None:
+    def convert(self, src: BareObservablesMSM4567|BareObservablesMSM123|None) -> ObservablesMSM|None:
         '''Converts bare data into IRTCM.Observables form.'''
 
         if not isinstance(src,(BareObservablesMSM4567,BareObservablesMSM123)):
@@ -431,7 +431,7 @@ class Bare2Scaled():
                 # Make fine code range 
                 if rng_ok:
                     if checkers['rng'](src.sgn.rng_fine[sgn_idx]):
-                        tmp = (rng + src.sgn.rng_fine[sgn_idx]*scalers['rng'])*MSMT.CRNG_1MS
+                        tmp = (rng + float(src.sgn.rng_fine[sgn_idx])*scalers['rng'])*MSMT.CRNG_1MS
                         rv.obs.rng[sgn].update({sat:tmp})
                     else:
                         logger.info(f"No fine range:gnss={src.atr.gnss},({sat=},{sgn=})")
@@ -439,7 +439,7 @@ class Bare2Scaled():
                 # Make fine phase range 
                 if rng_ok:
                     if checkers['phs'](src.sgn.phase_fine[sgn_idx]):
-                        tmp = (rng + src.sgn.phase_fine[sgn_idx]*scalers['phs'])*MSMT.CRNG_1MS
+                        tmp = (rng + float(src.sgn.phase_fine[sgn_idx])*scalers['phs'])*MSMT.CRNG_1MS
                         rv.obs.phs[sgn].update({sat:tmp})
                     else:
                         logger.info(f"No fine phase:gnss={src.atr.gnss},({sat=},{sgn=})")
@@ -447,7 +447,7 @@ class Bare2Scaled():
                 if phase_rate_ok:
                     # Make fine doppler
                     if checkers['dpl'](src.sgn.phase_rate_fine[sgn_idx]):
-                        tmp = phase_rate + src.sgn.phase_rate_fine[sgn_idx]*scalers['dpl']
+                        tmp = phase_rate + float(src.sgn.phase_rate_fine[sgn_idx])*scalers['dpl']
                         rv.obs.dpl[sgn].update({sat:tmp})
                     else:
                         logger.info(f"No fine doppler:gnss={src.atr.gnss},({sat=},{sgn=})")
@@ -519,7 +519,7 @@ class Bare2Scaled():
                 # Make fine code range
                 if rng_ok:
                     if (src.sgn.rng_fine[sgn_idx] & 0x7fff) != 0x4000:
-                        tmp = (rng + src.sgn.rng_fine[sgn_idx]*scalers['rng'])*MSMT.CRNG_1MS
+                        tmp = (rng + float(src.sgn.rng_fine[sgn_idx])*scalers['rng'])*MSMT.CRNG_1MS
                         rv.obs.rng[sgn].update({sat:tmp})
                     else:
                         logger.info(f"No fine range:gnss={src.atr.gnss},({sat=},{sgn=})")
@@ -530,7 +530,7 @@ class Bare2Scaled():
                     if (src.sgn.phase_fine[sgn_idx] & 0x3fffff) == 0x200000:
                         logger.info(f"No fine phase:gnss={src.atr.gnss},({sat=},{sgn=})")
                     else:
-                        tmp = (rng + src.sgn.phase_fine[sgn_idx]*scalers['phs'])*MSMT.CRNG_1MS
+                        tmp = (rng + float(src.sgn.phase_fine[sgn_idx])*scalers['phs'])*MSMT.CRNG_1MS
                         rv.obs.phs[sgn].update({sat:tmp})
                     
                         # Make fine lock time
@@ -553,7 +553,7 @@ class Bare2Scaled():
 
 #------------------------------------------------------------------------------------------------
 
-def decode_msm17(is_bare_output: bool, buf:bytes) -> BareObservablesMSM4567|BareObservablesMSM4567|ObservablesMSM|None:
+def decode_msm17(is_bare_output: bool, buf:bytes) -> BareObservablesMSM4567|BareObservablesMSM123|ObservablesMSM|None:
     """Process MSM1..MSM7 message"""
     
     msm = BareObservablesMSM17Decoder()
@@ -608,7 +608,7 @@ class SubdecoderMSM4567():
         self.io.actual_messages = set(self.io.io_spec.keys())
         pass
                 
-    def decode(self, buf:bytes) -> ObservablesMSM | BareObservablesMSM4567:
+    def decode(self, buf:bytes) -> ObservablesMSM | BareObservablesMSM4567 | None:
         return decode_msm17(self.__bare_data,buf)
 
 
@@ -622,5 +622,5 @@ class SubdecoderMSM123():
         self.io.actual_messages = set(self.io.io_spec.keys())
         pass
                 
-    def decode(self, buf:bytes) -> ObservablesMSM | BareObservablesMSM123:
+    def decode(self, buf:bytes) -> ObservablesMSM | BareObservablesMSM123 | None:
         return decode_msm17(self.__bare_data,buf)

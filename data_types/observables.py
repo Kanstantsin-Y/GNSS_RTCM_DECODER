@@ -1,8 +1,7 @@
 
 
-#__all__ = ['ObservablesMSM', 'BareObservablesMSM4567']
 
-
+from typing import Any
 
 
 class ObservablesMSM():
@@ -67,14 +66,14 @@ class Attributes():
 class _ObservablesHdrMSM():
     ''' RTCM header data. Common for all sats.'''
     
-    __slots__ = ('gnss', 'signals', 'sats', 'time', 'day')
+    __slots__ = ('signals', 'sats', 'time', 'day')
 
     def __init__(self) -> None:
         # 'signals' lists available frequency slots/signals in RINEX style
         #  and encodes corresponding carrier frequencies. 
-        self.signals: dict[str:float] = {}
+        self.signals: dict[str,float] = {}
         # 'sats' represents available satellites (1-based numbers),
-        self.sats: tuple[int] = ()
+        self.sats: tuple[int, ...] = (int(),)
         # GNSS time from RTCM header
         self.time : int = 0
         # Week day, zero based, valid only for GLONASS (gnss=='R')
@@ -139,13 +138,13 @@ class _ObservablesAuxMSM:
         # [df409],b3, issue of data station                
         self.IODS: int = 0
         # [df411],b2, clock steering indicator               
-        self.clk_steer: dict[int,str] = {'code':2, 'val':"UNDEF"}
+        self.clk_steer: dict[str,Any] = {'code':2, 'val':"UNDEF"}
         # [df412],b2, external clock indicator       
-        self.clk_ext: dict[int,str] = {'code':3, 'val':"UNDEF"}
+        self.clk_ext: dict[str,Any] = {'code':3, 'val':"UNDEF"}
         # [df417],b1, divergence free smoothing indicator       
-        self.smth_indc: dict[int,str] = {'code':0, 'val':"UNDEF"}
+        self.smth_indc: dict[str,Any] = {'code':0, 'val':"UNDEF"}
         # [df418],b3, divergence free interval      
-        self.smth_intr: dict[int,str] = {'code':0, 'val':"NOSMTH"}     
+        self.smth_intr: dict[str,Any] = {'code':0, 'val':"NOSMTH"}     
     
 class _ObservablesAuxLeg:
     '''Auxiliary data specific for Legacy messages.'''
@@ -191,11 +190,11 @@ class _BareObservablesSatDataMSM4567():
         self.clear()
 
     def clear(self) -> None:
-        self.rng_ms : tuple[int] = ()
-        self.ext_info : tuple[int] = () 
-        self.rng_rough : tuple[int] = () 
-        self.phase_rate_rough  : tuple[int] = ()
-
+        self.rng_ms : tuple[int, ...] = (int(),)
+        self.ext_info : tuple[int, ...] = (int(),) 
+        self.rng_rough : tuple[int, ...] = (int(),) 
+        self.phase_rate_rough  : tuple[int, ...] = (int(),)
+        
 class _BareObservablesSignalDataMSM4567():
     ''' Bare RTCM MSM4, MSM5, MSM6, MSM7 signal data.'''
 
@@ -205,12 +204,12 @@ class _BareObservablesSignalDataMSM4567():
         self.clear()
 
     def clear(self) -> None:
-        self.rng_fine : tuple[int] = ()
-        self.phase_fine : tuple[int] = ()
-        self.lock_time : tuple[int] = ()
-        self.hc_indc : tuple[int] = ()
-        self.c2n : tuple[int] = ()
-        self.phase_rate_fine : tuple[int] = ()
+        self.rng_fine : tuple[int, ...] = (int(),)
+        self.phase_fine : tuple[int, ...] = (int(),)
+        self.lock_time : tuple[int, ...] = (int(),)
+        self.hc_indc : tuple[int, ...] = (int(),)
+        self.c2n : tuple[int, ...] = (int(),)
+        self.phase_rate_fine : tuple[int, ...] = (int(),)
 
 class BareObservablesMSM4567():
     ''' Bare RTCM MSM4, MSM5, MSM6, MSM7 signal data.'''
@@ -247,7 +246,7 @@ class _BareObservablesSatDataMSM123():
         self.clear()
 
     def clear(self) -> None:
-        self.rng_rough : tuple[int] = ()
+        self.rng_rough : tuple[int] = (int(),)
 
 class _BareObservablesSignalDataMSM123():
     ''' Bare RTCM MSM1, MSM2, MSM3 signal data.'''
@@ -258,15 +257,15 @@ class _BareObservablesSignalDataMSM123():
         self.clear()
 
     def clear(self) -> None:
-        self.rng_fine : tuple[int] = ()
-        self.phase_fine : tuple[int] = ()
-        self.lock_time : tuple[int] = ()
-        self.hc_indc : tuple[int] = ()
+        self.rng_fine : tuple[int, ...] = (int(),)
+        self.phase_fine : tuple[int, ...] = (int(),)
+        self.lock_time : tuple[int, ...] = (int(),)
+        self.hc_indc : tuple[int, ...] = (int(),)
 
 class BareObservablesMSM123():
     ''' Bare RTCM MSM4, MSM5, MSM6, MSM7 signal data.'''
 
-    __slots__ = ('hdr', 'sat', 'sgn', 'gnss', 'subset')
+    __slots__ = ('hdr', 'sat', 'sgn', 'atr')
 
     def __init__(self) -> None:
         self.atr = Attributes()
@@ -279,3 +278,12 @@ class BareObservablesMSM123():
         self.hdr.clear()
         self.sat.clear()
         self.sgn.clear()
+
+    @property
+    def time(self) -> int:
+        return self.hdr.time & 0x7ffffff if self.atr.gnss == 'R' else self.hdr.time
+
+    @property
+    def day(self) -> int:
+        return (self.hdr.time>>27) & 0x07 if self.atr.gnss == 'R' else 0
+

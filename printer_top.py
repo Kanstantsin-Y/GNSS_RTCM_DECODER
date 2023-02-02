@@ -1,7 +1,7 @@
 
 #--- Dependencies ---------------------------------------------------------------------------
-
-from data_types.observables import ObservablesMSM, BareObservablesMSM4567
+from typing import Any
+from data_types.observables import ObservablesMSM, BareObservablesMSM4567, BareObservablesMSM123
 from logger import LOGGER_CF as logger
 
 #--- Specification of input data types for different printers -------------------------------
@@ -17,8 +17,8 @@ _MARGO_SPECS = {
 _JSON_SPECS = {
     'LEGO'  : set(),
     'LEGE'  : set(),
-    'MSM13O': set(),
-    'MSM47O': {BareObservablesMSM4567},
+    'MSM13O': {BareObservablesMSM123, ObservablesMSM},
+    'MSM47O': {BareObservablesMSM4567, ObservablesMSM},
     'MSME'  : set()
     }
 
@@ -81,25 +81,37 @@ def catch_printer_asserts(func):
 class PrinterTop():
     '''Combines decoders for RTCM message subsets and implements outer interface'''
 
-    def __init__(self, format:str) -> None:
+    def __init__(self, in_format:str='UNDEF') -> None:
 
-        if not (format in _SPECS_LIST.keys()):
-            logger.error(f"Format '{format}' not supported.")
-            self.format = ''
-            return
+        # if len(format) and (not (format in _SPECS_LIST.keys())):
+        #     logger.error(f"Format '{format}' not supported.")
+        #     self._format = ''
+        #     return
 
-        self.format: str = format
+        self._format = in_format
         self.printers : set[SubPrinterInterface] = set()
         self.__attempts_cnt = 0
         self.__succeeded_cnt = 0
 
     @property
+    def format(self):
+        return self._format
+
+    @format.setter
+    def format(self, in_format:str):
+        if not (in_format in _SPECS_LIST.keys()):
+            logger.error(f"Format '{in_format}' not supported.")
+            self._format = ''
+        else:
+            self._format = in_format
+
+    @property
     def exist(self):
-        return self.format != ''
+        return (self.format != '') and (self.format != 'UNDEF')
 
     @property
     def ready(self):
-        return self.format != '' and len(self.printers) != 0
+        return self.exist and len(self.printers) != 0
 
     @property
     def attempts(self):

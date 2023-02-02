@@ -9,7 +9,7 @@ from utilities.bits import catch_bits_exceptions
 from utilities.CRC24Q import CRC24Q
 
 from logger import LOGGER_CF as logger
-
+from typing import Any
 
 #----------------------------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ class SubDecoderInterface():
     def __make_MSM47O_spec(bare:bool) -> dict:
         '''Defines IN/OUT interface of sub-decoder'''
 
-        messages = (1074, 1075, 1076, 1077)
+        messages: Any = (1074, 1075, 1076, 1077)
         messages = [m+i*10 for i in range (7) for m in messages]
         output_format = BareObservablesMSM4567 if bare else ObservablesMSM
         rv = dict().fromkeys(messages,output_format)
@@ -39,7 +39,7 @@ class SubDecoderInterface():
     def __make_MSM13O_spec(bare:bool) -> dict:
         '''Defines IN/OUT interface of sub-decoder'''
 
-        messages = (1071, 1072, 1073)
+        messages : Any = (1071, 1072, 1073)
         messages = [m+i*10 for i in range (7) for m in messages]
         output_format = BareObservablesMSM123 if bare else ObservablesMSM
         rv = dict().fromkeys(messages,output_format)
@@ -57,11 +57,6 @@ class SubDecoderInterface():
     
     @staticmethod
     def __make_LEGE_spec(bare:bool) -> dict:
-        '''Defines IN/OUT interface of Legacy ephemeris decoder'''
-        return {}
-
-    @staticmethod
-    def __make_MSME_spec(bare:bool) -> dict:
         '''Defines IN/OUT interface of Legacy ephemeris decoder'''
         return {}
 
@@ -92,8 +87,8 @@ class SubDecoderInterface():
     
 #--- Exceptions for upper level of RTCM decoder ---------------------------------------------
 
-class ExceptionDecoderInit(Exception):
-    '''Exception called during decoder initialization'''
+# class ExceptionDecoderInit(Exception):
+#     '''Exception called during decoder initialization'''
 
 class ExceptionDecoderDecode(Exception):
     '''Exception called during/after method ".decode()" executed '''
@@ -103,8 +98,8 @@ def catch_decoder_exceptions(func):
     def catch_exception_wrapper(*args, **kwargs):
         try:
             rv = func(*args, **kwargs)
-        except ExceptionDecoderInit as di:
-            logger.error(di.args[0])
+        # except ExceptionDecoderInit as di:
+        #     logger.error(di.args[0])
         except ExceptionDecoderDecode as de:
             logger.warning(de.args[0])
         except Exception as ex:
@@ -133,23 +128,23 @@ class DecoderTop():
 
 #--- RTCM decoding frame -----------------------------------------------------------------------------
 
-    @catch_decoder_exceptions
-    def register_decoder(self, io: SubDecoderInterface):
+    def register_decoder(self, io: SubDecoderInterface) -> bool:
         '''Register new subset of decoded messages'''
         
+        rv = False
+
         # Validate interface attributes
         if not isinstance(io, SubDecoderInterface):
-            raise ExceptionDecoderInit(f"Incorrect 'io' type in {type(io)}")
+            logger.error(f"Incorrect 'io' type in {type(io)}")
+        elif io.decode == SubDecoderInterface.default_decode:
+            logger.error(f"Virtual method 'decode' not defined in {type(io)}")
+        elif len(io.actual_messages) == 0:
+            logger.error(f"Empty message list. Update or delete subdecoder {type(io)}")
+        else:
+            self.decoders.update({io.subset:io})
+            rv = True
 
-        if io.decode == SubDecoderInterface.default_decode:
-            raise ExceptionDecoderInit(f"Virtual method 'decode' not defined in {type(io)}")
-
-        if len(io.actual_messages) == 0:
-            raise ExceptionDecoderInit(f"Empty message list. Update or delete subdecoder {type(io)}")
-
-        self.decoders.update({io.subset:io})
-
-        return
+        return rv    
 
     @catch_decoder_exceptions
     def decode(self, msg: bytes):

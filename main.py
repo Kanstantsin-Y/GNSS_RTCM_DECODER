@@ -4,21 +4,16 @@ import shutil
 import glob
 
 from logger import LOGGER_CF as logger
-
-from decoder_top import DecoderTop as RtcmDecoderTop
-from sub_decoders import SubdecoderMSM4567, SubdecoderMSM123
-
-from printer_top import PrinterTop
-from printers.margo_printer import MSMtoMARGO
 from controls import BoxWithDecoderControls, DecoderControls
 from argparse import ArgumentParser as ArgParser
+from converter_top import ConverterFactory, ConverterInterface
 
 VERSION = "1.01"
 DEFAULT_CONFIG = "defaults.ini"
 FILE_CHUNCK_LEN: int = 2**12 
 ARGS = None
 
-#..............................................................................               
+#.......................................................................................................               
 
 def create_work_folder(src_file_path) -> str | None:
     """ Create a new folder for decoding products.
@@ -48,7 +43,7 @@ def create_work_folder(src_file_path) -> str | None:
     else:
         return fld
 
-#..............................................................................               
+#.......................................................................................................               
 
 def make_log_file_name(src_file_path):
     """Make name for log file. Based on source file name."""
@@ -58,7 +53,7 @@ def make_log_file_name(src_file_path):
 
     return fname + '-log.txt'
 
-#..............................................................................               
+#.......................................................................................................               
 
 def init_logger(path):
     """Create log file and init logger."""
@@ -81,44 +76,9 @@ def init_logger(path):
         #Init logger. Opens file 'path' in append mode
         logger.init_2CH(path, 'RTCMDEC')
 
-#..............................................................................               
+#.......................................................................................................               
 
-
-def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)->bool:
-
-    rv = False
-
-    if not os.path.isfile(fpath):
-        print(f"Source file '{fpath}' not found.")
-        return rv
-
-    # Create work folder. Work folder will have the same name as source file.
-    # There would be an empty text file in it to log decoding process.
-    wfld = create_work_folder(fpath)
-    if not wfld:
-        return rv
-
-    lfile = os.path.join(wfld,make_log_file_name(fpath))
-    init_logger(lfile)
-
-    # Init RTCM decoder and add subdecoders.
-    main_rtcm_decoder = RtcmDecoderTop()
-    msm4567 = SubdecoderMSM4567(bare_data=False)
-    msm123 = SubdecoderMSM123(bare_data=False)
-    
-    main_rtcm_decoder.register_decoder(msm4567.io)
-    main_rtcm_decoder.register_decoder(msm123.io)
-
-    # Implement printers
-    main_margo_printer = PrinterTop('MARGO')
-    msm_to_margo = MSMtoMARGO(wfld, boxed_controls.MARGO)
-    if not main_margo_printer.add_subprinter(msm_to_margo.io):
-        logger.error(f"Sub-printer 'MSMtoMARGO' wasn't registered")
-
-    if not main_margo_printer.ready:
-        logger.error(f"Printer {main_margo_printer.format} wasn't created")
-        logger.deinit()
-        return
+def decode_rtcm_file(fpath: str, converter: ConverterInterface)->bool:
     
     try:
         f = open(fpath,'rb')
@@ -131,44 +91,45 @@ def decode_rtcm_file(fpath: str, boxed_controls: BoxWithDecoderControls = None)-
         while len(chunk):
                         
             bytes_processed += len(chunk)
-            rtcm3_lines = main_rtcm_decoder.catch_message(chunk)
+            rtcm3_lines = converter.parse_bytes(chunk)
             
             for msg in rtcm3_lines:
-                xblock = main_rtcm_decoder.decode(msg)
+                xblock = converter.decode(msg)
                 if xblock != None:
-                    main_margo_printer.print(xblock)
+                    converter.print(xblock)
 
+            aux_data = converter.get_statistics()
             logger.progress('{0:2.2%}, {1:d} messages, p-d errors {2:d}-{3:d}.'.format(
                             float(bytes_processed)/float(file_size),
-                            main_rtcm_decoder.dec_attempts,
-                            main_rtcm_decoder.parse_errors,
-                            main_rtcm_decoder.dec_errors ))
+                            aux_data.decoding_attempts,
+                            aux_data.parsing_errors,
+                            aux_data.decoding_errors ))
             
             chunk = f.read(FILE_CHUNCK_LEN)
     
-        # self._save_some_test_data(rtcm3_lines)
-    
     except KeyboardInterrupt:
         logger.error(f"Processing terminated by the user.")
+        return False
     except FileNotFoundError as fe:
         logger.error(f"Got FileNotFoundError exception.")
         logger.error(f"{type(fe)}: {fe}")
+        return False
     except Exception as ex:
         logger.error(f"Got unexpected exception.")
         logger.error(f"{type(ex)}: {ex}")
-    else:
-        rv = True
-    finally:        
+        return False
+    finally:
+        converter.release()
+            
         if f:
             logger.info(f"Closing file {fpath}.")
             f.close()
         else:
             logger.info(f"Source file {fpath} wasn't opened.")
 
-        main_margo_printer.close()
-        logger.deinit()
+    return True
 
-    return rv
+#.......................................................................................................               
 
 def create_argument_parser(description: str = 'No description') -> ArgParser:
     """ Setup argument parser.
@@ -213,7 +174,9 @@ def create_argument_parser(description: str = 'No description') -> ArgParser:
 
     return arg_parser
 
-def create_list_of_source_files(f_arguments: list[str], rtcm_ext: str='rtcm3') -> list[str]:
+#.......................................................................................................               
+
+def make_list_of_source_files(f_arguments: list[str], rtcm_ext: str='rtcm3') -> list[str]:
     """ Create list of source  files.
     Implements formal check of files listed in f_arguments.
     Implements interactive interface if 'f_arguments' specifies directory."""
@@ -264,6 +227,7 @@ def create_list_of_source_files(f_arguments: list[str], rtcm_ext: str='rtcm3') -
     
     return files
 
+##.......................................................................................................               
 
 def main(local_args: str|None = None)-> None:
 
@@ -286,23 +250,47 @@ def main(local_args: str|None = None)-> None:
         print(args.ini_file)
         boxed_controls = ctrl_strg.boxed_controls
 
-    files = create_list_of_source_files(args.source, args.rtcm_ext)
+    files = make_list_of_source_files(args.source, args.rtcm_ext)
 
-    for file in files:
+    for fpath in files:
+        
         print("-"*80)
-        print(f"Started decoding: {file}")
-        if decode_rtcm_file(file, boxed_controls):
-            print("Finished successfully.")
+        print(f"Started decoding: {fpath}")
+
+        # Create work folder. Work folder will have the same name as source file.
+        # There would be an empty text file in it to log decoding process.
+        wfld = create_work_folder(fpath)
+        if not wfld:
+            continue
+
+        # Init logger
+        lfile = os.path.join(wfld,make_log_file_name(fpath))
+        init_logger(lfile)
+
+        # Create converter.
+        cf = ConverterFactory('JSON-B')
+        converter = cf(wfld, boxed_controls)
+        if not converter:
+            logger.error(f"Conversion aborted.")
+            logger.deinit()
+            continue
+
+        if decode_rtcm_file(fpath, converter):
+            logger.progress("Finished successfully.")
         else:
-            print("Decoding was terminated.")
+            logger.error("Decoding was terminated.")
+
+        logger.deinit()
 
     pass
+
+#.......................................................................................................               
 
 # astr = r"-c cfg.jsn RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\H7-A3.rtcm3 RTCM3_TEST_DATA\\"
 # ARGS = r"-c cfg.json RTCM3_TEST_DATA\\"
 # ARGS = r"-c cfg.json RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 RTCM3_TEST_DATA\\"
-# ARGS = r"RTCM3_TEST_DATA\reference-3msg.rtcm3"
-ARGS = r"-i addons.ini d:\NTL_work\OBS\2023\myDecoder\01.19\H7V3-A2.rtcm3"
+ARGS = r"d:\NTL_work\OBS\2023\02.02\sinc-debug5\H7V3-A1.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 "
+#ARGS = r"-i addons.ini d:\NTL_work\OBS\2023\myDecoder\01.19\H7V3-A2.rtcm3"
 #ARGS = None    
 
 
