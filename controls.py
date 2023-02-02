@@ -1,29 +1,26 @@
 
 
 from configparser import ConfigParser
-from printers.margo_printer import MargoControls
+from printers import MargoControls
+from printers import JSONControls
+from dataclasses import dataclass
 
-
-
-
-class BoxWithDecoderControls():
-    """Container for summary of decoder controls"""
-    __slots__ = ['MARGO']
+@dataclass
+class BoxWithConverterControls():
+    """Container for summary of converter controls"""
+    MARGO : MargoControls
+    JSON : JSONControls
     
-    def __init__(self) -> None:
-        self.MARGO : MargoControls
-        # Extend with other controls here:
-        # ...
 
+class ConverterControls():
 
-class DecoderControls():
-
-    
     def __init__(self) -> None:
         self.__MARGO = MargoControls()
+        self.__JSON = JSONControls()
         self.__ini = ConfigParser()
         self.__ini_ok = False
         self.__MARGO_ok = False
+        self.__JSON_ok = False
     
     def _read_ini(self, ini_file:str)->bool:
         """Read *ini file. Return true if there is something in it."""
@@ -84,14 +81,41 @@ class DecoderControls():
         self.__MARGO = res
         return True
 
+    def _make_JSON(self)->bool:
+        """Compose controls for JSON printer"""
+        if not self.__ini_ok:
+            return False
+
+        if 'JSON' not in self.__ini.sections():
+            return False
+        
+        res = JSONControls()
+
+        res.enable_hdr_data = self.__ini['JSON'].getboolean('ENABLE_HDR_DATA')
+        if res.enable_hdr_data == None:
+            return False
+
+        res.enable_aux_data = self.__ini['JSON'].getboolean('ENABLE_AUX_DATA')
+        if res.enable_aux_data == None:
+            return False
+        
+        res.enable_pretty_view = self.__ini['JSON'].getboolean('ENABLE_PRETTY_VIEW')
+        if res.enable_pretty_view == None:
+            return False
+        
+        self.__JSON = res
+        return True
+
     def init_from_file(self, ini_file:str):
         """Update controls from *.ini file"""
         self.__ini_ok = self._read_ini(ini_file)
         if self.__ini_ok:
             self.__MARGO_ok = self._make_MARGO()
+            self.__JSON_ok = self._make_JSON()
     
     def update_from_file(self, ini_file:str):
         """Update controls from *.ini file"""
+        
         # Update is possible only after initialization
         if not self.__ini_ok:
             return
@@ -102,12 +126,18 @@ class DecoderControls():
         if self.__MARGO_ok:
             self._make_MARGO()
 
+        if self.__JSON_ok:
+            self._make_JSON()
+
     @property
     def MARGO(self)->MargoControls:
         return self.__MARGO if self.__MARGO_ok else None
+    
+    @property
+    def JSON(self)->JSONControls:
+        return self.__JSON if self.__JSON_ok else None
 
     @property
     def boxed_controls(self):
-        rv = BoxWithDecoderControls()
-        rv.MARGO = self.MARGO
-        return rv
+        return BoxWithConverterControls(self.MARGO, self.JSON)
+    

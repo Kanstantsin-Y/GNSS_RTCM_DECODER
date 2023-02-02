@@ -1,10 +1,22 @@
 
+"""
+    Author: Kanstantsin Yuryeu
+    Mail: konstantin.yuriev83@gmail.com
+"""
+"""
+    This file is a top module of a project. Use main.main(argv) to launch RTCM converter.
+    This module:
+    - implements command line interface;
+    - scans configuration files for user defined controls;
+    - provides method to convert RTCM file(s) into textual format file(s).
+"""
+
 import os
 import shutil
 import glob
 
 from logger import LOGGER_CF as logger
-from controls import BoxWithDecoderControls, DecoderControls
+from controls import ConverterControls
 from argparse import ArgumentParser as ArgParser
 from converter_top import ConverterFactory, ConverterInterface
 
@@ -15,14 +27,14 @@ ARGS = None
 
 #.......................................................................................................               
 
-def create_work_folder(src_file_path) -> str | None:
+def create_work_folder(src_file_path: str, postfix: str) -> str | None:
     """ Create a new folder for decoding products.
     If folder already exists - delete content. 
     Return path to the folder if everything OK.
     Else return None."""
         
     fld, ext = os.path.splitext(src_file_path)
-
+    fld = fld + '-' + postfix
     # Remove directory, if exists
     if os.path.isdir(fld):
         try:
@@ -36,16 +48,15 @@ def create_work_folder(src_file_path) -> str | None:
     try:
         os.makedirs(fld)
         print(f'Created work folder.')
+        return fld
     except OSError as oe:
         print(f"Work folder wasn't created")
         print(f"{type(oe)}: {oe}")
         return None
-    else:
-        return fld
 
 #.......................................................................................................               
 
-def make_log_file_name(src_file_path):
+def make_log_file_name(src_file_path: str):
     """Make name for log file. Based on source file name."""
 
     fpath, fname = os.path.split(src_file_path)
@@ -55,7 +66,7 @@ def make_log_file_name(src_file_path):
 
 #.......................................................................................................               
 
-def init_logger(path):
+def init_logger(path: str):
     """Create log file and init logger."""
         
     try:
@@ -137,6 +148,17 @@ def create_argument_parser(description: str = 'No description') -> ArgParser:
     """
     arg_parser = ArgParser(description)
     
+    # Arbitrary argument: output format.
+    arg_parser.add_argument (
+        '-o','--output',
+        dest ='format',
+        metavar ='FORMAT',
+        type = str,
+        action = 'store',
+        default = 'MARGO',
+        choices = ['MARGO', 'JSON', 'JSON-B'],
+        help = 'FORMAT defines form of representation of output data. Choose from: MARGO | JSON | JSON-B.'
+    )
     # Arbitrary argument: configuration file.
     arg_parser.add_argument (
         '-i','--ini',
@@ -231,7 +253,7 @@ def make_list_of_source_files(f_arguments: list[str], rtcm_ext: str='rtcm3') -> 
 
 def main(local_args: str|None = None)-> None:
 
-    ctrl_strg = DecoderControls()
+    ctrl_strg = ConverterControls()
     ctrl_strg.init_from_file(DEFAULT_CONFIG)
     boxed_controls = ctrl_strg.boxed_controls
 
@@ -252,6 +274,8 @@ def main(local_args: str|None = None)-> None:
 
     files = make_list_of_source_files(args.source, args.rtcm_ext)
 
+    output_format = args.format
+
     for fpath in files:
         
         print("-"*80)
@@ -259,7 +283,7 @@ def main(local_args: str|None = None)-> None:
 
         # Create work folder. Work folder will have the same name as source file.
         # There would be an empty text file in it to log decoding process.
-        wfld = create_work_folder(fpath)
+        wfld = create_work_folder(fpath, output_format)
         if not wfld:
             continue
 
@@ -268,7 +292,7 @@ def main(local_args: str|None = None)-> None:
         init_logger(lfile)
 
         # Create converter.
-        cf = ConverterFactory('JSON-B')
+        cf = ConverterFactory(output_format)
         converter = cf(wfld, boxed_controls)
         if not converter:
             logger.error(f"Conversion aborted.")
@@ -289,7 +313,9 @@ def main(local_args: str|None = None)-> None:
 # astr = r"-c cfg.jsn RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\H7-A3.rtcm3 RTCM3_TEST_DATA\\"
 # ARGS = r"-c cfg.json RTCM3_TEST_DATA\\"
 # ARGS = r"-c cfg.json RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 RTCM3_TEST_DATA\\"
-ARGS = r"d:\NTL_work\OBS\2023\02.02\sinc-debug5\H7V3-A1.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 "
+# ARGS = r"-o MARGO d:\NTL_work\OBS\2023\02.02\sinc-debug5\H7V3-A1.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 "
+# ARGS = r"-o JSON-B RTCM3_TEST_DATA\reference-3msg.rtcm3"
+
 #ARGS = r"-i addons.ini d:\NTL_work\OBS\2023\myDecoder\01.19\H7V3-A2.rtcm3"
 #ARGS = None    
 

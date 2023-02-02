@@ -12,12 +12,12 @@ from json import dumps as jdumps
 
 class JSONControls:
 
-    __slots__ = ('enable_hdr_data', 'enable_aux_data', 'is_compact')
+    __slots__ = ('enable_hdr_data', 'enable_aux_data', 'enable_pretty_view')
 
     def __init__(self) -> None:
-        self.enable_hdr_data: bool = True
-        self.enable_aux_data: bool = True
-        self.is_compact: bool = False
+        self.enable_hdr_data: bool = False
+        self.enable_aux_data: bool = False
+        self.enable_pretty_view: bool = False
 
 
 class JSONCore:
@@ -69,7 +69,7 @@ class JSONCore:
             summary.update({'obs':obs})
             
         try:
-            indent = None if self.ctrls.is_compact else 2
+            indent = 2 if self.ctrls.enable_pretty_view else None
             rv = jdumps({time:summary}, indent=indent, allow_nan=True, ensure_ascii=False)
         except TypeError:
             logger.error(f"JSON: can't serialize 'ObservablesMSM'")
@@ -102,7 +102,7 @@ class JSONCore:
             summary.update({'sgn':sgn})
             
         try:
-            indent = None if self.ctrls.is_compact else 2
+            indent = 2 if self.ctrls.enable_pretty_view else None
             rv = jdumps({time:summary}, indent=indent, allow_nan=True, ensure_ascii=False)
         except TypeError:
             logger.error(f"JSON: can't serialize 'BareObservablesMSM'")
