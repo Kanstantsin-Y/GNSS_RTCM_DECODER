@@ -1,27 +1,16 @@
 
-## Key words.
-
-- RTCM - Radio Technical Commission for Maritime Services - special committee developing 
-RTCM STANDARD 10403.x.
-
-- RTCM STANDARD 10403.x - A document describing special data format widely used in GNSS
-and GNSS-related applications. RTCM format specifies a set of binary messages used for transmission and storage of GNSS related data (range measurements, corrections, ephemerids, auxiliary data and so on).
-
-- GNSS - Global Navigation Satellite System.
-
-- Legacy messages - Primary subset of RTCM messages developed for representation of various
-types of GNSS data and suitable for GPS and GLONASS navigation systems.
-
-- MSM - Relatively new subset of RTCM messages developed for representation of various types of GNSS data.
-Unlike legacy messages, MSM subset covers all GNSS systems and signals available at the moment,
-allows multiple signal representation. Implements different subsets of messages (MSM1, MSM2,.. MSM7)
-to satisfy requirements of different GNSS applications. MSM1 - the most compact form, introduces some limitations.
-MSM7 - most overall form with better accuracy. 
 
 ### GNSS_RTCM_DECODER
 
-This project implements a tool for binary RTCM data unpacking and 
-conversion into textual representation. Main purpose - representation of GNSS data in readable, editable form convenient for further manual or automated analysis and geodetic computations.
+This project implements a tool for binary RTCM data unpacking and conversion into textual representation. Main purpose - representation of GNSS data in readable, editable form convenient for further manual or automated analysis and geodetic computations. Run **main.py** with command line arguments to start conversion. See 
+
+
+###
+
+
+
+
+
 
 ### Main features
 
