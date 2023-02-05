@@ -10,7 +10,7 @@ A list of sub-decoders to be implemented.
 | 'MSM47O'         | MSM4, MSM5, MSM6, MSM7  | yes           | Observables            | 'ObservablesMSM' or 'BareObservablesMSM4567' [1]
 | 'MSM13O'         | MSM1, MSM2, MSM3        | yes           | Observables modulo 1ms | 'ObservablesMSM' or 'BareObservablesMSM123' [1]
 | 'MSME'           | 1041, 1042, 1044..1046  | no yet        | Ephemerids             | Not defined   
-| 'LEG0'           | 1001..1004, 1009..1012  | no yet        | Observable GPS, GLONASS| Not defined  
+| 'LEG0'           | 1001..1004, 1009..1012  | no yet        | Observables GPS, GLONASS| Not defined  
 | 'LEGE'           | 1019, 1020              | no yet        | Ephemerids GPS, GLONASS| Not defined  
 
 [1]: Sub-decoder 'MSM47O' and 'MSM13O' can produce optionally two types of outputs:
