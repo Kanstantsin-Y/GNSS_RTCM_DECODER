@@ -249,7 +249,7 @@ def make_list_of_source_files(f_arguments: list[str], rtcm_ext: str='rtcm3') -> 
     
     return files
 
-##.......................................................................................................               
+#.......................................................................................................               
 
 def main(local_args: str|None = None)-> None:
 
@@ -310,14 +310,9 @@ def main(local_args: str|None = None)-> None:
 
 #.......................................................................................................               
 
-# astr = r"-c cfg.jsn RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\H7-A3.rtcm3 RTCM3_TEST_DATA\\"
-# ARGS = r"-c cfg.json RTCM3_TEST_DATA\\"
-# ARGS = r"-c cfg.json RTCM3_TEST_DATA\H7-A2.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 RTCM3_TEST_DATA\\"
-# ARGS = r"-o MARGO d:\NTL_work\OBS\2023\02.02\sinc-debug5\H7V3-A1.rtcm3 RTCM3_TEST_DATA\reference-3msg.rtcm3 "
 # ARGS = r"-o JSON RTCM3_TEST_DATA\reference-3msg.rtcm3"
-
-#ARGS = r"-i addons.ini d:\NTL_work\OBS\2023\myDecoder\01.19\H7V3-A2.rtcm3"
-#ARGS = None    
+# ARGS = r"-i addons.ini RTCM3_TEST_DATA\reference-3msg.rtcm3"
+# ARGS = None    
 
 
 if __name__ == '__main__':
