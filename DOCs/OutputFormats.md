@@ -142,7 +142,7 @@ Particular output file has following structure:
 { TIME3 : OBJ3 },
 ...
 ]
-
+```
 At the upper level it is a list of JSON objects having time mark as a key and another JSON object as a value. The time mark derived from 
 MSM message header. With GLONASS time mark = (header time + header day*86400000), shows time from the start of GLONASS week. The value is a JSON object, at the upper level looks like:
 
