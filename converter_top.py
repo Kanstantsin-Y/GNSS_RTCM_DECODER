@@ -15,7 +15,7 @@ printer (class PrinterTop()).
 Decoder is responsible for:
 - Extraction of RTCM messages from bytes flow.
 - Parsing of RTCM messages, extraction of primary data fields.
-- Conversion of primary data fields into data classes with predefined structure -
+- Conversion of primary data fields into DTO classes with predefined structure -
 intermediate data types.
 An instance of DecoderTop() defines decoder interface and aggregates several sub-decoder
 instances. Sub-decoders are responsible for processing of different subsets of RTCM messages.

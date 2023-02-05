@@ -1,3 +1,15 @@
+"""
+    Author: Kanstantsin Yuryeu
+    Mail: konstantin.yuriev83@gmail.com
+
+    There are 3 classes here:
+    1. MSMtoMARGO() - top level. Receives DTO objects with observables at the input and
+    saves them into MARGO files. Implements sub-decoder interface.
+    2. MargoCore() - utility methods.
+    3. MargoControls() - DTO for control parameters.
+"""
+
+
 
 import  io, os
 

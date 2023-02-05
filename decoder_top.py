@@ -1,3 +1,20 @@
+"""
+    Author: Kanstantsin Yuryeu
+    Mail: konstantin.yuriev83@gmail.com
+
+    Implements classes:
+    1. DecoderTop(). Top level of RTCM decoder. Implements 2 main tasks: 
+        1.1 Scans RTCM3 byte flow, extracts messages.
+        2.2 Aggregates sub-decoders, finds and calls appropriate decoding method
+        for each message.
+    2. SubDecoderInterface().
+        2.1 Specifies available sub-decoders.
+        2.2 Specifies list of RTCM messages for each sub-decoder.
+        2.3 Defines virtual methods and attributes which should be implemented in sub-decoder.
+"""
+
+
+
 
 #--- Dependencies ---------------------------------------------------------------------------
 

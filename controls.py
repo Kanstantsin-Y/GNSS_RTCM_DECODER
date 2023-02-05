@@ -1,3 +1,9 @@
+"""
+    Author: Kanstantsin Yuryeu
+    Mail: konstantin.yuriev83@gmail.com
+
+    Implements functionality for reading control parameters from *.ini files.
+"""
 
 
 from configparser import ConfigParser
