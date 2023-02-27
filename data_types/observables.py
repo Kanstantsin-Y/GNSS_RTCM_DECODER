@@ -1,4 +1,11 @@
+"""
+    Author: Kanstantsin Yuryeu
+    Mail: konstantin.yuriev83@gmail.com
 
+    This file implements DTO classes for observables.
+    TBD. Classes ara implemented as light weight as possible initially.
+    In fact, used not very intensively. Could be transformed to dataclasses.
+"""
 
 
 from typing import Any

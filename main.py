@@ -2,8 +2,8 @@
 """
     Author: Kanstantsin Yuryeu
     Mail: konstantin.yuriev83@gmail.com
-"""
-"""
+
+    
     This file is a top module of a project. Use main.main(argv) to launch RTCM converter.
     This module:
     - implements command line interface;
@@ -309,11 +309,11 @@ def main(local_args: str|None = None)-> None:
     pass
 
 #.......................................................................................................               
+# Uncomment 'ARGS' for test run.
 
 # ARGS = r"-o JSON RTCM3_TEST_DATA\reference-3msg.rtcm3"
 # ARGS = r"-i addons.ini RTCM3_TEST_DATA\reference-3msg.rtcm3"
-# ARGS = None    
-
+# ARGS = None
 
 if __name__ == '__main__':
     

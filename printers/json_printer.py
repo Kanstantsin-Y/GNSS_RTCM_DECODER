@@ -1,3 +1,14 @@
+"""
+    Author: Kanstantsin Yuryeu
+    Mail: konstantin.yuriev83@gmail.com
+
+    There are 3 classes here:
+    1. MSMtoJSON() - top level. Receives DTO object with observables at the input and
+    saves it's content into JSON files. Implements sub-decoder interface.
+    2. JSONCore() - utility methods.
+    3. JSONControls() - DTO for control parameters.
+"""
+
 
 import  io, os
 

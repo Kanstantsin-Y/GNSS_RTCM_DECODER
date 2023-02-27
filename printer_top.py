@@ -1,5 +1,19 @@
 
+"""
+    Author: Kanstantsin Yuryeu
+    Mail: konstantin.yuriev83@gmail.com
+
+    Implements classes:
+    1. PrinterTop(). Aggregates sub-printers, finds and calls appropriate printing method
+        for input DTO object.
+    2. SubPrinterInterface(). 
+        2.1 Specifies available sub-printers.
+        2.2 Specifies list of DTO classes to be supported by each sub-printer.
+        2.3 Defines virtual methods and attributes which should be implemented in sub-printer.
+"""
+
 #--- Dependencies ---------------------------------------------------------------------------
+
 from typing import Any
 from data_types.observables import ObservablesMSM, BareObservablesMSM4567, BareObservablesMSM123
 from logger import LOGGER_CF as logger

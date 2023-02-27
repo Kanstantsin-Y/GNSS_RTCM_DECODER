@@ -1,4 +1,15 @@
 
+"""
+    Author: Kanstantsin Yuryeu
+    Mail: konstantin.yuriev83@gmail.com
+
+    Implements subdecoder which transforms RTCM3 MSM message into a DTO
+    object with observables. There are two types of DTOs:
+    1. Bare integer data (as it is in the message);
+    2. Reconstructed and scaled observables. 
+"""
+
+
 #--- Dependencies -------------------------------------------------------------------------
 
 #from math import isnan
