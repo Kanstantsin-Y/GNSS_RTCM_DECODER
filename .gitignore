@@ -1,0 +1,9 @@
+.venv
+.vscode
+.mypy_cache
+DOCs/drafts
+__pycache__
+printers/__pycache__
+sub_decoders/__pycache__
+data_types/__pycache__
+utilities/__pycache__
