@@ -10,10 +10,7 @@
 import data_types.ephemerids as mEph
 
 from decoder_top import SubDecoderInterface
-from dataclasses import dataclass
-
 from typing import Any
-#from utilities.RTCM_utilities import MSMT
 from utilities.bits import Bits
 from utilities.bits import ExceptionBitsError
 from utilities.bits import catch_bits_exceptions
@@ -193,53 +190,6 @@ class EphemerisDecoder(Bits):
         return ephBlock
 
 
-# def decode_ephemerids(is_bare_output: bool, buf:bytes) -> mEph.GpsLNAV|None:
-#     """Process ephemeris message"""
-    
-#     dec = EphemerisDecoder()
-#     mnum = dec.get_msg_num(buf)
-
-#     try:
-#         ephBlock = dec.decode(buf, is_bare_output)
-#     except ExceptionBitsError as ex:
-#         logger.error(f"Msg {mnum}. Decoding failed. " + ex.args[0])
-#     except IndexError as ie:
-#         logger.error(f"Msg {mnum}. Decoding failed. Indexing error: {type(ie)}: {ie}")
-#     except ArithmeticError as ae:
-#         logger.error(f"Msg {mnum}. Decoding failed. Arithm error: {type(ae)}: {ae}")
-#     except Exception as ex:
-#         logger.error(f"Msg {mnum}. Decoding failed. Unexpected error:" + f"{type(ex)}: {ex}")
-#     else:
-#         pass
-
-#     if not ephBlock:
-#         return None
-
-#     logger.info(f'Msg {mnum}. Decoding succeeded. SV = {ephBlock.satNum}.')
-#     return ephBlock
-    
-
-    # if is_bare_output:
-    #     logger.info(f'Msg {mnum}. Decoding succeeded. SV = {ephBlock.satNum}.')
-    #     return ephBlock
-    
-    # scaler = Bare2Scaled()
-
-    # try:
-    #     rv = scaler.convert(msm.bare_data)
-    # except IndexError as ie:
-    #     logger.error(f"Indexing error in get_scaled_obs() {type(ie)}: {ie}")
-    # except ArithmeticError as ae:
-    #     logger.error(f"Arithmetic error in get_scaled_obs() {type(ae)}: {ae}")
-    # except Exception as ex:
-    #     logger.error(f"Undefined error in get_scaled_obs() {type(ex)}: {ex}")
-    # else:
-    #     logger.info(f'Msg {mnum}. Decoding succeeded. t = {rv.hdr.time}, sats = {len(rv.hdr.sats)}.')
-
-    # return rv
-
-
-
 
 
 class SubdecoderEph():
@@ -250,7 +200,7 @@ class SubdecoderEph():
         self.decoder = EphemerisDecoder()
         self.io = SubDecoderInterface('EPH', bare_data)
         self.io.decode = self.decode
-        self.io.actual_messages = self.decoder.msgList #set(self.io.io_spec.keys())
+        self.io.actual_messages = self.decoder.msgList
         
 
     def decode(self, buf:bytes) -> Any | None:

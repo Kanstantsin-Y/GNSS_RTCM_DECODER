@@ -137,8 +137,6 @@ def catch_decoder_exceptions(func):
 class DecoderTop():
     '''Combines decoders for RTCM message subsets and implements outer interface'''
 
-    # bits = Bits()
-
     def __init__(self) -> None:
         self.decoders : dict[str, SubDecoderInterface] = dict()
         self._tail = b''
@@ -147,6 +145,7 @@ class DecoderTop():
         self.__pars_err_cnt: int = 0
         self.__dec_attempts: int = 0
         self.__dec_succeeded: int = 0
+        #self.TG = TestDataGrabber() - used for saving rtcm3 samples
         return
 
 #--- RTCM decoding frame -----------------------------------------------------------------------------
@@ -175,6 +174,9 @@ class DecoderTop():
         # Find decoder
         num = self.mnum(msg)
         dec = None
+
+        #self.TG.save_eph(num,msg)
+
         for dec in self.decoders.values():
             if (num in dec.io_spec.keys()) and (num in dec.actual_messages):
                 # Decode
@@ -324,6 +326,42 @@ class DecoderTop():
         return crc_calc == crc_get
 
 #----------------------------------------------------------------------------------------------
+
+
+class TestDataGrabber():
+
+    def __init__(self):
+        self.scenario = {
+            1019: {'fname':'msg1019.rtcm3', 'cnt':3, 'fp':None},
+            1020: {'fname':'msg1020.rtcm3', 'cnt':3, 'fp':None},
+            1041: {'fname':'msg1041.rtcm3', 'cnt':3, 'fp':None},
+            1042: {'fname':'msg1042.rtcm3', 'cnt':3, 'fp':None},
+            1044: {'fname':'msg1044.rtcm3', 'cnt':3, 'fp':None},
+            1045: {'fname':'msg1045.rtcm3', 'cnt':3, 'fp':None},
+            1046: {'fname':'msg1046.rtcm3', 'cnt':3, 'fp':None}
+        }
+
+    def save_eph(self, mNum:int, msg:bytes):
+        """Save a messages from the input flow to file."""
+
+        s = self.scenario.get(mNum)
+        if not s:
+            return
+        
+        if s['cnt'] == 0:
+            return
+        
+        if s['fp'] == None:
+            s['fp'] = open(s['fname'],'wb')
+
+        s['fp'].write(msg)
+        s['fp'].flush()
+        s['cnt'] -= 1
+        
+        if s['cnt'] == 0:
+            s['fp'].close()
+
+        
 
 
 # def _save_some_test_data(msg_list):
