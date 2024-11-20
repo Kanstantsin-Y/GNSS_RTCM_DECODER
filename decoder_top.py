@@ -18,6 +18,8 @@
 
 #--- Dependencies ---------------------------------------------------------------------------
 
+import data_types.ephemerids as mEph
+
 from data_types.observables import ObservablesMSM
 from data_types.observables import BareObservablesMSM4567, BareObservablesMSM123
 
@@ -63,18 +65,23 @@ class SubDecoderInterface():
         return rv
 
     @staticmethod
-    def __make_MSME_spec(bare:bool) -> dict:
-        '''Defines IN/OUT interface of MSM ephemeris decoder'''
-        return {}
+    def __make_EPH_spec(bare:bool) -> dict:
+        '''Defines IN/OUT interface of ephemeris decoder'''
+
+        # Same types are used for bare/scaled data
+        rv = {  1045: mEph.GalFNAV,
+                1046: mEph.GalINAV,
+                1020: mEph.GloL1L2,
+                1019: mEph.GpsLNAV,
+                1044: mEph.QzssL1,
+                1042: mEph.BdsD1,
+                1041: mEph.NavicL5 }
+        return rv
+
 
     @staticmethod
     def __make_LEGO_spec(bare:bool) -> dict:
         '''Defines IN/OUT interface of Legacy observables decoder'''
-        return {}
-    
-    @staticmethod
-    def __make_LEGE_spec(bare:bool) -> dict:
-        '''Defines IN/OUT interface of Legacy ephemeris decoder'''
         return {}
 
     @staticmethod
@@ -84,10 +91,9 @@ class SubDecoderInterface():
 
     _RTCM_MSG_SUBSETS = {
         'LEGO' : __make_LEGO_spec,
-        'LEGE' : __make_LEGE_spec,
         'MSM13O' : __make_MSM13O_spec,
         'MSM47O' : __make_MSM47O_spec,
-        'MSME' : __make_MSME_spec
+        'EPH' : __make_EPH_spec
     }
 
     def __init__(self, subset:str , bare:bool = False) -> None:

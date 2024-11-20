@@ -14,6 +14,8 @@
 
 #--- Dependencies ---------------------------------------------------------------------------
 
+import data_types.ephemerids as mEph
+
 from typing import Any
 from data_types.observables import ObservablesMSM, BareObservablesMSM4567, BareObservablesMSM123
 from logger import LOGGER_CF as logger
@@ -21,19 +23,17 @@ from logger import LOGGER_CF as logger
 #--- Specification of input data types for different printers -------------------------------
 
 _MARGO_SPECS = {
-    'LEGO'  : set(),
-    'LEGE'  : set(),
+    'LEGO'  : set(),    # to be fulfilled with valid data types when developed
     'MSM13O': {ObservablesMSM,},
     'MSM47O': {ObservablesMSM,},
-    'MSME'  : set()
+    'EPH'   : {mEph.GpsLNAV, mEph.GloL1L2, mEph.BdsD1, mEph.GalFNAV, mEph.GalINAV, mEph.NavicL5, mEph.QzssL1}
     }
 
 _JSON_SPECS = {
-    'LEGO'  : set(),
-    'LEGE'  : set(),
+    'LEGO'  : set(),    # to be fulfilled with valid data types when developed
     'MSM13O': {BareObservablesMSM123, ObservablesMSM},
     'MSM47O': {BareObservablesMSM4567, ObservablesMSM},
-    'MSME'  : set()
+    'EPH'   : {mEph.GpsLNAV, mEph.GloL1L2, mEph.BdsD1, mEph.GalFNAV, mEph.GalINAV, mEph.NavicL5, mEph.QzssL1}
     }
 
 _SPECS_LIST = {

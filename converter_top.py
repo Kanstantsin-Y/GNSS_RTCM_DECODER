@@ -56,7 +56,7 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
 from decoder_top import DecoderTop
-from sub_decoders import SubdecoderMSM4567, SubdecoderMSM123
+from sub_decoders import SubdecoderMSM4567, SubdecoderMSM123, SubdecoderEph
 
 from printer_top import PrinterTop
 from printers import MSMtoMARGO as MargoPrinter
@@ -143,16 +143,19 @@ def strategy_MSM17toMARGO(wfld: str, controls: BoxWithConverterControls) -> Conv
     
     return conv
 
-def strategy_MSM17toJSON(wfld: str, controls: BoxWithConverterControls) -> ConverterInterface|None:
+def strategy_MSM17_EPH_to_JSON(wfld: str, controls: BoxWithConverterControls) -> ConverterInterface|None:
     conv = Converter()
     # Implement and register decoders
     msm123 = SubdecoderMSM123(bare_data=False)
     msm4567 = SubdecoderMSM4567(bare_data=False)
+    eph = SubdecoderEph(bare_data=True)
     if not conv.decoder.register_decoder(msm4567.io): 
         return None
     if not conv.decoder.register_decoder(msm123.io):
         return None
-    
+    if not conv.decoder.register_decoder(eph.io):
+        return None
+        
     # Implement and register printers
     conv.printer.format = 'JSON'
     msm_to_json = JsonPrinter(wfld,controls.JSON)
@@ -161,16 +164,20 @@ def strategy_MSM17toJSON(wfld: str, controls: BoxWithConverterControls) -> Conve
     
     return conv
 
-def strategy_MSM17toJSON_BareData(wfld: str, controls: BoxWithConverterControls) -> ConverterInterface|None:
+def strategy_MSM17_EPH_to_JSON_BareData(wfld: str, controls: BoxWithConverterControls) -> ConverterInterface|None:
     conv = Converter()
     # Implement and register decoders
     msm123 = SubdecoderMSM123(bare_data=True)
     msm4567 = SubdecoderMSM4567(bare_data=True)
+    eph = SubdecoderEph(bare_data=True)
     if not conv.decoder.register_decoder(msm4567.io): 
         return None
     if not conv.decoder.register_decoder(msm123.io):
         return None
+    if not conv.decoder.register_decoder(eph.io):
+        return None
     
+
     # Implement and register printers
     conv.printer.format = 'JSON'
     msm_to_json = JsonPrinter(wfld, controls.JSON)
@@ -184,8 +191,8 @@ class ConverterFactory():
 
     __FACTORY = {
         'MARGO': strategy_MSM17toMARGO,
-        'JSON': strategy_MSM17toJSON,
-        'JSON-B': strategy_MSM17toJSON_BareData
+        'JSON': strategy_MSM17_EPH_to_JSON,
+        'JSON-B': strategy_MSM17_EPH_to_JSON_BareData
     }
 
     def __init__(self, format: str = 'MARGO') -> None:

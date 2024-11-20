@@ -2,7 +2,75 @@
 
 # Utility tools and tables for RTCM
 
-    
+
+def getSubset(num:int)->tuple[str,str]:
+    "Identify message subset and GNSS. Returns tuple: (<GNSS letter>, <Subset>)"
+
+    if num <= 1012:
+        gnss, subset = LEGT.legacy_subset(num)
+    elif num == 1019 or num == 1020:
+        gnss, subset = EPHT.eph_subset(num)
+    elif num >= 1041 and num <= 1046:
+        gnss, subset = EPHT.eph_subset(num)
+    elif num >= 1071 and num <= 1137:
+        gnss, subset = MSMT.msm_subset(num)
+    else:
+        gnss, subset = '',''
+
+    return gnss, subset
+
+#------------------------------------------------------------------------------------------------
+class LEGT:
+    CRNG_1MS: float = 299792.458 # [m]
+
+    LEG1_MSG_LIST = {1001:'G', 1009:'R'}
+    LEG2_MSG_LIST = {1002:'G', 1010:'R'}
+    LEG3_MSG_LIST = {1003:'G', 1011:'R'}
+    LEG4_MSG_LIST = {1004:'G', 1012:'R'}
+
+    @classmethod
+    def legacy_subset(cls, num:int)->tuple[str,str]:
+        '''Classify legacy observables. Returns tuple: (<GNSS letter>, <LEG type>).'''
+        if (num < 1001) or (num > 1012):
+            return '',''
+
+        gnss = cls.LEG1_MSG_LIST.get(num)
+        if gnss:
+            return gnss,'LEG1'
+        
+        gnss = cls.LEG2_MSG_LIST.get(num)
+        if gnss:
+            return gnss,'LEG2'
+        
+        gnss = cls.LEG3_MSG_LIST.get(num)
+        if gnss:
+            return gnss,'LEG3'
+        
+        gnss = cls.LEG4_MSG_LIST.get(num)
+        if gnss:
+            return gnss,'LEG4'
+                        
+        return '',''
+
+
+#------------------------------------------------------------------------------------------------
+
+class EPHT:
+
+    EPH_MSG_LIST = {1019:'G', 1020:'R', 1045:'E', 1046:'E', 1044:'Q', 1042:'B', 1041:'I'}
+
+    @classmethod
+    def eph_subset(cls, num:int)->tuple[str,str]:
+        '''Classify EPH-message number. Returns tuple: (<GNSS letter>, "EPH").'''
+        
+        gnss = cls.EPH_MSG_LIST.get(num)
+
+        if gnss:
+            return gnss,'EPH'
+        else:
+            return '',''
+
+
 #------------------------------------------------------------------------------------------------
 class MSMT:
     CRNG_1MS: float = 299792.458 # [m]
