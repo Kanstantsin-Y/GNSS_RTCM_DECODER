@@ -125,10 +125,10 @@ class GpsLNAV(EphHdr, ClockBias, Keplerians):
     #23 + 8 = 31 elements
     IODE: int = 0
     IODC: int = 0
-    Fit: int = 0
-    L2_Codes: int = 0
-    L2P_Flag = 0
-    SVH: int = 0
+    Fit: int|str = 0
+    L2_Codes: int|str = 0
+    L2P_Data: int|str = 0
+    SVH: int|str = 0
     URA: int|float = 0
     TGD: int|float = 0
 
