@@ -66,7 +66,7 @@ class Keplerians:
     
 
 @dataclass
-class GalFNAV(EphHdr, ClockBias, Keplerians):
+class GalFNAV(Keplerians, ClockBias, EphHdr):
     """ Galileo FNAV Ephemerids, MSG 1045"""
     # 23 + 5 = 28 elements
     IODnav: int = 0
@@ -77,7 +77,7 @@ class GalFNAV(EphHdr, ClockBias, Keplerians):
 
 
 @dataclass
-class GalINAV(EphHdr, ClockBias, Keplerians):
+class GalINAV(Keplerians, ClockBias, EphHdr):
     """ Galileo INAV Ephemerids, MSG 1046"""
 
     #23 + 8 = 31 elements
@@ -92,7 +92,7 @@ class GalINAV(EphHdr, ClockBias, Keplerians):
 
       
 @dataclass
-class QzssL1(EphHdr, ClockBias, Keplerians):
+class QzssL1(Keplerians, ClockBias, EphHdr):
     """ QZSS L1 Ephemerids, MSG 1044"""
 
     #23 + 7 = 30 elements
@@ -106,7 +106,7 @@ class QzssL1(EphHdr, ClockBias, Keplerians):
 
 
 @dataclass
-class BdsD1(EphHdr, ClockBias, Keplerians):
+class BdsD1(Keplerians, ClockBias, EphHdr):
     """ BeiDou D1 Ephemerids, MSG 1042"""
 
     #23 + 6 = 29 elements
@@ -119,7 +119,7 @@ class BdsD1(EphHdr, ClockBias, Keplerians):
 
 
 @dataclass
-class GpsLNAV(EphHdr, ClockBias, Keplerians):
+class GpsLNAV(Keplerians, ClockBias, EphHdr):
     """ GPS LNAV/CNAV Ephemerids, MSG 1019"""
 
     #23 + 8 = 31 elements
@@ -133,7 +133,7 @@ class GpsLNAV(EphHdr, ClockBias, Keplerians):
     TGD: int|float = 0
 
 @dataclass
-class NavicL5(EphHdr, ClockBias, Keplerians):
+class NavicL5(Keplerians, ClockBias, EphHdr):
     """ Navic L5/S Ephemerids, MSG 1041"""
 
     #23 + 8 = 31 elements
@@ -154,39 +154,38 @@ class GloL1L2:
     #36 items
     msgNum:         int = 0
     satNum:         int = 0
-    frqSloNum:      int = 0
-    tk:             int = 0
-    tb:             int = 0
-    xn:             int|float = 0
-    dotXn:          int|float = 0
-    dotDotXn:       int|float = 0
-    yn:             int|float = 0
-    dotYn:          int|float = 0
-    dotDotYn:       int|float = 0
-    zn:             int|float = 0
-    dotZn:          int|float = 0
-    dotDotZn:       int|float = 0
-    gamma_n:        int|float = 0
+    frqSloNum:      int = 0         # [-7..6]
+    tk:             int = 0         # [sec]
+    tb:             int = 0         # [sec]
+    xn:             int|float = 0   # [km/s]
+    dotXn:          int|float = 0   # [km/s^2]
+    dotDotXn:       int|float = 0   # [km/s^3]
+    yn:             int|float = 0   # [km/s]
+    dotYn:          int|float = 0   # [km/s^2]
+    dotDotYn:       int|float = 0   # [km/s^3]
+    zn:             int|float = 0   # [km/s]
+    dotZn:          int|float = 0   # [km/s^2]
+    dotDotZn:       int|float = 0   # [km/s^3]
+    gamma_n:        int|float = 0   # []
     Cn:             int = 0
     BnMSB:          int = 0
     AlmHAI:         int = 0
     P:              int = 0
-    P1:             int = 0
+    P1:             int = 0         # [sec]
     P2:             int = 0
     P3:             int = 0
     P4:             int = 0
     ln3:            int = 0
-    tauN:           int|float = 0
-    delta_tauN:     int|float = 0
+    tauN:           int|float = 0   # [m]
+    delta_tauN:     int|float = 0   # [m]
     En:             int = 0
-    Ft:             int = 0
+    Ft:             int = 0         # [m]
     Nt:             int = 0
     M:              int = 0
-    auxDataOK:      int|bool = 0
+    auxDataOK:      int = 0
     Na:             int = 0
-    tauC:           int|float = 0
+    tauC:           int|float = 0   # [s]
     N4:             int = 0
-    tauGPS:         int|float = 0
+    tauGPS:         int|float = 0   # [s]
     ln5:            int = 0
-
     
