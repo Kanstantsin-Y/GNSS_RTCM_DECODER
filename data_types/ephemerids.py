@@ -136,15 +136,13 @@ class GpsLNAV(Keplerians, ClockBias, EphHdr):
 class NavicL5(Keplerians, ClockBias, EphHdr):
     """ Navic L5/S Ephemerids, MSG 1041"""
 
-    #23 + 8 = 31 elements
-    IODE: int = 0
-    IODC: int = 0
-    Fit: int = 0
-    L2_Codes: int = 0
-    L2P_Flag = 0
-    SVH: int = 0
+    #23 + 5 = 28 elements
     URA: int|float = 0
     TGD: int|float = 0
+    IODEC: int = 0
+    L5_Flag = 0
+    S_Flag = 0
+    
 
 
 @dataclass
