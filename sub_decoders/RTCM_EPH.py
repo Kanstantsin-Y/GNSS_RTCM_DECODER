@@ -14,20 +14,14 @@
 import data_types.ephemerids as mEph
 
 from data_types.ephemerids_test import getReferenceEphData
-
 from decoder_top import SubDecoderInterface
 from typing import Any
 from utilities.bits import Bits
 from utilities.bits import ExceptionBitsError
-from utilities.bits import catch_bits_exceptions
 from logger import LOGGER_CF as logger
 
 
 
-#--- Exceptions ----------------------------------------------------------------------------------
-
-# class ExceptionBareEphStructure(Exception):
-#     '''Hook error in BareEpemerisDecoder methods'''
 
 #------------------------------------------------------------------------------------------------
     
@@ -38,11 +32,10 @@ class EphemerisDecoder(Bits):
         super().__init__()
         self.msgList = (1019,1020,1041,1042,1044,1045,1046)
         
-    #@catch_bits_exceptions
     def get_msg_num(self, buf: bytes) -> int:
         return self.getbitu(buf, 24, 12)
         
-    def __decode1019(self, buf:bytes) -> mEph.GpsLNAV|None:
+    def __decode1019(self, buf:bytes) -> mEph.GpsLNAV:
         """Decode message 1019"""
 
         eph = mEph.GpsLNAV()
@@ -79,7 +72,8 @@ class EphemerisDecoder(Bits):
         eph.L2PD_Flag, offset   = self.getbitu(buf, offset, 1), offset+1         #DF103
         eph.Fit, offset         = self.getbitu(buf, offset, 1), offset+1         #DF137
 
-        return eph if offset == 488+24 else None
+        #expected offcet value is 488+24 = 512
+        return eph
     
     def __scale1019(self, ie: mEph.GpsLNAV, decorate:bool = False) -> mEph.GpsLNAV:
         """Scale and beautify MSG 1019 data"""
@@ -97,30 +91,30 @@ class EphemerisDecoder(Bits):
         eph = mEph.GpsLNAV()
         eph.msgNum = ie.msgNum
         eph.satNum  = ie.satNum                     #DF009
-        eph.weekNum = ie.weekNum                    #DF076
-        eph.i_dot   = ie.i_dot*(2**-43)             #DF079
-        eph.IODE    = ie.IODE                       #DF071
-        eph.tc      = ie.tc*16                      #DF081
-        eph.af2     = ie.af2*(2**-55)               #DF082
-        eph.af1     = ie.af1*(2**-43)               #DF083
-        eph.af0     = ie.af0*(2**-31)               #DF084
-        eph.IODC    = ie.IODC                       #DF085
-        eph.crs     = ie.crs*(2**-5)                #DF086
-        eph.delta_n = ie.delta_n*(2**-43)           #DF087
-        eph.m0      = ie.m0*(2**-31)                #DF088
-        eph.cuc     = ie.cuc*(2**-29)               #DF089
-        eph.e       = ie.e*(2**-33)                 #DF090
-        eph.cus     = ie.cus*(2**-29)               #DF091
-        eph.sqrt_a  = ie.sqrt_a*(2**-19)            #DF092
-        eph.te      = ie.te*16                      #DF093
-        eph.cic     = ie.cic*(2**-29)               #DF094
-        eph.omega0  = ie.omega0*(2**-31)            #DF095
-        eph.cis     = ie.cis*(2**-29)               #DF096
-        eph.i0      = ie.i0*(2**-31)                #DF097
-        eph.crc     = ie.crc*(2**-5)                #DF098
-        eph.w       = ie.w*(2**-31)                 #DF099
-        eph.omega_dot = ie.omega_dot*(2**-43)       #DF100
-        eph.TGD     = ie.TGD*(2**-31)               #DF101
+        eph.weekNum = ie.weekNum                    #DF076 [0..1023]
+        eph.i_dot   = ie.i_dot*(2**-43)             #DF079 [hc/sec]
+        eph.IODE    = ie.IODE                       #DF071 [0..255]
+        eph.tc      = ie.tc*16                      #DF081 [sec]
+        eph.af2     = ie.af2*(2**-55)               #DF082 [sec/sec/sec]
+        eph.af1     = ie.af1*(2**-43)               #DF083 [sec/sec]
+        eph.af0     = ie.af0*(2**-31)               #DF084 [sec]
+        eph.IODC    = ie.IODC                       #DF085 [0..1023]
+        eph.crs     = ie.crs*(2**-5)                #DF086 [m]
+        eph.delta_n = ie.delta_n*(2**-43)           #DF087 [hc/sec]
+        eph.m0      = ie.m0*(2**-31)                #DF088 [hc]
+        eph.cuc     = ie.cuc*(2**-29)               #DF089 [rad]
+        eph.e       = ie.e*(2**-33)                 #DF090 []
+        eph.cus     = ie.cus*(2**-29)               #DF091 [rad]
+        eph.sqrt_a  = ie.sqrt_a*(2**-19)            #DF092 [m^0.5]
+        eph.te      = ie.te*16                      #DF093 [sec]
+        eph.cic     = ie.cic*(2**-29)               #DF094 [rad]
+        eph.omega0  = ie.omega0*(2**-31)            #DF095 [hc]
+        eph.cis     = ie.cis*(2**-29)               #DF096 [rad]
+        eph.i0      = ie.i0*(2**-31)                #DF097 [hc]
+        eph.crc     = ie.crc*(2**-5)                #DF098 [m]
+        eph.w       = ie.w*(2**-31)                 #DF099 [hc]
+        eph.omega_dot = ie.omega_dot*(2**-43)       #DF100 [hc/sec]
+        eph.TGD     = ie.TGD*(2**-31)               #DF101 [m]
         
         if decorate:
             eph.L2_Codes    = _L2_Codes[ie.L2_Codes]                    #DF078
@@ -145,7 +139,7 @@ class EphemerisDecoder(Bits):
         magn = d & magnMask
         return magn if (d & sgnMask) == 0 else -magn
         
-    def __decode1020(self, buf:bytes) -> mEph.GloL1L2|None:
+    def __decode1020(self, buf:bytes) -> mEph.GloL1L2:
         """Decode message 1020"""
           
         eph = mEph.GloL1L2()
@@ -248,8 +242,9 @@ class EphemerisDecoder(Bits):
         return eph
     
     
-    def __decode1041(self, buf:bytes) -> mEph.NavicL5|None:
+    def __decode1041(self, buf:bytes) -> mEph.NavicL5:
         """Decode message 1041"""
+
         eph = mEph.NavicL5()
         offset = 24
         eph.msgNum, offset  = self.getbitu(buf, offset, 12), offset+12          #DF002
@@ -297,8 +292,8 @@ class EphemerisDecoder(Bits):
         eph.weekNum     = ie.weekNum            #DF517 [0..1023]       
         
         eph.af0         = ie.af0*(2**-31)       #DF518 [sec]     
-        eph.af1         = ie.af1*(2**-43)       #DF519 [1/sec]
-        eph.af2         = ie.af2*(2**-55)       #DF520 [1/sec/sec]       
+        eph.af1         = ie.af1*(2**-43)       #DF519 [sec/sec]
+        eph.af2         = ie.af2*(2**-55)       #DF520 [sec/sec/sec]       
         
         eph.URA         = ie.URA                #DF521 [index]
         eph.tc          = ie.tc*16              #DF522 [sec]
@@ -327,8 +322,9 @@ class EphemerisDecoder(Bits):
         return eph
     
 
-    def __decode1042(self, buf:bytes) -> mEph.BdsD1|None:
+    def __decode1042(self, buf:bytes) -> mEph.BdsD1:
         """Decode message 1042"""
+
         eph = mEph.BdsD1()
         offset = 24
         eph.msgNum, offset  = self.getbitu(buf, offset, 12), offset+12
@@ -378,8 +374,8 @@ class EphemerisDecoder(Bits):
         eph.AODE        = ie.AODE            #DF492 [0..31]
         eph.tc          = ie.tc*8            #DF493 [sec]
         
-        eph.af2         = ie.af2*(2**-66)    #DF494 [1/sec/sec]
-        eph.af1         = ie.af1*(2**-50)    #DF495 [1/sec]
+        eph.af2         = ie.af2*(2**-66)    #DF494 [sec/sec/sec]
+        eph.af1         = ie.af1*(2**-50)    #DF495 [sec/sec]
         eph.af0         = ie.af0*(2**-33)    #DF496 [sec]
         
         eph.AODC        = ie.AODC            #DF497 [0..31]
@@ -405,7 +401,7 @@ class EphemerisDecoder(Bits):
         #return getReferenceEphData(ie.msgNum, ie.satNum)
         return eph
     
-    def __decode1046(self, buf:bytes) -> mEph.GalINAV|None:
+    def __decode1046(self, buf:bytes) -> mEph.GalINAV:
         """Decode message 1046"""
 
         eph = mEph.GalINAV()
@@ -456,8 +452,8 @@ class EphemerisDecoder(Bits):
         eph.SISA        = ie.SISA                   #DF286 [0..255] index
         eph.i_dot       = ie.i_dot*(2**-43)         #DF292 [hc/sec]
         eph.tc          = ie.tc*60                  #DF293 [sec]
-        eph.af2         = ie.af2*(2**-59)           #DF294 [1/sec/sec]
-        eph.af1         = ie.af1*(2**-46)           #DF295 [1/sec]
+        eph.af2         = ie.af2*(2**-59)           #DF294 [sec/sec/sec]
+        eph.af1         = ie.af1*(2**-46)           #DF295 [sec/sec]
         eph.af0         = ie.af0*(2**-34)           #DF296 [sec]
         eph.crs         = ie.crs*(2**-5)            #DF297 [m]
         eph.delta_n     = ie.delta_n*(2**-43)       #DF298 [hc/sec]
@@ -483,35 +479,155 @@ class EphemerisDecoder(Bits):
         
         #return getReferenceEphData(ie.msgNum, ie.satNum)
         return eph
-    
 
-    def __decode1044(self, buf:bytes) -> mEph.QzssL1|None:
+    def __decode1045(self, buf:bytes) -> mEph.GalFNAV:
+        """Decode message 1045"""
+
+        eph = mEph.GalFNAV()
+        offset = 24
+        eph.msgNum, offset      = self.getbitu(buf, offset, 12), offset+12  #DF002
+        eph.satNum, offset      = self.getbitu(buf, offset, 6), offset+6    #DF252
+        eph.weekNum, offset     = self.getbitu(buf, offset, 12), offset+12  #DF289
+        eph.IODnav, offset      = self.getbitu(buf, offset, 10), offset+10  #DF290
+        eph.SISA, offset        = self.getbitu(buf, offset, 8), offset+8    #DF291
+        eph.i_dot, offset       = self.getbits(buf, offset, 14), offset+14  #DF292
+        eph.tc, offset          = self.getbitu(buf, offset, 14), offset+14  #DF293
+        eph.af2, offset         = self.getbits(buf, offset, 6), offset+6    #DF294
+        eph.af1, offset         = self.getbits(buf, offset, 21), offset+21  #DF295
+        eph.af0, offset         = self.getbits(buf, offset, 31), offset+31  #DF296
+        eph.crs, offset         = self.getbits(buf, offset, 16), offset+16  #DF297
+        eph.delta_n, offset     = self.getbits(buf, offset, 16), offset+16  #DF298
+        eph.m0, offset          = self.getbits(buf, offset, 32), offset+32  #DF299
+        eph.cuc, offset         = self.getbits(buf, offset, 16), offset+16  #DF300
+        eph.e, offset           = self.getbitu(buf, offset, 32), offset+32  #DF301
+        eph.cus, offset         = self.getbits(buf, offset, 16), offset+16  #DF302
+        eph.sqrt_a, offset      = self.getbitu(buf, offset, 32), offset+32  #DF303
+        eph.te, offset          = self.getbitu(buf, offset, 14), offset+14  #DF304
+        eph.cic, offset         = self.getbits(buf, offset, 16), offset+16  #DF305
+        eph.omega0, offset      = self.getbits(buf, offset, 32), offset+32  #DF306
+        eph.cis, offset         = self.getbits(buf, offset, 16), offset+16  #DF307
+        eph.i0, offset          = self.getbits(buf, offset, 32), offset+32  #DF308
+        eph.crc, offset         = self.getbits(buf, offset, 16), offset+16  #DF309
+        eph.w, offset           = self.getbits(buf, offset, 32), offset+32  #DF310
+        eph.omega_dot, offset   = self.getbits(buf, offset, 24), offset+24  #DF311
+        eph.E5a_BGD, offset     = self.getbits(buf, offset, 10), offset+10  #DF312
+        eph.E5a_SHS, offset     = self.getbitu(buf, offset, 2), offset+2    #DF314
+        eph.E5a_DVS, offset     = self.getbitu(buf, offset, 1), offset+1+7  #DF315
+        
+        #expected offset value is 496+24 = 520
+        return eph
+    
+    def __scale1045(self, ie: mEph.GalFNAV) -> mEph.GalFNAV:
+        """Scale MSG 1045 data"""
+
+        eph = mEph.GalFNAV()
+        eph.msgNum      = ie.msgNum                 #DF002
+        eph.satNum      = ie.satNum                 #DF252
+        eph.weekNum     = ie.weekNum                #DF289
+        eph.IODnav      = ie.IODnav                 #DF290 [0..1023]
+        eph.SISA        = ie.SISA                   #DF291 [0..255] index
+        eph.i_dot       = ie.i_dot*(2**-43)         #DF292 [hc/sec]
+        eph.tc          = ie.tc*60                  #DF293 [sec]
+        eph.af2         = ie.af2*(2**-59)           #DF294 [sec/sec/sec]
+        eph.af1         = ie.af1*(2**-46)           #DF295 [sec/sec]
+        eph.af0         = ie.af0*(2**-34)           #DF296 [sec]
+        eph.crs         = ie.crs*(2**-5)            #DF297 [m]
+        eph.delta_n     = ie.delta_n*(2**-43)       #DF298 [hc/sec]
+        eph.m0          = ie.m0*(2**-31)            #DF299 [hc]
+        eph.cuc         = ie.cuc*(2**-29)           #DF300 [rad]
+        eph.e           = ie.e*(2**-33)             #DF301 []
+        eph.cus         = ie.cus*(2**-29)           #DF302 [rad]
+        eph.sqrt_a      = ie.sqrt_a*(2**-19)        #DF303 [m^0.5]
+        eph.te          = ie.te*60                  #DF304 [sec]
+        eph.cic         = ie.cic*(2**-29)           #DF305 [rad]
+        eph.omega0      = ie.omega0*(2**-31)        #DF306 [hc]
+        eph.cis         = ie.cis*(2**-29)           #DF307 [rad]
+        eph.i0          = ie.i0*(2**-31)            #DF308 [hc]
+        eph.crc         = ie.crc*(2**-5)            #DF309 [m]
+        eph.w           = ie.w*(2**-31)             #DF310 [hc]
+        eph.omega_dot   = ie.omega_dot*(2**-43)     #DF311 [hc/sec]
+        eph.E5a_BGD     = ie.E5a_BGD*(2**-32)       #DF312 [sec]
+        eph.E5a_SHS     = ie.E5a_SHS                #DF314 [0..3], 0 - OK
+        eph.E5a_DVS     = ie.E5a_DVS                #DF315 [0/1]
+        
+        #return getReferenceEphData(ie.msgNum, ie.satNum)
+        return eph
+    
+    def __decode1044(self, buf:bytes) -> mEph.QzssL1:
         """Decode message 1044"""
         eph = mEph.QzssL1()
         offset = 24
-        eph.msgNum, offset = self.getbitu(buf, offset, 12), offset+12
-        eph.satNum, offset = self.getbitu(buf, offset, 4), offset+4
+        
+        eph.msgNum, offset      = self.getbitu(buf, offset, 12), offset+12
+        eph.satNum, offset      = self.getbitu(buf, offset, 4), offset+4         #DF429
+        eph.tc, offset          = self.getbitu(buf, offset, 16), offset+16       #DF430
+        eph.af2, offset         = self.getbits(buf, offset, 8), offset+8         #DF431
+        eph.af1, offset         = self.getbits(buf, offset, 16), offset+16       #DF432
+        eph.af0, offset         = self.getbits(buf, offset, 22), offset+22       #DF433
+        eph.IODE, offset        = self.getbitu(buf, offset, 8), offset+8         #DF434
+        eph.crs, offset         = self.getbits(buf, offset, 16), offset+16       #DF435
+        eph.delta_n, offset     = self.getbits(buf, offset, 16), offset+16       #DF436
+        eph.m0, offset          = self.getbits(buf, offset, 32), offset+32       #DF437
+        eph.cuc, offset         = self.getbits(buf, offset, 16), offset+16       #DF438
+        eph.e, offset           = self.getbitu(buf, offset, 32), offset+32       #DF439
+        eph.cus, offset         = self.getbits(buf, offset, 16), offset+16       #DF440
+        eph.sqrt_a, offset      = self.getbitu(buf, offset, 32), offset+32       #DF441
+        eph.te, offset          = self.getbitu(buf, offset, 16), offset+16       #DF442
+        eph.cic, offset         = self.getbits(buf, offset, 16), offset+16       #DF443
+        eph.omega0, offset      = self.getbits(buf, offset, 32), offset+32       #DF444
+        eph.cis, offset         = self.getbits(buf, offset, 16), offset+16       #DF445
+        eph.i0, offset          = self.getbits(buf, offset, 32), offset+32       #DF446
+        eph.crc, offset         = self.getbits(buf, offset, 16), offset+16       #DF447
+        eph.w, offset           = self.getbits(buf, offset, 32), offset+32       #DF448
+        eph.omega_dot, offset   = self.getbits(buf, offset, 24), offset+24       #DF449
+        eph.i_dot, offset       = self.getbits(buf, offset, 14), offset+14       #DF450
+        eph.L2_Codes, offset    = self.getbitu(buf, offset, 2), offset+2         #DF451
+        eph.weekNum, offset     = self.getbitu(buf, offset, 10), offset+10       #DF452
+        eph.URA, offset         = self.getbitu(buf, offset, 4), offset+4         #DF453
+        eph.SVH, offset         = self.getbitu(buf, offset, 6), offset+6         #DF454
+        eph.TGD, offset         = self.getbits(buf, offset, 8), offset+8         #DF455
+        eph.IODC, offset        = self.getbitu(buf, offset, 10), offset+8        #DF456
+        eph.Fit, offset         = self.getbitu(buf, offset, 1), offset+1         #DF457
+
+        #expected offcet value is 485+24=509        
         return eph
     
-    def __scale1044(self, iEph: mEph.QzssL1) -> mEph.QzssL1:
-        """Scale and beautify MSG 1044 data"""
+    def __scale1044(self, ie: mEph.QzssL1) -> mEph.QzssL1:
+        """Scale MSG 1044 data"""
 
-        return iEph
-    
+        eph = mEph.QzssL1()
+        eph.msgNum = ie.msgNum
+        eph.satNum  = ie.satNum                     #DF429 [0..10]
+        eph.tc      = ie.tc*16                      #DF430 [sec]
+        eph.af2     = ie.af2*(2**-55)               #DF431 [sec/sec/sec]
+        eph.af1     = ie.af1*(2**-43)               #DF432 [sec/sec]
+        eph.af0     = ie.af0*(2**-31)               #DF433 [sec]
+        eph.IODE    = ie.IODE                       #DF434 [0..255]
+        eph.crs     = ie.crs*(2**-5)                #DF435 [m]
+        eph.delta_n = ie.delta_n*(2**-43)           #DF436 [hc/sec]
+        eph.m0      = ie.m0*(2**-31)                #DF437 [hc]
+        eph.cuc     = ie.cuc*(2**-29)               #DF438 [rad]
+        eph.e       = ie.e*(2**-33)                 #DF439 []
+        eph.cus     = ie.cus*(2**-29)               #DF440 [rad]
+        eph.sqrt_a  = ie.sqrt_a*(2**-19)            #DF441 [m^0.5]
+        eph.te      = ie.te*16                      #DF442 [sec]
+        eph.cic     = ie.cic*(2**-29)               #DF443 [rad]
+        eph.omega0  = ie.omega0*(2**-31)            #DF444 [hc]
+        eph.cis     = ie.cis*(2**-29)               #DF445 [rad]
+        eph.i0      = ie.i0*(2**-31)                #DF446 [hc]
+        eph.crc     = ie.crc*(2**-5)                #DF447 [m]
+        eph.w       = ie.w*(2**-31)                 #DF448 [hc]
+        eph.omega_dot = ie.omega_dot*(2**-43)       #DF449 [hc/sec]
+        eph.i_dot   = ie.i_dot*(2**-43)             #DF450 [hc/sec]
+        eph.L2_Codes= ie.L2_Codes                   #DF451
+        eph.weekNum = ie.weekNum                    #DF452 [0..1023]
+        eph.URA     = ie.URA                        #DF453
+        eph.SVH     = ie.SVH                        #DF454,[6-bit code] 0-OK
+        eph.TGD     = ie.TGD*(2**-31)               #DF455 [m]
+        eph.IODC    = ie.IODC                       #DF456 [0..1023]
+        eph.Fit     = ie.Fit                        #DF457 [0/1] 0: =2h, 1: >2h
 
-    def __decode1045(self, buf:bytes) -> mEph.GalFNAV|None:
-        """Decode message 1045"""
-        eph = mEph.GalFNAV()
-        offset = 24
-        eph.msgNum, offset = self.getbitu(buf, offset, 12), offset+12
-        eph.satNum, offset = self.getbitu(buf, offset, 6), offset+6
         return eph
-    
-    def __scale1045(self, iEph: mEph.GalFNAV) -> mEph.GalFNAV:
-        """Scale and beautify MSG 1045 data"""
-
-        return iEph
-    
     
     
     def decode(self, buf:bytes, is_bare_output:bool = False) -> Any|None:
@@ -585,6 +701,4 @@ class SubdecoderEph():
 
     def decode(self, buf:bytes) -> Any | None:
         return self.decoder.decode(buf, self.__bare_data)
-
-
-
+    
