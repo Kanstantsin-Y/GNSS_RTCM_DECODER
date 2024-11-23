@@ -1,3 +1,4 @@
 
-
-__all__ = ['bits', 'CRC24Q', 'RTCM_utilities']
+from .bits import *
+from .CRC24Q import *
+from .RTCM_utilities import *

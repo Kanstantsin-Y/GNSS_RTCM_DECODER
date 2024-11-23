@@ -3,6 +3,10 @@
 # Utility tools and tables for RTCM
 
 
+__all__ = ['getSubset', 'MSMT', 'LEGT', 'EPHT']
+
+
+
 def getSubset(num:int)->tuple[str,str]:
     "Identify message subset and GNSS. Returns tuple: (<GNSS letter>, <Subset>)"
 

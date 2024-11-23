@@ -11,6 +11,9 @@
 from typing import Any
 
 
+__all__ = ['BareObservablesMSM123', 'BareObservablesMSM4567', 'ObservablesMSM', 'Attributes']
+
+
 class ObservablesMSM():
     '''Represents products of MSMx message decoding'''
     
@@ -270,7 +273,7 @@ class _BareObservablesSignalDataMSM123():
         self.hc_indc : tuple[int, ...] = (int(),)
 
 class BareObservablesMSM123():
-    ''' Bare RTCM MSM4, MSM5, MSM6, MSM7 signal data.'''
+    ''' Bare RTCM MSM1, MSM2, MSM3 signal data.'''
 
     __slots__ = ('hdr', 'sat', 'sgn', 'atr')
 

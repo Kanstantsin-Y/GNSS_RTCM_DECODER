@@ -35,7 +35,7 @@ At the moment there are following converter types:
 
 How to extend converter functionality.
 - Develope new intermediate data class if required. See data_types\observables.py to check existing
-data types. Example, ephemerids.py may be created and populated with intermediate data classes for
+data types. Example, ephemeris.py may be created and populated with intermediate data classes for
 ephemeris data.
 - Develope new sub-decoder to:
 -- support new subsets of RTCM messages.
@@ -59,12 +59,11 @@ from decoder_top import DecoderTop
 from sub_decoders import SubdecoderMSM4567, SubdecoderMSM123, SubdecoderEph
 
 from printer_top import PrinterTop
-from printers import MSMtoMARGO as MargoPrinter
-from printers import MSMtoJSON as JsonPrinter
+from printers import PrintMARGO as MargoPrinter
+from printers import PrintJSON as JsonPrinter
 
 from controls import BoxWithConverterControls
-
-from logger import LOGGER_CF as logger
+#from logger import LOGGER_CF as logger
 
 
 

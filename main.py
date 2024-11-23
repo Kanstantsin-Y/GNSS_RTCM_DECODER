@@ -20,7 +20,7 @@ from controls import ConverterControls
 from argparse import ArgumentParser as ArgParser
 from converter_top import ConverterFactory, ConverterInterface
 
-VERSION = "1.01"
+VERSION = "1.10"
 DEFAULT_CONFIG = "defaults.ini"
 FILE_CHUNCK_LEN: int = 2**12 
 ARGS = None
@@ -313,7 +313,7 @@ def main(local_args: str|None = None)-> None:
 
 #ARGS = r"-o JSON RTCM3_TEST_DATA\reference-3msg.rtcm3"
 #ARGS = r"-o JSON d:\NTL_work\OBS\2023\myDecoder\01.19\H7V3-A1.rtcm3"
-ARGS = r"-o JSON RTCM3_TEST_DATA\220425-DELTA-04065-TRMEXT.rtcm3"
+ARGS = r"-o MARGO RTCM3_TEST_DATA\H7V3-A1.rtcm3"
 #ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1019.rtcm3"
 #ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1020.rtcm3"
 #ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1041.rtcm3"

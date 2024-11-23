@@ -11,17 +11,12 @@
 
 
 import  io, os
-import data_types.ephemerids as mEph
+from data_types import *
 from dataclasses import asdict
 from printer_top import SubPrinterInterface
-from data_types.observables import ObservablesMSM, BareObservablesMSM4567, BareObservablesMSM123
-#from utilities.RTCM_utilities import MSMT
-from utilities.RTCM_utilities import getSubset
-
-
+from utilities import getSubset
 from logger import LOGGER_CF as logger
 from json import dumps as jdumps
-
 
 
 class JSONControls:
@@ -130,7 +125,7 @@ class JSONCore:
         """ Return a JSON string encoding ephemeris data."""
         
         rv = ""
-        if mEph.isValidEphBlock(pdata):
+        if isValidEphBlock(pdata):
             # Valid eph. block is a dataclass. Repack the dataclass into a dictionary.
             summary = asdict(pdata)
         else:
@@ -147,7 +142,7 @@ class JSONCore:
             return rv
 
 
-class MSMtoJSON():
+class PrintJSON():
     
     def __init__(self, work_dir: str, controls: JSONControls|None = None):
         
@@ -159,13 +154,13 @@ class MSMtoJSON():
             ObservablesMSM : self.__print_ObservablesMSM,
             BareObservablesMSM4567 : self.__print_BareObservablesMSM17,
             BareObservablesMSM123 : self.__print_BareObservablesMSM17,
-            mEph.GalFNAV: self.__print_ephemerids,
-            mEph.GalINAV: self.__print_ephemerids,
-            mEph.GloL1L2: self.__print_ephemerids,
-            mEph.GpsLNAV: self.__print_ephemerids,
-            mEph.QzssL1: self.__print_ephemerids,
-            mEph.BdsD1: self.__print_ephemerids,
-            mEph.NavicL5: self.__print_ephemerids
+            GalFNAV: self.__print_ephemeris,
+            GalINAV: self.__print_ephemeris,
+            GloL1L2: self.__print_ephemeris,
+            GpsLNAV: self.__print_ephemeris,
+            QzssL1: self.__print_ephemeris,
+            BdsD1: self.__print_ephemeris,
+            NavicL5: self.__print_ephemeris
         }
         
         self.__wd = work_dir
@@ -244,7 +239,7 @@ class MSMtoJSON():
             data_string = ',\r' + data_string
             self.__append(obs.atr.msg_number, data_string)
 
-    def __print_ephemerids(self, ephBlock:object) -> str:
+    def __print_ephemeris(self, ephBlock:object) -> str:
         """Print data from ehemerids data class"""
 
         data_string = self.core.ephToPrintBuffer(ephBlock)

@@ -34,7 +34,7 @@ This project implements a tool for binary RTCM data unpacking and conversion int
 RTCM STANDARD 10403.x.
 
 - RTCM STANDARD 10403.x - A document describing special data format widely used in GNSS
-and GNSS-related applications. RTCM format specifies a set of binary messages used for transmission and storage of GNSS related data (range measurements, corrections, ephemerids, auxiliary data and so on).
+and GNSS-related applications. RTCM format specifies a set of binary messages used for transmission and storage of GNSS related data (range measurements, corrections, ephemeris, auxiliary data and so on).
 
 - GNSS - Global Navigation Satellite System.
 

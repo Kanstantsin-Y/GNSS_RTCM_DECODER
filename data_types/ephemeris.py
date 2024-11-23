@@ -5,10 +5,12 @@
     This file implements DTO classes for ephemerida data.
 """
 
-
-from typing import Any
 from dataclasses import dataclass
 from dataclasses import is_dataclass
+
+
+__all__ = ['isValidEphBlock', 'GpsLNAV', 'GloL1L2', 'GalFNAV', 'GalINAV', 'BdsD1', 'QzssL1', 'NavicL5']
+
 
 def isValidEphBlock(ephBlock:object)->bool:
     """Validate minimal requirements to ephemeris data block"""
@@ -28,7 +30,7 @@ def isValidEphBlock(ephBlock:object)->bool:
 
 @dataclass
 class EphHdr:
-    """Ephemerids ID"""
+    """ephemeris ID"""
     #3 elements:
     msgNum: int = 0
     satNum: int = 0
@@ -67,7 +69,7 @@ class Keplerians:
 
 @dataclass
 class GalFNAV(Keplerians, ClockBias, EphHdr):
-    """ Galileo FNAV Ephemerids, MSG 1045"""
+    """ Galileo FNAV ephemeris, MSG 1045"""
     # 23 + 5 = 28 elements
     IODnav: int = 0
     SISA: int|float = 0
@@ -78,7 +80,7 @@ class GalFNAV(Keplerians, ClockBias, EphHdr):
 
 @dataclass
 class GalINAV(Keplerians, ClockBias, EphHdr):
-    """ Galileo INAV Ephemerids, MSG 1046"""
+    """ Galileo INAV ephemeris, MSG 1046"""
 
     #23 + 8 = 31 elements
     IODnav: int = 0
@@ -93,7 +95,7 @@ class GalINAV(Keplerians, ClockBias, EphHdr):
       
 @dataclass
 class QzssL1(Keplerians, ClockBias, EphHdr):
-    """ QZSS L1 Ephemerids, MSG 1044"""
+    """ QZSS L1 ephemeris, MSG 1044"""
 
     #23 + 7 = 30 elements
     IODE: int = 0
@@ -107,7 +109,7 @@ class QzssL1(Keplerians, ClockBias, EphHdr):
 
 @dataclass
 class BdsD1(Keplerians, ClockBias, EphHdr):
-    """ BeiDou D1 Ephemerids, MSG 1042"""
+    """ BeiDou D1 ephemeris, MSG 1042"""
 
     #23 + 6 = 29 elements
     AODE: int = 0
@@ -120,7 +122,7 @@ class BdsD1(Keplerians, ClockBias, EphHdr):
 
 @dataclass
 class GpsLNAV(Keplerians, ClockBias, EphHdr):
-    """ GPS LNAV/CNAV Ephemerids, MSG 1019"""
+    """ GPS LNAV/CNAV ephemeris, MSG 1019"""
 
     #23 + 8 = 31 elements
     IODE: int = 0
@@ -134,7 +136,7 @@ class GpsLNAV(Keplerians, ClockBias, EphHdr):
 
 @dataclass
 class NavicL5(Keplerians, ClockBias, EphHdr):
-    """ Navic L5/S Ephemerids, MSG 1041"""
+    """ Navic L5/S ephemeris, MSG 1041"""
 
     #23 + 5 = 28 elements
     URA: int|float = 0
@@ -147,7 +149,7 @@ class NavicL5(Keplerians, ClockBias, EphHdr):
 
 @dataclass
 class GloL1L2:
-    """Glonass L1/L2 ephemerids, MSG 1020"""
+    """Glonass L1/L2 ephemeris, MSG 1020"""
 
     #36 items
     msgNum:         int = 0

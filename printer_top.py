@@ -14,10 +14,7 @@
 
 #--- Dependencies ---------------------------------------------------------------------------
 
-import data_types.ephemerids as mEph
-
-from typing import Any
-from data_types.observables import ObservablesMSM, BareObservablesMSM4567, BareObservablesMSM123
+from data_types import *
 from logger import LOGGER_CF as logger
 
 #--- Specification of input data types for different printers -------------------------------
@@ -26,14 +23,14 @@ _MARGO_SPECS = {
     'LEGO'  : set(),    # to be fulfilled with valid data types when developed
     'MSM13O': {ObservablesMSM,},
     'MSM47O': {ObservablesMSM,},
-    'EPH'   : {mEph.GpsLNAV, mEph.GloL1L2, mEph.BdsD1, mEph.GalFNAV, mEph.GalINAV, mEph.NavicL5, mEph.QzssL1}
+    'EPH'   : {GpsLNAV, GloL1L2, BdsD1, GalFNAV, GalINAV, NavicL5, QzssL1}
     }
 
 _JSON_SPECS = {
     'LEGO'  : set(),    # to be fulfilled with valid data types when developed
     'MSM13O': {BareObservablesMSM123, ObservablesMSM},
     'MSM47O': {BareObservablesMSM4567, ObservablesMSM},
-    'EPH'   : {mEph.GpsLNAV, mEph.GloL1L2, mEph.BdsD1, mEph.GalFNAV, mEph.GalINAV, mEph.NavicL5, mEph.QzssL1}
+    'EPH'   : {GpsLNAV, GloL1L2, BdsD1, GalFNAV, GalINAV, NavicL5, QzssL1}
     }
 
 _SPECS_LIST = {
@@ -96,11 +93,6 @@ class PrinterTop():
     '''Combines decoders for RTCM message subsets and implements outer interface'''
 
     def __init__(self, in_format:str='UNDEF') -> None:
-
-        # if len(format) and (not (format in _SPECS_LIST.keys())):
-        #     logger.error(f"Format '{format}' not supported.")
-        #     self._format = ''
-        #     return
 
         self._format = in_format
         self.printers : set[SubPrinterInterface] = set()

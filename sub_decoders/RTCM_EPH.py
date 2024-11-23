@@ -11,13 +11,13 @@
        - indexes (URA (GPS), Ft (GLONASS)) for tabled values
        are not scaled and shall be interpreted on the user side.
 """
-import data_types.ephemerids as mEph
+import data_types as mEph
 
-from data_types.ephemerids_test import getReferenceEphData
+#from ..test.ephemeris_test_samples import getReferenceEphData
 from decoder_top import SubDecoderInterface
 from typing import Any
-from utilities.bits import Bits
-from utilities.bits import ExceptionBitsError
+from utilities import Bits
+from utilities import ExceptionBitsError
 from logger import LOGGER_CF as logger
 
 

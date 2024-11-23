@@ -1,6 +1,6 @@
 
 
-__all__=['Bits','ExceptionBitsError','ExceptionBitsWrn','catch_bits_exceptions']
+__all__=['Bits','ExceptionBitsError','catch_bits_exceptions']
 
 #--- Exceptions -----------------------------------------------------------------------------------
 

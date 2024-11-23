@@ -18,14 +18,14 @@
 
 #--- Dependencies ---------------------------------------------------------------------------
 
-import data_types.ephemerids as mEph
+import data_types.ephemeris as mEph
 
-from data_types.observables import ObservablesMSM
-from data_types.observables import BareObservablesMSM4567, BareObservablesMSM123
+from data_types import ObservablesMSM
+from data_types import BareObservablesMSM4567, BareObservablesMSM123
 
-from utilities.bits import Bits  
-from utilities.bits import catch_bits_exceptions
-from utilities.CRC24Q import CRC24Q
+from utilities import Bits  
+from utilities import catch_bits_exceptions
+from utilities import CRC24Q
 
 from logger import LOGGER_CF as logger
 from typing import Any

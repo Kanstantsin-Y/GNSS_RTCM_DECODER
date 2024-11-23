@@ -14,8 +14,8 @@
 import  io, os
 
 from printer_top import SubPrinterInterface
-from data_types.observables import ObservablesMSM, BareObservablesMSM4567
-from utilities.RTCM_utilities import MSMT
+from data_types import ObservablesMSM, BareObservablesMSM4567
+from utilities import MSMT
 
 from logger import LOGGER_CF as logger
 
@@ -274,7 +274,7 @@ class MargoCore():
 
     
 
-class MSMtoMARGO():
+class PrintMARGO():
     
     def __init__(self, work_dir: str, ctrls: MargoControls|None = None):
         

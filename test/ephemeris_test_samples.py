@@ -1,16 +1,15 @@
 
 
-from data_types.ephemerids import GpsLNAV
-from data_types.ephemerids import GloL1L2
-#from data_types.ephemerids import GalFNAV
-from data_types.ephemerids import GalINAV
-from data_types.ephemerids import BdsD1
-from data_types.ephemerids import NavicL5
-#from data_types.ephemerids import QzssL1
+from data_types import GpsLNAV
+from data_types import GloL1L2
+#from data_types import GalFNAV
+from data_types import GalINAV
+from data_types import BdsD1
+from data_types import NavicL5
+#from data_types import QzssL1
 
 
-
-
+__all__ = ['getReferenceEphData']
 
 # according to file RTCM3_TEST_DATA\EPH\msg1019.rtcm3
 _G = [

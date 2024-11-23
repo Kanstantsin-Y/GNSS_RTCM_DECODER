@@ -13,16 +13,12 @@
 #--- Dependencies -------------------------------------------------------------------------
 
 #from math import isnan
-from typing import Any
-from data_types.observables import ObservablesMSM, Attributes
-from data_types.observables import BareObservablesMSM4567, BareObservablesMSM123
+from data_types import ObservablesMSM, Attributes
+from data_types import BareObservablesMSM4567, BareObservablesMSM123
 
 from decoder_top import SubDecoderInterface
-from utilities.RTCM_utilities import MSMT
-
-from utilities.bits import Bits
-from utilities.bits import ExceptionBitsError
-from utilities.bits import catch_bits_exceptions
+from utilities import MSMT
+from utilities import Bits, ExceptionBitsError, catch_bits_exceptions
 
 from logger import LOGGER_CF as logger
 
