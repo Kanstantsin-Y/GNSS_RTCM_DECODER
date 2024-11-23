@@ -202,8 +202,8 @@ class MSMtoJSON():
             return False
         
         path = os.path.join(self.__wd, subset)
-        path = os.path.join(path, self.core.DIRNAME(gnss)) 
-        fname = f"{subset}.json"
+        #path = os.path.join(path, self.core.DIRNAME(gnss)) 
+        fname = f"{self.core.DIRNAME(gnss)}-{subset}-{msg_num}.json"
         try:
             if not os.path.isdir(path):
                 os.makedirs(path)
