@@ -1,12 +1,12 @@
 
 
-from data_types import GpsLNAV
-from data_types import GloL1L2
-#from data_types import GalFNAV
-from data_types import GalINAV
-from data_types import BdsD1
-from data_types import NavicL5
-#from data_types import QzssL1
+from gnss_types import GpsLNAV
+from gnss_types import GloL1L2
+#from gnss_types import GalFNAV
+from gnss_types import GalINAV
+from gnss_types import BdsD1
+from gnss_types import NavicL5
+#from gnss_types import QzssL1
 
 
 __all__ = ['getReferenceEphData']

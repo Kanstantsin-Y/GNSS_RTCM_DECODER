@@ -14,7 +14,7 @@
 
 #--- Dependencies ---------------------------------------------------------------------------
 
-from data_types import *
+from gnss_types import *
 from logger import LOGGER_CF as logger
 
 #--- Specification of input data types for different printers -------------------------------

@@ -34,7 +34,7 @@ At the moment there are following converter types:
 - 'JSON-B' - extracts bare (integer, not scaled) data from MSM messages and saves in JSON format.
 
 How to extend converter functionality.
-- Develope new intermediate data class if required. See data_types\observables.py to check existing
+- Develope new intermediate data class if required. See gnss_types\observables.py to check existing
 data types. Example, ephemeris.py may be created and populated with intermediate data classes for
 ephemeris data.
 - Develope new sub-decoder to:

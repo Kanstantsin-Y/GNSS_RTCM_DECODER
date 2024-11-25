@@ -18,10 +18,10 @@
 
 #--- Dependencies ---------------------------------------------------------------------------
 
-import data_types.ephemeris as mEph
+import gnss_types.ephemeris as mEph
 
-from data_types import ObservablesMSM
-from data_types import BareObservablesMSM4567, BareObservablesMSM123
+from gnss_types import ObservablesMSM
+from gnss_types import BareObservablesMSM4567, BareObservablesMSM123
 
 from utilities import Bits  
 from utilities import catch_bits_exceptions

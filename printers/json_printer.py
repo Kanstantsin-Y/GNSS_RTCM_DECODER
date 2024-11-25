@@ -11,7 +11,7 @@
 
 
 import  io, os
-from data_types import *
+from gnss_types import *
 from dataclasses import asdict
 from printer_top import SubPrinterInterface
 from utilities import getSubset

@@ -11,7 +11,7 @@
        - indexes (URA (GPS), Ft (GLONASS)) for tabled values
        are not scaled and shall be interpreted on the user side.
 """
-import data_types as mEph
+import gnss_types as mEph
 
 #from ..test.ephemeris_test_samples import getReferenceEphData
 from decoder_top import SubDecoderInterface

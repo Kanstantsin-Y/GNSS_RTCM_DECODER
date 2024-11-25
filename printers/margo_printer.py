@@ -14,7 +14,7 @@
 import  io, os
 
 from printer_top import SubPrinterInterface
-from data_types import ObservablesMSM, BareObservablesMSM4567
+from gnss_types import ObservablesMSM, BareObservablesMSM4567
 from utilities import MSMT
 
 from logger import LOGGER_CF as logger

@@ -13,8 +13,8 @@
 #--- Dependencies -------------------------------------------------------------------------
 
 #from math import isnan
-from data_types import ObservablesMSM, Attributes
-from data_types import BareObservablesMSM4567, BareObservablesMSM123
+from gnss_types import ObservablesMSM, Attributes
+from gnss_types import BareObservablesMSM4567, BareObservablesMSM123
 
 from decoder_top import SubDecoderInterface
 from utilities import MSMT
