@@ -9,23 +9,23 @@ import math
 from dataclasses import dataclass, fields
 from dataclasses import is_dataclass
 
-__all__ = ['isValidEphBlock', 'GpsLNAV', 'GloL1L2', 'GalFNAV', 'GalINAV', 'BdsD1', 'QzssL1', 'NavicL5']
+__all__ = ['isValidEphBlock', 'EphGPS', 'EphGLO', 'EphGALF', 'EphGALI', 'EphBDS', 'EphQZS', 'EphNAVIC']
 
 DEF_FLOAT_CMP_TOLR = 1e-15
 
 def isValidEphBlock(ephBlock:object)->bool:
     """Validate minimal requirements to ephemeris data block"""
     valid = True
-    if not type(ephBlock) in (GalFNAV, GalINAV, QzssL1, BdsD1, GpsLNAV, NavicL5, GloL1L2):
+    if not type(ephBlock) in (EphGALF, EphGALI, EphQZS, EphBDS, EphGPS, EphNAVIC, EphGLO):
         valid = False
     if not is_dataclass(ephBlock):
         valid = False
-    if not "msgNum" in ephBlock.__dict__.keys():
+    if not "msgNum" in ephBlock.__dataclass_fields__.keys():
         valid = False
-    if not "satNum" in ephBlock.__dict__.keys():
+    if not "satNum" in ephBlock.__dataclass_fields__.keys():
         valid = False
 
-    return valid 
+    return valid
 
 
 @dataclass
@@ -108,7 +108,7 @@ class Keplerians:
     
 
 @dataclass
-class GalFNAV(EphMethods, Keplerians, ClockBias, EphHdr):
+class EphGALF(EphMethods, Keplerians, ClockBias, EphHdr):
     """ Galileo FNAV ephemeris, MSG 1045"""
     # 23 + 5 = 28 elements
     IODnav: int = 0
@@ -119,7 +119,7 @@ class GalFNAV(EphMethods, Keplerians, ClockBias, EphHdr):
 
 
 @dataclass
-class GalINAV(EphMethods, Keplerians, ClockBias, EphHdr):
+class EphGALI(EphMethods, Keplerians, ClockBias, EphHdr):
     """ Galileo INAV ephemeris, MSG 1046"""
 
     #23 + 8 = 31 elements
@@ -134,7 +134,7 @@ class GalINAV(EphMethods, Keplerians, ClockBias, EphHdr):
 
       
 @dataclass
-class QzssL1(EphMethods, Keplerians, ClockBias, EphHdr):
+class EphQZS(EphMethods, Keplerians, ClockBias, EphHdr):
     """ QZSS L1 ephemeris, MSG 1044"""
 
     #23 + 7 = 30 elements
@@ -148,7 +148,7 @@ class QzssL1(EphMethods, Keplerians, ClockBias, EphHdr):
 
 
 @dataclass
-class BdsD1(EphMethods, Keplerians, ClockBias, EphHdr):
+class EphBDS(EphMethods, Keplerians, ClockBias, EphHdr):
     """ BeiDou D1 ephemeris, MSG 1042"""
 
     #23 + 6 = 29 elements
@@ -161,7 +161,7 @@ class BdsD1(EphMethods, Keplerians, ClockBias, EphHdr):
 
 
 @dataclass
-class GpsLNAV(EphMethods, Keplerians, ClockBias, EphHdr):
+class EphGPS(EphMethods, Keplerians, ClockBias, EphHdr):
     """ GPS LNAV/CNAV ephemeris, MSG 1019"""
 
     #23 + 8 = 31 elements
@@ -175,7 +175,7 @@ class GpsLNAV(EphMethods, Keplerians, ClockBias, EphHdr):
     TGD: int|float = 0
 
 @dataclass
-class NavicL5(EphMethods, Keplerians, ClockBias, EphHdr):
+class EphNAVIC(EphMethods, Keplerians, ClockBias, EphHdr):
     """ Navic L5/S ephemeris, MSG 1041"""
 
     #23 + 5 = 28 elements
@@ -188,7 +188,7 @@ class NavicL5(EphMethods, Keplerians, ClockBias, EphHdr):
 
 
 @dataclass
-class GloL1L2(EphMethods):
+class EphGLO(EphMethods):
     """Glonass L1/L2 ephemeris, MSG 1020"""
 
     #36 items

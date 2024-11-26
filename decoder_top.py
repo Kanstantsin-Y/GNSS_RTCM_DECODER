@@ -69,13 +69,13 @@ class SubDecoderInterface():
         '''Defines IN/OUT interface of ephemeris decoder'''
 
         # Same types are used for bare/scaled data
-        rv = {  1045: mEph.GalFNAV,
-                1046: mEph.GalINAV,
-                1020: mEph.GloL1L2,
-                1019: mEph.GpsLNAV,
-                1044: mEph.QzssL1,
-                1042: mEph.BdsD1,
-                1041: mEph.NavicL5 }
+        rv = {  1045: mEph.EphGALF,
+                1046: mEph.EphGALI,
+                1020: mEph.EphGLO,
+                1019: mEph.EphGPS,
+                1044: mEph.EphQZS,
+                1042: mEph.EphBDS,
+                1041: mEph.EphNAVIC }
         return rv
 
 

@@ -1,19 +1,19 @@
 
 
-from gnss_types import GpsLNAV
-from gnss_types import GloL1L2
-#from gnss_types import GalFNAV
-from gnss_types import GalINAV
-from gnss_types import BdsD1
-from gnss_types import NavicL5
-#from gnss_types import QzssL1
+from gnss_types import EphGPS
+from gnss_types import EphGLO
+#from gnss_types import EphGALF
+from gnss_types import EphGALI
+from gnss_types import EphBDS
+from gnss_types import EphNAVIC
+#from gnss_types import EphQZS
 
 
 __all__ = ['getReferenceEphData']
 
 # according to file RTCM3_TEST_DATA\EPH\msg1019.rtcm3
 _G = [
-    GpsLNAV(
+    EphGPS(
         msgNum  = 1019,
         satNum  = 32,
         weekNum = 197,
@@ -46,7 +46,7 @@ _G = [
         L2P_Data = 0,
         Fit      = 0
     ),
-    GpsLNAV(
+    EphGPS(
         msgNum  = 1019,
         satNum  = 31,
         weekNum = 197,
@@ -79,7 +79,7 @@ _G = [
         L2P_Data = 0,
         Fit      = 0
     ),
-    GpsLNAV(
+    EphGPS(
         msgNum  = 1019,
         satNum  = 29,
         weekNum = 197,
@@ -116,7 +116,7 @@ _G = [
 
 # according to file RTCM3_TEST_DATA\EPH\msg1020.rtcm3
 _R = [
-    GloL1L2(
+    EphGLO(
         msgNum     = 1020,                 
         satNum     = 12,
         frqSloNum  = 6-7,
@@ -154,7 +154,7 @@ _R = [
         tauGPS     = 5.0291419029235839843750000e-08,
         ln5        = 0
     ),
-    GloL1L2(
+    EphGLO(
         msgNum     = 1020,
         satNum     = 22,
         frqSloNum  = 4-7,
@@ -192,7 +192,7 @@ _R = [
         tauGPS     = 5.0291419029235839843750000e-08,
         ln5        = 0
     ),
-    GloL1L2(
+    EphGLO(
         msgNum     = 1020,
         satNum     = 2,
         frqSloNum  = 3-7,
@@ -234,7 +234,7 @@ _R = [
 
 # according to file RTCM3_TEST_DATA\EPH\msg1046.rtcm3
 _EI = [
-    GalINAV(
+    EphGALI(
         msgNum = 1046,
         satNum = 31,
         weekNum = 1221,
@@ -267,7 +267,7 @@ _EI = [
         E5b_SHS = 0,
         E5b_DVS = 0
     ),
-    GalINAV(
+    EphGALI(
         msgNum = 1046,
         satNum = 26,
         weekNum = 1221,
@@ -300,7 +300,7 @@ _EI = [
         E5b_SHS = 0,
         E5b_DVS = 0
     ),
-    GalINAV(
+    EphGALI(
         msgNum = 1046,
         satNum = 24,
         weekNum = 1221,
@@ -337,7 +337,7 @@ _EI = [
 
 # according to file RTCM3_TEST_DATA\EPH\msg1042.rtcm3
 _B = [
-    BdsD1(
+    EphBDS(
         msgNum      = 1042,
         satNum      = 11,
         weekNum     = 889,
@@ -368,7 +368,7 @@ _B = [
         TGD1        = 4.3000000000e-09,
         TGD2        = 1.7000000000e-09
     ),
-    BdsD1(
+    EphBDS(
         msgNum          = 1042,
         satNum          = 12,
         weekNum         = 889,
@@ -399,7 +399,7 @@ _B = [
         TGD1            = 3.3000000000e-09,
         TGD2            = 0.0000000000e+00
     ),
-    BdsD1(
+    EphBDS(
         msgNum = 1042,
         satNum = 8,
         weekNum = 889,
@@ -434,7 +434,7 @@ _B = [
 
 # according to file RTCM3_TEST_DATA\EPH\msg1041.rtcm3
 _I = [
-    NavicL5(
+    EphNAVIC(
         msgNum = 1041,
         satNum = 6,
         weekNum = 197,
@@ -462,7 +462,7 @@ _I = [
         TGD = -1.8626451492309570312500000e-09,
         IODEC = 220
     ),
-    NavicL5(
+    EphNAVIC(
         msgNum = 1041,
         satNum = 3,
         weekNum = 197,
@@ -490,7 +490,7 @@ _I = [
         TGD = -1.3969838619232177734375000e-09,
         IODEC = 7
     ),
-    NavicL5(
+    EphNAVIC(
         msgNum = 1041,
         satNum = 2,
         weekNum = 197,

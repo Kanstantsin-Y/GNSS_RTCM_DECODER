@@ -154,13 +154,13 @@ class PrintJSON():
             ObservablesMSM : self.__print_ObservablesMSM,
             BareObservablesMSM4567 : self.__print_BareObservablesMSM17,
             BareObservablesMSM123 : self.__print_BareObservablesMSM17,
-            GalFNAV: self.__print_ephemeris,
-            GalINAV: self.__print_ephemeris,
-            GloL1L2: self.__print_ephemeris,
-            GpsLNAV: self.__print_ephemeris,
-            QzssL1: self.__print_ephemeris,
-            BdsD1: self.__print_ephemeris,
-            NavicL5: self.__print_ephemeris
+            EphGALF: self.__print_ephemeris,
+            EphGALI: self.__print_ephemeris,
+            EphGLO: self.__print_ephemeris,
+            EphGPS: self.__print_ephemeris,
+            EphQZS: self.__print_ephemeris,
+            EphBDS: self.__print_ephemeris,
+            EphNAVIC: self.__print_ephemeris
         }
         
         self.__wd = work_dir

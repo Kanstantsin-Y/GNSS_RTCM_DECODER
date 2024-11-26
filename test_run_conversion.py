@@ -34,20 +34,20 @@ def _determin_type(tname:str):
 
     dtype = None
     match tname:
-        case 'GpsLNAV':
-            dtype = gt.GpsLNAV
-        case 'GloL1L2':
-            dtype = gt.GloL1L2
-        case 'GalFNAV':
-            dtype = gt.GalFNAV
-        case 'GalINAV':
-            dtype = gt.GalINAV
-        case 'BdsD1':
-            dtype = gt.BdsD1
-        case 'QzssL1':
-            dtype = gt.QzssL1
-        case 'NavicL5':
-            dtype = gt.NavicL5
+        case 'EphGPS':
+            dtype = gt.EphGPS
+        case 'EphGLO':
+            dtype = gt.EphGLO
+        case 'EphGALF':
+            dtype = gt.EphGALF
+        case 'EphGALI':
+            dtype = gt.EphGALI
+        case 'EphBDS':
+            dtype = gt.EphBDS
+        case 'EphQZS':
+            dtype = gt.EphQZS
+        case 'EphNAVIC':
+            dtype = gt.EphNAVIC
         
     return dtype
 

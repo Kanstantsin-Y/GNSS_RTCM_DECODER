@@ -49,10 +49,10 @@ class EphemerisDecoder(Bits):
             raise ExceptionEphemerisDecoder(f'message length error: {bufLen} vs {Ndec}')
 
         
-    def __decode1019(self, buf:bytes) -> mEph.GpsLNAV:
+    def __decode1019(self, buf:bytes) -> mEph.EphGPS:
         """Decode message 1019"""
 
-        eph = mEph.GpsLNAV()
+        eph = mEph.EphGPS()
         offset = 24
         eph.msgNum, offset      = self.getbitu(buf, offset, 12), offset+12
         eph.satNum, offset      = self.getbitu(buf, offset, 6), offset+6         #DF009
@@ -92,7 +92,7 @@ class EphemerisDecoder(Bits):
         return eph
     
     @classmethod
-    def __scale1019(cls, ie: mEph.GpsLNAV, decorate:bool = False) -> mEph.GpsLNAV:
+    def __scale1019(cls, ie: mEph.EphGPS, decorate:bool = False) -> mEph.EphGPS:
         """Scale and beautify MSG 1019 data"""
         _L2_Codes = {0:'RS', 1:'P', 2:'CA', 3:'L2C'}
 
@@ -105,7 +105,7 @@ class EphemerisDecoder(Bits):
             else:
                 return 6144.0 
 
-        eph = mEph.GpsLNAV()
+        eph = mEph.EphGPS()
         eph.msgNum = ie.msgNum
         eph.satNum  = ie.satNum                     #DF009
         eph.weekNum = ie.weekNum                    #DF076 [0..1023]
@@ -156,10 +156,10 @@ class EphemerisDecoder(Bits):
         magn = d & magnMask
         return magn if (d & sgnMask) == 0 else -magn
         
-    def __decode1020(self, buf:bytes) -> mEph.GloL1L2:
+    def __decode1020(self, buf:bytes) -> mEph.EphGLO:
         """Decode message 1020"""
           
-        eph = mEph.GloL1L2()
+        eph = mEph.EphGLO()
         offset = 24
         eph.msgNum, offset      = self.getbitu(buf, offset, 12), offset+12
         eph.satNum, offset      = self.getbitu(buf, offset, 6), offset+6    #DF038
@@ -203,13 +203,13 @@ class EphemerisDecoder(Bits):
         return eph
     
     @classmethod
-    def __scale1020(cls, ie: mEph.GloL1L2) -> mEph.GloL1L2:
+    def __scale1020(cls, ie: mEph.EphGLO) -> mEph.EphGLO:
         """Scale MSG 1020 data"""
 
         #__FT = [1.0, 2.0, 2.5, 4.0, 5.0, 7.0, 10.0, 12.0, 14.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0]
         #__P1 = [0, 30, 45, 60]
 
-        eph = mEph.GloL1L2()
+        eph = mEph.EphGLO()
         eph.msgNum = ie.msgNum    
         eph.satNum = ie.satNum                      #DF038
         eph.frqSloNum = ie.frqSloNum - 7            #DF040  [-7..13]
@@ -260,10 +260,10 @@ class EphemerisDecoder(Bits):
         return eph
     
     
-    def __decode1041(self, buf:bytes) -> mEph.NavicL5:
+    def __decode1041(self, buf:bytes) -> mEph.EphNAVIC:
         """Decode message 1041"""
 
-        eph = mEph.NavicL5()
+        eph = mEph.EphNAVIC()
         offset = 24
         eph.msgNum, offset  = self.getbitu(buf, offset, 12), offset+12          #DF002
         eph.satNum, offset  = self.getbitu(buf, offset, 6), offset+6            #DF516
@@ -303,10 +303,10 @@ class EphemerisDecoder(Bits):
         return eph
     
     @classmethod
-    def __scale1041(cls, ie: mEph.NavicL5) -> mEph.NavicL5:
+    def __scale1041(cls, ie: mEph.EphNAVIC) -> mEph.EphNAVIC:
         """Scale MSG 1041 data"""
 
-        eph = mEph.NavicL5()
+        eph = mEph.EphNAVIC()
         eph.msgNum      = ie.msgNum             #DF002
         eph.satNum      = ie.satNum             #DF516
         eph.weekNum     = ie.weekNum            #DF517 [0..1023]       
@@ -341,10 +341,10 @@ class EphemerisDecoder(Bits):
         return eph
     
 
-    def __decode1042(self, buf:bytes) -> mEph.BdsD1:
+    def __decode1042(self, buf:bytes) -> mEph.EphBDS:
         """Decode message 1042"""
 
-        eph = mEph.BdsD1()
+        eph = mEph.EphBDS()
         offset = 24
         eph.msgNum, offset  = self.getbitu(buf, offset, 12), offset+12
         eph.satNum, offset  = self.getbitu(buf, offset, 6), offset+6        #DF488
@@ -383,10 +383,10 @@ class EphemerisDecoder(Bits):
         return eph
     
     @classmethod
-    def __scale1042(cls, ie: mEph.BdsD1) -> mEph.BdsD1:
+    def __scale1042(cls, ie: mEph.EphBDS) -> mEph.EphBDS:
         """Scale MSG 1042 data"""
 
-        eph = mEph.BdsD1()
+        eph = mEph.EphBDS()
         eph.msgNum      = ie.msgNum          # hc - half cycle
         eph.satNum      = ie.satNum          #DF488 [1..63]
         eph.weekNum     = ie.weekNum         #DF489 [0..8191]
@@ -421,10 +421,10 @@ class EphemerisDecoder(Bits):
 
         return eph
     
-    def __decode1046(self, buf:bytes) -> mEph.GalINAV:
+    def __decode1046(self, buf:bytes) -> mEph.EphGALI:
         """Decode message 1046"""
 
-        eph = mEph.GalINAV()
+        eph = mEph.EphGALI()
         offset = 24
         eph.msgNum, offset      = self.getbitu(buf, offset, 12), offset+12  #DF002
         eph.satNum, offset      = self.getbitu(buf, offset, 6), offset+6    #DF252
@@ -463,10 +463,10 @@ class EphemerisDecoder(Bits):
         return eph
 
     @classmethod
-    def __scale1046(cls, ie: mEph.GalINAV) -> mEph.GalINAV:
+    def __scale1046(cls, ie: mEph.EphGALI) -> mEph.EphGALI:
         """Scale MSG 1046 data"""
 
-        eph = mEph.GalINAV()
+        eph = mEph.EphGALI()
         eph.msgNum      = ie.msgNum                 #DF002
         eph.satNum      = ie.satNum                 #DF252
         eph.weekNum     = ie.weekNum                #DF289
@@ -501,10 +501,10 @@ class EphemerisDecoder(Bits):
         
         return eph
 
-    def __decode1045(self, buf:bytes) -> mEph.GalFNAV:
+    def __decode1045(self, buf:bytes) -> mEph.EphGALF:
         """Decode message 1045"""
 
-        eph = mEph.GalFNAV()
+        eph = mEph.EphGALF()
         offset = 24
         eph.msgNum, offset      = self.getbitu(buf, offset, 12), offset+12  #DF002
         eph.satNum, offset      = self.getbitu(buf, offset, 6), offset+6    #DF252
@@ -540,10 +540,10 @@ class EphemerisDecoder(Bits):
         return eph
     
     @classmethod
-    def __scale1045(cls, ie: mEph.GalFNAV) -> mEph.GalFNAV:
+    def __scale1045(cls, ie: mEph.EphGALF) -> mEph.EphGALF:
         """Scale MSG 1045 data"""
 
-        eph = mEph.GalFNAV()
+        eph = mEph.EphGALF()
         eph.msgNum      = ie.msgNum                 #DF002
         eph.satNum      = ie.satNum                 #DF252
         eph.weekNum     = ie.weekNum                #DF289
@@ -575,9 +575,9 @@ class EphemerisDecoder(Bits):
         
         return eph
     
-    def __decode1044(self, buf:bytes) -> mEph.QzssL1:
+    def __decode1044(self, buf:bytes) -> mEph.EphQZS:
         """Decode message 1044"""
-        eph = mEph.QzssL1()
+        eph = mEph.EphQZS()
         offset = 24
         
         eph.msgNum, offset      = self.getbitu(buf, offset, 12), offset+12
@@ -616,10 +616,10 @@ class EphemerisDecoder(Bits):
         return eph
     
     @classmethod
-    def __scale1044(cls, ie: mEph.QzssL1) -> mEph.QzssL1:
+    def __scale1044(cls, ie: mEph.EphQZS) -> mEph.EphQZS:
         """Scale MSG 1044 data"""
 
-        eph = mEph.QzssL1()
+        eph = mEph.EphQZS()
         eph.msgNum = ie.msgNum
         eph.satNum  = ie.satNum                     #DF429 [0..10]
         eph.tc      = ie.tc*16                      #DF430 [sec]
@@ -682,19 +682,19 @@ class EphemerisDecoder(Bits):
         """Apply scaling coefficients to a bare ephemeris data"""
 
         match type(ie):
-            case mEph.GpsLNAV:
+            case mEph.EphGPS:
                 return cls.__scale1019(ie)
-            case mEph.GloL1L2:
+            case mEph.EphGLO:
                 return cls.__scale1020(ie)
-            case mEph.GalFNAV:
+            case mEph.EphGALF:
                 return cls.__scale1045(ie)
-            case mEph.GalINAV:
+            case mEph.EphGALI:
                 return cls.__scale1046(ie)
-            case mEph.BdsD1:
+            case mEph.EphBDS:
                 return cls.__scale1042(ie)
-            case mEph.NavicL5:
+            case mEph.EphNAVIC:
                 return cls.__scale1041(ie)
-            case mEph.QzssL1:
+            case mEph.EphQZS:
                 return cls.__scale1044(ie)
             case _:
                 raise ExceptionEphemerisDecoder(f'scaler doesn\'t support type {type(ie)}')
