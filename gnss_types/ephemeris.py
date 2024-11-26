@@ -5,12 +5,13 @@
     This file implements DTO classes for ephemerida data.
 """
 
-from dataclasses import dataclass
+import math
+from dataclasses import dataclass, fields
 from dataclasses import is_dataclass
-
 
 __all__ = ['isValidEphBlock', 'GpsLNAV', 'GloL1L2', 'GalFNAV', 'GalINAV', 'BdsD1', 'QzssL1', 'NavicL5']
 
+DEF_FLOAT_CMP_TOLR = 1e-15
 
 def isValidEphBlock(ephBlock:object)->bool:
     """Validate minimal requirements to ephemeris data block"""
@@ -27,6 +28,45 @@ def isValidEphBlock(ephBlock:object)->bool:
     return valid 
 
 
+@dataclass
+class EphMethods:
+    
+    def items(self):
+        for field in fields(self.__class__):
+            yield field.name, getattr(self, field.name)
+
+    def copy(self):
+        """Plain copy of the object"""
+        ret = self.__class__()
+        for key, value in self.items():
+            setattr(ret,key,value)
+
+        return ret
+    
+    def compare(self, refs, f_tolerance:float = DEF_FLOAT_CMP_TOLR) -> bool:
+        """ Compare versus 'refs' ephemeris field by field.
+            Integer and string fields shall match absolutely.
+            Floats are compared with predefined relative tolerance."""
+
+        if type(self) != type(refs):
+            return False
+        
+        eq = True
+        for key, value in self.items():
+            ref = getattr(refs,key)
+            if isinstance(value, int):
+                eq = eq and (value == ref)
+            elif isinstance(value, str):
+                eq = eq and (value == ref)
+            elif isinstance(value, float):
+                if math.fabs(ref > f_tolerance):
+                    diff = math.fabs((ref-value)/ref)
+                else:
+                    diff = math.fabs(ref-value)                    
+                eq = eq and (diff < f_tolerance)
+
+        return eq
+    
 
 @dataclass
 class EphHdr:
@@ -68,7 +108,7 @@ class Keplerians:
     
 
 @dataclass
-class GalFNAV(Keplerians, ClockBias, EphHdr):
+class GalFNAV(EphMethods, Keplerians, ClockBias, EphHdr):
     """ Galileo FNAV ephemeris, MSG 1045"""
     # 23 + 5 = 28 elements
     IODnav: int = 0
@@ -79,7 +119,7 @@ class GalFNAV(Keplerians, ClockBias, EphHdr):
 
 
 @dataclass
-class GalINAV(Keplerians, ClockBias, EphHdr):
+class GalINAV(EphMethods, Keplerians, ClockBias, EphHdr):
     """ Galileo INAV ephemeris, MSG 1046"""
 
     #23 + 8 = 31 elements
@@ -94,7 +134,7 @@ class GalINAV(Keplerians, ClockBias, EphHdr):
 
       
 @dataclass
-class QzssL1(Keplerians, ClockBias, EphHdr):
+class QzssL1(EphMethods, Keplerians, ClockBias, EphHdr):
     """ QZSS L1 ephemeris, MSG 1044"""
 
     #23 + 7 = 30 elements
@@ -108,7 +148,7 @@ class QzssL1(Keplerians, ClockBias, EphHdr):
 
 
 @dataclass
-class BdsD1(Keplerians, ClockBias, EphHdr):
+class BdsD1(EphMethods, Keplerians, ClockBias, EphHdr):
     """ BeiDou D1 ephemeris, MSG 1042"""
 
     #23 + 6 = 29 elements
@@ -121,7 +161,7 @@ class BdsD1(Keplerians, ClockBias, EphHdr):
 
 
 @dataclass
-class GpsLNAV(Keplerians, ClockBias, EphHdr):
+class GpsLNAV(EphMethods, Keplerians, ClockBias, EphHdr):
     """ GPS LNAV/CNAV ephemeris, MSG 1019"""
 
     #23 + 8 = 31 elements
@@ -135,7 +175,7 @@ class GpsLNAV(Keplerians, ClockBias, EphHdr):
     TGD: int|float = 0
 
 @dataclass
-class NavicL5(Keplerians, ClockBias, EphHdr):
+class NavicL5(EphMethods, Keplerians, ClockBias, EphHdr):
     """ Navic L5/S ephemeris, MSG 1041"""
 
     #23 + 5 = 28 elements
@@ -148,7 +188,7 @@ class NavicL5(Keplerians, ClockBias, EphHdr):
 
 
 @dataclass
-class GloL1L2:
+class GloL1L2(EphMethods):
     """Glonass L1/L2 ephemeris, MSG 1020"""
 
     #36 items
@@ -188,4 +228,10 @@ class GloL1L2:
     N4:             int = 0
     tauGPS:         int|float = 0   # [s]
     ln5:            int = 0
-    
+
+
+
+
+
+
+
