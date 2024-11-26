@@ -13,7 +13,6 @@
 """
 import gnss_types as mEph
 
-#from ..test.ephemeris_test_samples import getReferenceEphData
 from decoder_top import SubDecoderInterface
 from typing import Any
 from utilities import Bits
@@ -21,7 +20,10 @@ from utilities import ExceptionBitsError
 from logger import LOGGER_CF as logger
 
 
+#--- Exceptions ----------------------------------------------------------------------------------
 
+class ExceptionEphemerisDecoder(Exception):
+    '''Hook error in EphemerisDecoder methods'''
 
 #------------------------------------------------------------------------------------------------
     
@@ -34,6 +36,18 @@ class EphemerisDecoder(Bits):
         
     def get_msg_num(self, buf: bytes) -> int:
         return self.getbitu(buf, 24, 12)
+    
+    @staticmethod
+    def __length_check(Nexp:int, Ndec:int, bufLen:int):
+        """Validate message length"""
+
+        if Ndec != Nexp:
+            raise ExceptionEphemerisDecoder(f'data field length error: {Ndec} vs {Nexp}')
+       
+        Ndec = 6 + ((Ndec+7)>>3)
+        if Ndec != bufLen:
+            raise ExceptionEphemerisDecoder(f'message length error: {bufLen} vs {Ndec}')
+
         
     def __decode1019(self, buf:bytes) -> mEph.GpsLNAV:
         """Decode message 1019"""
@@ -71,11 +85,14 @@ class EphemerisDecoder(Bits):
         eph.SVH, offset         = self.getbitu(buf, offset, 6), offset+6         #DF102
         eph.L2PD_Flag, offset   = self.getbitu(buf, offset, 1), offset+1         #DF103
         eph.Fit, offset         = self.getbitu(buf, offset, 1), offset+1         #DF137
-
+        
         #expected offcet value is 488+24 = 512
+        self.__length_check(488,offset-24,len(buf))
+        
         return eph
     
-    def __scale1019(self, ie: mEph.GpsLNAV, decorate:bool = False) -> mEph.GpsLNAV:
+    @classmethod
+    def __scale1019(cls, ie: mEph.GpsLNAV, decorate:bool = False) -> mEph.GpsLNAV:
         """Scale and beautify MSG 1019 data"""
         _L2_Codes = {0:'RS', 1:'P', 2:'CA', 3:'L2C'}
 
@@ -182,9 +199,11 @@ class EphemerisDecoder(Bits):
         eph.ln5, offset         = self.getbitu(buf, offset, 1), offset+1+7  #DF136
 
         # expected offset value is 360+24=384
+        self.__length_check(360,offset-24,len(buf))
         return eph
     
-    def __scale1020(self, ie: mEph.GloL1L2) -> mEph.GloL1L2:
+    @classmethod
+    def __scale1020(cls, ie: mEph.GloL1L2) -> mEph.GloL1L2:
         """Scale MSG 1020 data"""
 
         #__FT = [1.0, 2.0, 2.5, 4.0, 5.0, 7.0, 10.0, 12.0, 14.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0]
@@ -238,7 +257,6 @@ class EphemerisDecoder(Bits):
         eph.tauGPS = ie.tauGPS*(2**-30)             #DF135 [s]
         eph.ln5 = ie.ln5                            #DF136 [0/1]
         
-        #return getReferenceEphData(ie.msgNum, ie.satNum)
         return eph
     
     
@@ -281,9 +299,11 @@ class EphemerisDecoder(Bits):
         eph.i0, offset          = self.getbits(buf, offset, 32), offset+32+2+2  #DF543
 
         #expected offset value is 482+24 = 506 
+        self.__length_check(482,offset-24,len(buf))
         return eph
     
-    def __scale1041(self, ie: mEph.NavicL5) -> mEph.NavicL5:
+    @classmethod
+    def __scale1041(cls, ie: mEph.NavicL5) -> mEph.NavicL5:
         """Scale MSG 1041 data"""
 
         eph = mEph.NavicL5()
@@ -318,7 +338,6 @@ class EphemerisDecoder(Bits):
         eph.omega_dot   = ie.omega_dot*(2**-41) #DF542 [hc/sec]
         eph.i0          = ie.i0*(2**-31)        #DF543 [hc]
 
-        #return getReferenceEphData(ie.msgNum, ie.satNum)
         return eph
     
 
@@ -360,9 +379,11 @@ class EphemerisDecoder(Bits):
         eph.SVH, offset     = self.getbitu(buf, offset, 1), offset+1        #DF515
 
         #expected offset value is 511+24 = 535
+        self.__length_check(511,offset-24,len(buf))
         return eph
     
-    def __scale1042(self, ie: mEph.BdsD1) -> mEph.BdsD1:
+    @classmethod
+    def __scale1042(cls, ie: mEph.BdsD1) -> mEph.BdsD1:
         """Scale MSG 1042 data"""
 
         eph = mEph.BdsD1()
@@ -398,7 +419,6 @@ class EphemerisDecoder(Bits):
         eph.TGD2        = ie.TGD2*1e-10      #DF514 [sec]
         eph.SVH         = ie.SVH             #DF515 [0/1]
 
-        #return getReferenceEphData(ie.msgNum, ie.satNum)
         return eph
     
     def __decode1046(self, buf:bytes) -> mEph.GalINAV:
@@ -439,9 +459,11 @@ class EphemerisDecoder(Bits):
         eph.E1_DVS, offset      = self.getbitu(buf, offset, 1), offset+1+2  #DF288
         
         #expected offset value is 504+24 = 528
+        self.__length_check(504,offset-24,len(buf))
         return eph
 
-    def __scale1046(self, ie: mEph.GalINAV) -> mEph.GalINAV:
+    @classmethod
+    def __scale1046(cls, ie: mEph.GalINAV) -> mEph.GalINAV:
         """Scale MSG 1046 data"""
 
         eph = mEph.GalINAV()
@@ -477,7 +499,6 @@ class EphemerisDecoder(Bits):
         eph.E1_SHS      = ie.E1_SHS                 #DF287 [0..3], 0 - OK
         eph.E1_DVS      = ie.E1_DVS                 #DF288 [0/1]
         
-        #return getReferenceEphData(ie.msgNum, ie.satNum)
         return eph
 
     def __decode1045(self, buf:bytes) -> mEph.GalFNAV:
@@ -515,9 +536,11 @@ class EphemerisDecoder(Bits):
         eph.E5a_DVS, offset     = self.getbitu(buf, offset, 1), offset+1+7  #DF315
         
         #expected offset value is 496+24 = 520
+        self.__length_check(496,offset-24,len(buf))
         return eph
     
-    def __scale1045(self, ie: mEph.GalFNAV) -> mEph.GalFNAV:
+    @classmethod
+    def __scale1045(cls, ie: mEph.GalFNAV) -> mEph.GalFNAV:
         """Scale MSG 1045 data"""
 
         eph = mEph.GalFNAV()
@@ -550,7 +573,6 @@ class EphemerisDecoder(Bits):
         eph.E5a_SHS     = ie.E5a_SHS                #DF314 [0..3], 0 - OK
         eph.E5a_DVS     = ie.E5a_DVS                #DF315 [0/1]
         
-        #return getReferenceEphData(ie.msgNum, ie.satNum)
         return eph
     
     def __decode1044(self, buf:bytes) -> mEph.QzssL1:
@@ -589,10 +611,12 @@ class EphemerisDecoder(Bits):
         eph.IODC, offset        = self.getbitu(buf, offset, 10), offset+8        #DF456
         eph.Fit, offset         = self.getbitu(buf, offset, 1), offset+1         #DF457
 
-        #expected offcet value is 485+24=509        
+        #expected offcet value is 485+24=509   
+        self.__length_check(485,offset-24,len(buf))
         return eph
     
-    def __scale1044(self, ie: mEph.QzssL1) -> mEph.QzssL1:
+    @classmethod
+    def __scale1044(cls, ie: mEph.QzssL1) -> mEph.QzssL1:
         """Scale MSG 1044 data"""
 
         eph = mEph.QzssL1()
@@ -630,60 +654,61 @@ class EphemerisDecoder(Bits):
         return eph
     
     
-    def decode(self, buf:bytes, is_bare_output:bool = False) -> Any|None:
+    def __decode(self, buf:bytes) -> object:
+        """Decode ephemeris message"""
+        
+        msgNum = self.get_msg_num(buf)
+        
+        match msgNum:
+            case 1019:
+                return self.__decode1019(buf)
+            case 1020:
+                return self.__decode1020(buf)
+            case 1041:
+                return self.__decode1041(buf)
+            case 1042:
+                return self.__decode1042(buf)
+            case 1044:
+                return self.__decode1044(buf)
+            case 1045:
+                return self.__decode1045(buf)
+            case 1046:
+                return self.__decode1046(buf)
+            case _:
+                raise ExceptionEphemerisDecoder(f'message {msgNum} is not allowed.')
+            
+    @classmethod
+    def scale(cls, ie: object)->object:
+        """Apply scaling coefficients to a bare ephemeris data"""
+
+        match type(ie):
+            case mEph.GpsLNAV:
+                return cls.__scale1019(ie)
+            case mEph.GloL1L2:
+                return cls.__scale1020(ie)
+            case mEph.GalFNAV:
+                return cls.__scale1045(ie)
+            case mEph.GalINAV:
+                return cls.__scale1046(ie)
+            case mEph.BdsD1:
+                return cls.__scale1042(ie)
+            case mEph.NavicL5:
+                return cls.__scale1041(ie)
+            case mEph.QzssL1:
+                return cls.__scale1044(ie)
+            case _:
+                raise ExceptionEphemerisDecoder(f'scaler doesn\'t support type {type(ie)}')
+    
+
+    def decode(self, buf:bytes, is_bare_output:bool = False) -> object:
         """Process ephemeris message"""
         
-        try:
+        eph = self.__decode(buf)
+            
+        if is_bare_output == False:
+            eph = self.scale(eph)
 
-            msgNum = self.get_msg_num(buf)
-
-            if msgNum == 1019:
-                ephBlock = self.__decode1019(buf)
-                if ephBlock and is_bare_output == False:
-                    ephBlock = self.__scale1019(ephBlock)
-            elif msgNum == 1020:
-                ephBlock = self.__decode1020(buf)
-                if ephBlock and is_bare_output == False:
-                    ephBlock = self.__scale1020(ephBlock)
-            elif msgNum == 1041:
-                ephBlock = self.__decode1041(buf)
-                if ephBlock and is_bare_output == False:
-                    ephBlock = self.__scale1041(ephBlock)
-            elif msgNum == 1042:
-                ephBlock = self.__decode1042(buf)
-                if ephBlock and is_bare_output == False:
-                    ephBlock = self.__scale1042(ephBlock)
-            elif msgNum == 1044:
-                ephBlock = self.__decode1044(buf)
-                if ephBlock and is_bare_output == False:
-                    ephBlock = self.__scale1044(ephBlock)
-            elif msgNum == 1045:
-                ephBlock = self.__decode1045(buf)
-                if ephBlock and is_bare_output == False:
-                    ephBlock = self.__scale1045(ephBlock)
-            elif msgNum == 1046:
-                ephBlock = self.__decode1046(buf)
-                if ephBlock and is_bare_output == False:
-                    ephBlock = self.__scale1046(ephBlock)
-            else:
-                ephBlock = None
-                logger.warning(f'Msg {msgNum}. Selected decoder doesn\'t support this message.')
-        
-        except ExceptionBitsError as ex:
-            logger.error(f"Msg {msgNum}. Decoding failed. " + ex.args[0])
-        except IndexError as ie:
-            logger.error(f"Msg {msgNum}. Decoding failed. Indexing error: {type(ie)}: {ie}")
-        except ArithmeticError as ae:
-            logger.error(f"Msg {msgNum}. Decoding failed. Arithm error: {type(ae)}: {ae}")
-        except Exception as ex:
-            logger.error(f"Msg {msgNum}. Decoding failed. Unexpected error:" + f"{type(ex)}: {ex}")
-        else:
-            pass
-
-        if ephBlock:
-            logger.info(f'Msg {msgNum}. Decoding succeeded. SV = {ephBlock.satNum}.')
-
-        return ephBlock
+        return eph
 
 
 
@@ -700,5 +725,26 @@ class SubdecoderEph():
         
 
     def decode(self, buf:bytes) -> Any | None:
-        return self.decoder.decode(buf, self.__bare_data)
+
+        ephBlock = None
+            
+        try:
+            msgNum = self.decoder.get_msg_num(buf)
+            ephBlock = self.decoder.decode(buf, self.__bare_data)
+            logger.info(f'Msg {msgNum}. Decoding succeeded. SV = {ephBlock.satNum}.')
+
+        except ExceptionEphemerisDecoder as ex:
+            logger.error(f"Msg {msgNum}. Decoding failed: " + ex.args[0])            
+        except ExceptionBitsError as ex:
+            logger.error(f"Msg {msgNum}. Decoding failed. " + ex.args[0])
+        except IndexError as ie:
+            logger.error(f"Msg {msgNum}. Decoding failed. Indexing error: {type(ie)}: {ie}")
+        except ArithmeticError as ae:
+            logger.error(f"Msg {msgNum}. Decoding failed. Arithm error: {type(ae)}: {ae}")
+        except Exception as ex:
+            logger.error(f"Msg {msgNum}. Decoding failed. Unexpected error:" + f"{type(ex)}: {ex}")
+        else:
+            pass
+        
+        return ephBlock
     
