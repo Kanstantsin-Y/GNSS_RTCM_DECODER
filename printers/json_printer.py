@@ -11,14 +11,12 @@
 
 
 import  io, os
-
+from gnss_types import *
+from dataclasses import asdict
 from printer_top import SubPrinterInterface
-from data_types.observables import ObservablesMSM, BareObservablesMSM4567, BareObservablesMSM123
-from utilities.RTCM_utilities import MSMT
-
+from utilities import getSubset
 from logger import LOGGER_CF as logger
 from json import dumps as jdumps
-
 
 
 class JSONControls:
@@ -105,10 +103,12 @@ class JSONCore:
             return ""
         else:
             summary = dict()
+
             if self.ctrls.enable_hdr_data:
                 summary.update({'hdr':hdr})
             if self.ctrls.enable_aux_data:
                 summary.update({'aux':atr})
+
             summary.update({'sat':sat})
             summary.update({'sgn':sgn})
             
@@ -121,8 +121,28 @@ class JSONCore:
         else:
             return rv
 
+    def ephToPrintBuffer(self, pdata:object) -> str:
+        """ Return a JSON string encoding ephemeris data."""
+        
+        rv = ""
+        if isValidEphBlock(pdata):
+            # Valid eph. block is a dataclass. Repack the dataclass into a dictionary.
+            summary = asdict(pdata)
+        else:
+            logger.error(f"JSON: Printer does not support type {type(pdata)}")
+            return rv
+            
+        try:
+            indent = 2 if self.ctrls.enable_pretty_view else None
+            rv = jdumps(summary, indent=indent, allow_nan=True, ensure_ascii=False)
+        except TypeError:
+            logger.error(f"JSON: can't serialize ephemeris dictionary")
+            rv = ""
+        finally:
+            return rv
 
-class MSMtoJSON():
+
+class PrintJSON():
     
     def __init__(self, work_dir: str, controls: JSONControls|None = None):
         
@@ -134,6 +154,13 @@ class MSMtoJSON():
             ObservablesMSM : self.__print_ObservablesMSM,
             BareObservablesMSM4567 : self.__print_BareObservablesMSM17,
             BareObservablesMSM123 : self.__print_BareObservablesMSM17,
+            EphGALF: self.__print_ephemeris,
+            EphGALI: self.__print_ephemeris,
+            EphGLO: self.__print_ephemeris,
+            EphGPS: self.__print_ephemeris,
+            EphQZS: self.__print_ephemeris,
+            EphBDS: self.__print_ephemeris,
+            EphNAVIC: self.__print_ephemeris
         }
         
         self.__wd = work_dir
@@ -162,15 +189,16 @@ class MSMtoJSON():
         self.__ofiles = {}
 
     def __create_ofile(self, msg_num:int)->bool:
-        '''Create new MARGO file and fill header'''
+        '''Create new JSON file and fill header'''
 
-        gnss, subset = MSMT.msm_subset(msg_num)
+        gnss, subset = getSubset(msg_num)
 
         if not len(gnss):
             return False
-
-        path = os.path.join(self.__wd, self.core.DIRNAME(gnss)) 
-        fname = f"{subset}.json"
+        
+        path = os.path.join(self.__wd, subset)
+        #path = os.path.join(path, self.core.DIRNAME(gnss)) 
+        fname = f"{self.core.DIRNAME(gnss)}-{subset}-{msg_num}.json"
         try:
             if not os.path.isdir(path):
                 os.makedirs(path)
@@ -190,8 +218,10 @@ class MSMtoJSON():
             if not self.__create_ofile(msg_num):
                 return False
             else:
-                self.__ofiles[msg_num].write(f"[source_type : {self.__src_obj_type.__name__}")  
-
+                hdr = {'source_type' : self.__src_obj_type.__name__}
+                hdr = jdumps(hdr, indent=None, allow_nan=True, ensure_ascii=False)
+                self.__ofiles[msg_num].write(f"[\r"+hdr)
+            
         self.__ofiles[msg_num].write(line)
         return True
 
@@ -211,10 +241,17 @@ class MSMtoJSON():
             data_string = ',\r' + data_string
             self.__append(obs.atr.msg_number, data_string)
 
+    def __print_ephemeris(self, ephBlock:object) -> str:
+        """Print data from ehemerids data class"""
+
+        data_string = self.core.ephToPrintBuffer(ephBlock)
+        if len(data_string):
+            data_string = ',\r' + data_string
+            self.__append(ephBlock.msgNum, data_string)
 
     #@catch_printer_asserts
     def __print(self, iblock:object):
-        '''Margo printer'''
+        '''JSON printer'''
 
         self.__src_obj_type = type(iblock)
         print_func = self._map_printers.get(self.__src_obj_type)

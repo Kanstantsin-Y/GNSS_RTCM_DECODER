@@ -18,12 +18,14 @@
 
 #--- Dependencies ---------------------------------------------------------------------------
 
-from data_types.observables import ObservablesMSM
-from data_types.observables import BareObservablesMSM4567, BareObservablesMSM123
+import gnss_types.ephemeris as mEph
 
-from utilities.bits import Bits  
-from utilities.bits import catch_bits_exceptions
-from utilities.CRC24Q import CRC24Q
+from gnss_types import ObservablesMSM
+from gnss_types import BareObservablesMSM4567, BareObservablesMSM123
+
+from utilities import Bits  
+from utilities import catch_bits_exceptions
+from utilities import CRC24Q
 
 from logger import LOGGER_CF as logger
 from typing import Any
@@ -63,18 +65,23 @@ class SubDecoderInterface():
         return rv
 
     @staticmethod
-    def __make_MSME_spec(bare:bool) -> dict:
-        '''Defines IN/OUT interface of MSM ephemeris decoder'''
-        return {}
+    def __make_EPH_spec(bare:bool) -> dict:
+        '''Defines IN/OUT interface of ephemeris decoder'''
+
+        # Same types are used for bare/scaled data
+        rv = {  1045: mEph.EphGALF,
+                1046: mEph.EphGALI,
+                1020: mEph.EphGLO,
+                1019: mEph.EphGPS,
+                1044: mEph.EphQZS,
+                1042: mEph.EphBDS,
+                1041: mEph.EphNAVIC }
+        return rv
+
 
     @staticmethod
     def __make_LEGO_spec(bare:bool) -> dict:
         '''Defines IN/OUT interface of Legacy observables decoder'''
-        return {}
-    
-    @staticmethod
-    def __make_LEGE_spec(bare:bool) -> dict:
-        '''Defines IN/OUT interface of Legacy ephemeris decoder'''
         return {}
 
     @staticmethod
@@ -84,10 +91,9 @@ class SubDecoderInterface():
 
     _RTCM_MSG_SUBSETS = {
         'LEGO' : __make_LEGO_spec,
-        'LEGE' : __make_LEGE_spec,
         'MSM13O' : __make_MSM13O_spec,
         'MSM47O' : __make_MSM47O_spec,
-        'MSME' : __make_MSME_spec
+        'EPH' : __make_EPH_spec
     }
 
     def __init__(self, subset:str , bare:bool = False) -> None:
@@ -131,8 +137,6 @@ def catch_decoder_exceptions(func):
 class DecoderTop():
     '''Combines decoders for RTCM message subsets and implements outer interface'''
 
-    # bits = Bits()
-
     def __init__(self) -> None:
         self.decoders : dict[str, SubDecoderInterface] = dict()
         self._tail = b''
@@ -141,6 +145,7 @@ class DecoderTop():
         self.__pars_err_cnt: int = 0
         self.__dec_attempts: int = 0
         self.__dec_succeeded: int = 0
+        #self.TG = TestDataGrabber() - used for saving rtcm3 samples
         return
 
 #--- RTCM decoding frame -----------------------------------------------------------------------------
@@ -169,6 +174,9 @@ class DecoderTop():
         # Find decoder
         num = self.mnum(msg)
         dec = None
+
+        #self.TG.save_eph(num,msg)
+
         for dec in self.decoders.values():
             if (num in dec.io_spec.keys()) and (num in dec.actual_messages):
                 # Decode
@@ -318,6 +326,42 @@ class DecoderTop():
         return crc_calc == crc_get
 
 #----------------------------------------------------------------------------------------------
+
+
+class TestDataGrabber():
+
+    def __init__(self):
+        self.scenario = {
+            1019: {'fname':'msg1019.rtcm3', 'cnt':3, 'fp':None},
+            1020: {'fname':'msg1020.rtcm3', 'cnt':3, 'fp':None},
+            1041: {'fname':'msg1041.rtcm3', 'cnt':3, 'fp':None},
+            1042: {'fname':'msg1042.rtcm3', 'cnt':3, 'fp':None},
+            1044: {'fname':'msg1044.rtcm3', 'cnt':3, 'fp':None},
+            1045: {'fname':'msg1045.rtcm3', 'cnt':3, 'fp':None},
+            1046: {'fname':'msg1046.rtcm3', 'cnt':3, 'fp':None}
+        }
+
+    def save_eph(self, mNum:int, msg:bytes):
+        """Save a messages from the input flow to file."""
+
+        s = self.scenario.get(mNum)
+        if not s:
+            return
+        
+        if s['cnt'] == 0:
+            return
+        
+        if s['fp'] == None:
+            s['fp'] = open(s['fname'],'wb')
+
+        s['fp'].write(msg)
+        s['fp'].flush()
+        s['cnt'] -= 1
+        
+        if s['cnt'] == 0:
+            s['fp'].close()
+
+        
 
 
 # def _save_some_test_data(msg_list):

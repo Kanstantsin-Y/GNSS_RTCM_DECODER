@@ -20,7 +20,7 @@ from controls import ConverterControls
 from argparse import ArgumentParser as ArgParser
 from converter_top import ConverterFactory, ConverterInterface
 
-VERSION = "1.01"
+VERSION = "1.10"
 DEFAULT_CONFIG = "defaults.ini"
 FILE_CHUNCK_LEN: int = 2**12 
 ARGS = None
@@ -311,8 +311,14 @@ def main(local_args: str|None = None)-> None:
 #.......................................................................................................               
 # Uncomment 'ARGS' for test run.
 
-# ARGS = r"-o JSON RTCM3_TEST_DATA\reference-3msg.rtcm3"
-# ARGS = r"-i addons.ini RTCM3_TEST_DATA\reference-3msg.rtcm3"
+#ARGS = r"-o JSON temp\reference-3msg.rtcm3"
+#ARGS = r"-o JSON temp\H7V3-A1.rtcm3"
+#ARGS = r"-o JSON-B temp\EPH\msg1019.rtcm3"
+#ARGS = r"-o JSON temp\EPH\msg1020.rtcm3"
+#ARGS = r"-o JSON temp\EPH\msg1041.rtcm3"
+#ARGS = r"-o JSON temp\EPH\msg1042.rtcm3"
+#ARGS = r"-o JSON temp\EPH\msg1046.rtcm3"
+# ARGS = r"-i addons.ini temp\reference-3msg.rtcm3"
 # ARGS = None
 
 if __name__ == '__main__':

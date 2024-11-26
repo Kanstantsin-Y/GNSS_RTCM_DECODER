@@ -2,8 +2,9 @@
 .vscode
 .mypy_cache
 DOCs/drafts
+temp
 __pycache__
 printers/__pycache__
 sub_decoders/__pycache__
-data_types/__pycache__
+gnss_types/__pycache__
 utilities/__pycache__
