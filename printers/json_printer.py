@@ -218,8 +218,10 @@ class PrintJSON():
             if not self.__create_ofile(msg_num):
                 return False
             else:
-                self.__ofiles[msg_num].write(f"[source_type : {self.__src_obj_type.__name__}")  
-
+                hdr = {'source_type' : self.__src_obj_type.__name__}
+                hdr = jdumps(hdr, indent=None, allow_nan=True, ensure_ascii=False)
+                self.__ofiles[msg_num].write(f"[\r"+hdr)
+            
         self.__ofiles[msg_num].write(line)
         return True
 
