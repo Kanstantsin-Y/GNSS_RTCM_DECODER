@@ -72,6 +72,8 @@ class ConverterStatistics:
     decoding_attempts: int = 0
     parsing_errors: int = 0
     decoding_errors: int = 0
+    printing_attempts: int = 0
+    printing_errors: int = 0
 
 
 class ConverterInterface(ABC):
@@ -121,6 +123,8 @@ class Converter(ConverterInterface):
         rv.decoding_attempts = self.decoder.dec_attempts
         rv.decoding_errors = self.decoder.dec_errors
         rv.parsing_errors = self.decoder.parse_errors
+        rv.printing_attempts = self.printer.attempts
+        rv.printing_errors = self.printer.errors
         return rv
 
 

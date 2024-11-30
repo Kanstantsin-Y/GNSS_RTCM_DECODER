@@ -81,7 +81,7 @@ def catch_printer_asserts(func):
         try:
             rv = func(*args, **kwargs)
         except AssertionError as ae:
-            logger.error(f"MARGOPRNT. {ae.args[0]}")
+            logger.error(f"{ae.args[0]}")
             return None
         else:
             return rv
@@ -126,6 +126,10 @@ class PrinterTop():
     @property
     def succeeded(self):
         return self.__succeeded_cnt
+    
+    @property
+    def errors(self):
+        return self.__attempts_cnt - self.__succeeded_cnt
 
     def add_subprinter(self, io: SubPrinterInterface)->bool:
         '''

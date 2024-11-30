@@ -14,7 +14,6 @@ import  io, os
 from gnss_types import *
 from dataclasses import asdict, is_dataclass
 from printer_top import SubPrinterInterface
-from logger import LOGGER_CF as logger
 from json import dumps as jdumps
 
     
@@ -116,8 +115,8 @@ class PrintJSON():
         self.__wd = work_dir
         self.__src_obj_type = None
         # Create an empty dictionary of opened files
-        # Members should have 'file_name':file_descriptor form
-        self.__ofiles: dict[str, io.TextIOWrapper] = {}
+        # Members should have {message number:file_descriptor} form
+        self.__ofiles: dict[int, io.TextIOWrapper] = {}
         
         self.io = SubPrinterInterface()
         self.io.data_spec = SubPrinterInterface.make_specs('JSON')
@@ -141,7 +140,7 @@ class PrintJSON():
                     itm.close()
         self.__ofiles = {}
 
-    def __create_ofile(self, msg_num:int)->bool:
+    def __create_ofile(self, msg_num:int):
         '''Create new JSON file'''
 
         path = os.path.join(self.__wd, JSON_SPEC[msg_num][1])
@@ -152,34 +151,30 @@ class PrintJSON():
                 os.makedirs(path)
             path = os.path.join(path, fname)
             self.__ofiles[msg_num] = open(path,'w')
-            return True
         except OSError as oe:
-            logger.error(f"Failed to create target file '{path}'.")
-            logger.error(f"{type(oe)}: {oe}")
-            return False
-        
-    def __append(self, msg_num:int, line:str)->bool:
+            raise AssertionError(f"Failed to create target file '{path}: " + f"{type(oe)}: {oe}")
+            
+
+    def __append(self, msg_num:int, line:str):
         '''Append a new row of observables to the file.
         If file doesn't exist, create new file, then append'''
         
         if msg_num not in self.__ofiles.keys():
-            if not self.__create_ofile(msg_num):
-                return False
-            else:
-                hdr = {'source_type' : self.__src_obj_type.__name__}
-                hdr = jdumps(hdr, indent=None, allow_nan=True, ensure_ascii=False)
-                self.__ofiles[msg_num].write(f"[\r"+hdr)
+            # open output file and add header line
+            self.__create_ofile(msg_num)
+            hdr = {'source_type' : self.__src_obj_type.__name__}
+            hdr = jdumps(hdr, indent=None)
+            self.__ofiles[msg_num].write(f"[\r"+hdr)
             
         self.__ofiles[msg_num].write(line)
-        return True
-
+        
     
     #@catch_printer_asserts
     def __print(self, iblock:object):
         '''JSON printer'''
 
         self.__src_obj_type = type(iblock)
-
+        
         if isinstance(iblock, ObservablesMSM):
             data_string = self.core.ObservablesMSMtoPrintBuffer(iblock)
             msgNum = iblock.atr.msg_number
@@ -190,9 +185,9 @@ class PrintJSON():
             data_string = self.core.dataClassToPrintBuffer(iblock)
             msgNum = iblock.msgNum
         else:
-            assert False, f"Printer does not support {self.__src_obj_type}"
+            raise AssertionError(f"JSON printer does not support {self.__src_obj_type}")
 
-        assert (msgNum in JSON_SPEC.keys()), f'JSON doesn\'t support msg {msgNum}. Arrived with {self.__src_obj_type}'
+        assert (msgNum in JSON_SPEC.keys()), f'JSON printer doesn\'t support msg {msgNum}. Arrived with {self.__src_obj_type}'
 
         data_string = ',\r' + data_string
         self.__append(msgNum, data_string)
@@ -210,52 +205,50 @@ class JSONCore:
     def ObservablesMSMtoPrintBuffer(self, pdata:ObservablesMSM) -> str:
         """ Return a JSON string encoding 'ObservablesMSM' data."""
         
-        # Repack ObservablesMSM into a dictionary
-
-        time = pdata.hdr.time + pdata.hdr.day*86400000
+        asStr = ''        
         try:
+            # Repack ObservablesMSM into a dictionary        
+            time = pdata.hdr.time + pdata.hdr.day*86400000
             obs = {s:pdata.obs.__getattribute__(s) for s in pdata.obs.__slots__}
             hdr = {s:pdata.hdr.__getattribute__(s) for s in pdata.hdr.__slots__}
             aux = {s:pdata.aux.__getattribute__(s) for s in pdata.aux.__slots__}
-        except AttributeError as ke:
-            logger.error(f"'ObservablesMSM' wasn't converted to dict")
-            logger.error(f"{type(ke)}: {ke}")
-            return ""
-        else:
-            summary = dict()
+            
+            summary = dict()        
+            
             if self.ctrls.enable_hdr_data:
                 summary.update({'hdr':hdr})
+            
             if self.ctrls.enable_aux_data:
                 summary.update({'aux':aux})
-            summary.update({'obs':obs})
             
-        try:
+            summary.update({'obs':obs})
+
+            # serialize to JSON string
             indent = 2 if self.ctrls.enable_pretty_view else None
-            rv = jdumps({time:summary}, indent=indent, allow_nan=True, ensure_ascii=False)
+            asStr = jdumps({time:summary}, indent=indent, allow_nan=True, ensure_ascii=False)
+
+        except AttributeError as ke:
+            raise AssertionError(f"'ObservablesMSM' wasn't converted to dict: "+f"{type(ke)}: {ke}")
         except TypeError:
-            logger.error(f"JSON: can't serialize 'ObservablesMSM'")
-            return ""
-        else:
-            return rv
+            raise AssertionError(f"JSON: can't serialize 'ObservablesMSM'")
+        except:
+            raise AssertionError(f"JSON: unexpected error in ObservablesMSMtoPrintBuffer()")
+        
+        return asStr
 
     def BareObservablesMSMtoPrintBuffer(self, pdata:BareObservablesMSM4567|BareObservablesMSM123) -> str:
         """ Return a JSON string encoding 'BareObservables' data."""
         
-        # Repack 'BareObservablesMSM' into a dictionary
-
-        time = pdata.time
+        asStr = ''
         try:
+            # Repack 'BareObservablesMSMxxx' into a dictionary
+            time = pdata.time
             sat = {s:pdata.sat.__getattribute__(s) for s in pdata.sat.__slots__}
             sgn = {s:pdata.sgn.__getattribute__(s) for s in pdata.sgn.__slots__}
             hdr = {s:pdata.hdr.__getattribute__(s) for s in pdata.hdr.__slots__}
             atr = {s:pdata.atr.__getattribute__(s) for s in pdata.atr.__slots__}
-        except AttributeError as ke:
-            logger.error(f"'BareObservablesMSM' wasn't converted to dict")
-            logger.error(f"{type(ke)}: {ke}")
-            return ""
-        else:
+            
             summary = dict()
-
             if self.ctrls.enable_hdr_data:
                 summary.update({'hdr':hdr})
             if self.ctrls.enable_aux_data:
@@ -263,15 +256,20 @@ class JSONCore:
 
             summary.update({'sat':sat})
             summary.update({'sgn':sgn})
-            
-        try:
+
+            # serialize to JSON string
             indent = 2 if self.ctrls.enable_pretty_view else None
-            rv = jdumps({time:summary}, indent=indent, allow_nan=True, ensure_ascii=False)
+            asStr = jdumps({time:summary}, indent=indent, allow_nan=True, ensure_ascii=False)    
+
+        except AttributeError as ke:
+            raise AssertionError (f"'BareObservablesMSM' wasn't converted to dict:"+f"{type(ke)}: {ke}")
         except TypeError:
-            logger.error(f"JSON: can't serialize 'BareObservablesMSM'")
-            return ""
-        else:
-            return rv
+            raise AssertionError(f"JSON: can't serialize 'BareObservablesMSM'")
+        except:
+            raise AssertionError(f"JSON: unexpected error in BareObservablesMSMtoPrintBuffer()")
+        
+        return asStr
+    
         
     def is_json_dataclass(self, data:object)->bool:
         """Validate minimal requirements to gnss data block"""
@@ -282,15 +280,14 @@ class JSONCore:
     def dataClassToPrintBuffer(self, pdata:object) -> str:
         """ Return a JSON string encoding data class."""
         
-        assert is_dataclass(pdata), f'Attempt to process {type(pdata)} as dataclass.'
-
-        asDictionary = asdict(pdata)
-
+        asStr = ''
         try:
+            asDictionary = asdict(pdata)
             indent = 2 if self.ctrls.enable_pretty_view else None
-            rv = jdumps(asDictionary, indent=indent, allow_nan=True, ensure_ascii=False)
+            asStr = jdumps(asDictionary, indent=indent, allow_nan=True, ensure_ascii=False)
         except TypeError:
-            logger.error(f"JSON: can't serialize {type(pdata)} dictionary")
-            rv = ""
-        finally:
-            return rv
+            raise AssertionError(f"JSON: can't serialize {type(pdata)} dictionary")
+        except:
+            raise AssertionError(f"JSON: unexpected error in BareObservablesMSMtoPrintBuffer()")
+                
+        return asStr
