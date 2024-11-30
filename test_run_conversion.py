@@ -123,7 +123,6 @@ if __name__ == '__main__':
     summary.append( test_eph(1041, 'JSON') )
     summary.append( test_eph(1042, 'JSON') )
     summary.append( test_eph(1046, 'JSON') )
-
     summary.append( test_eph(1019, 'JSON-B') )
     summary.append( test_eph(1020, 'JSON-B') )
     summary.append( test_eph(1041, 'JSON-B') )

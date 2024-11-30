@@ -7,26 +7,10 @@
 
 import math
 from dataclasses import dataclass, fields
-from dataclasses import is_dataclass
 
-__all__ = ['isValidEphBlock', 'EphGPS', 'EphGLO', 'EphGALF', 'EphGALI', 'EphBDS', 'EphQZS', 'EphNAVIC']
+__all__ = ['EphGPS', 'EphGLO', 'EphGALF', 'EphGALI', 'EphBDS', 'EphQZS', 'EphNAVIC']
 
 DEF_FLOAT_CMP_TOLR = 1e-15
-
-def isValidEphBlock(ephBlock:object)->bool:
-    """Validate minimal requirements to ephemeris data block"""
-    valid = True
-    if not type(ephBlock) in (EphGALF, EphGALI, EphQZS, EphBDS, EphGPS, EphNAVIC, EphGLO):
-        valid = False
-    if not is_dataclass(ephBlock):
-        valid = False
-    if not "msgNum" in ephBlock.__dataclass_fields__.keys():
-        valid = False
-    if not "satNum" in ephBlock.__dataclass_fields__.keys():
-        valid = False
-
-    return valid
-
 
 @dataclass
 class EphMethods:

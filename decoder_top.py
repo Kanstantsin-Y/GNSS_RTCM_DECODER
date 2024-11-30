@@ -18,10 +18,10 @@
 
 #--- Dependencies ---------------------------------------------------------------------------
 
-import gnss_types.ephemeris as mEph
+from gnss_types import *
 
-from gnss_types import ObservablesMSM
-from gnss_types import BareObservablesMSM4567, BareObservablesMSM123
+# from gnss_types import ObservablesMSM
+# from gnss_types import BareObservablesMSM4567, BareObservablesMSM123
 
 from utilities import Bits  
 from utilities import catch_bits_exceptions
@@ -69,13 +69,29 @@ class SubDecoderInterface():
         '''Defines IN/OUT interface of ephemeris decoder'''
 
         # Same types are used for bare/scaled data
-        rv = {  1045: mEph.EphGALF,
-                1046: mEph.EphGALI,
-                1020: mEph.EphGLO,
-                1019: mEph.EphGPS,
-                1044: mEph.EphQZS,
-                1042: mEph.EphBDS,
-                1041: mEph.EphNAVIC }
+        rv = {  1045: EphGALF,
+                1046: EphGALI,
+                1020: EphGLO,
+                1019: EphGPS,
+                1044: EphQZS,
+                1042: EphBDS,
+                1041: EphNAVIC }
+        return rv
+
+    @staticmethod
+    def __make_BASE_spec(bare:bool) -> dict:
+        '''Defines IN/OUT interface of Base Station Data decoder'''
+
+        # Same types are used for bare/scaled data
+        rv = {  1005: BaseRP,
+                1006: BaseRPH,
+                1007: BaseAD,
+                1008: BaseADSN,
+                1033: BaseADSNRC,
+                1013: BaseSP,
+                1029: BaseTS,
+                1230: BaseGLBS }
+        
         return rv
 
 
@@ -93,7 +109,8 @@ class SubDecoderInterface():
         'LEGO' : __make_LEGO_spec,
         'MSM13O' : __make_MSM13O_spec,
         'MSM47O' : __make_MSM47O_spec,
-        'EPH' : __make_EPH_spec
+        'EPH' : __make_EPH_spec,
+        'BASE': __make_BASE_spec
     }
 
     def __init__(self, subset:str , bare:bool = False) -> None:
