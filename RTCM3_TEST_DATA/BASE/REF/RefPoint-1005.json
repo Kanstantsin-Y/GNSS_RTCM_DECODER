@@ -1,0 +1,14 @@
+[{"source_type": "BaseRP"},{
+  "msgNum": 1005,
+  "bsID": 42,
+  "ITRF_Year": 0,
+  "GPS_OK": true,
+  "GLO_OK": true,
+  "GAL_OK": true,
+  "isVirtual": false,
+  "refPoint_X": 3335931.1125000003,
+  "singleOsc": false,
+  "refPoint_Y": 1743295.6681000001,
+  "QC_bias": "CORRECTED",
+  "refPoint_Z": 5132130.4266
+}]

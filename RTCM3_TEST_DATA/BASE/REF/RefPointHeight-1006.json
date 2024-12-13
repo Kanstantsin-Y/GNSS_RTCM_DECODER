@@ -1,0 +1,15 @@
+[{"source_type": "BaseRPH"},{
+  "msgNum": 1006,
+  "bsID": 0,
+  "ITRF_Year": 0,
+  "GPS_OK": true,
+  "GLO_OK": true,
+  "GAL_OK": true,
+  "isVirtual": true,
+  "refPoint_X": -1078805.6687,
+  "singleOsc": false,
+  "refPoint_Y": -5874977.0231,
+  "QC_bias": "UNDEF",
+  "refPoint_Z": 2234281.5866,
+  "height": 0.0
+}]

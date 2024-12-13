@@ -1,0 +1,17 @@
+[{"source_type": "BaseGLBS"},{
+  "msgNum": 1230,
+  "bsID": 42,
+  "isCorrected": false,
+  "validity": {
+    "1C": true,
+    "1P": false,
+    "2C": true,
+    "2P": false
+  },
+  "correction": {
+    "1C": 0.0,
+    "1P": 0.0,
+    "2C": 0.0,
+    "2P": 0.0
+  }
+}]
