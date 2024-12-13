@@ -162,7 +162,7 @@ class DecoderTop():
         self.__pars_err_cnt: int = 0
         self.__dec_attempts: int = 0
         self.__dec_succeeded: int = 0
-        #self.TG = TestDataGrabber() - used for saving rtcm3 samples
+        # self.TG = TestDataGrabber()             #- used for saving rtcm3 samples
         return
 
 #--- RTCM decoding frame -----------------------------------------------------------------------------
@@ -192,7 +192,7 @@ class DecoderTop():
         num = self.mnum(msg)
         dec = None
 
-        #self.TG.save_eph(num,msg)
+        # self.TG.save(num, msg, 'BASE')
 
         for dec in self.decoders.values():
             if (num in dec.io_spec.keys()) and (num in dec.actual_messages):
@@ -348,7 +348,7 @@ class DecoderTop():
 class TestDataGrabber():
 
     def __init__(self):
-        self.scenario = {
+        self.eph_scenario = {
             1019: {'fname':'msg1019.rtcm3', 'cnt':3, 'fp':None},
             1020: {'fname':'msg1020.rtcm3', 'cnt':3, 'fp':None},
             1041: {'fname':'msg1041.rtcm3', 'cnt':3, 'fp':None},
@@ -357,11 +357,23 @@ class TestDataGrabber():
             1045: {'fname':'msg1045.rtcm3', 'cnt':3, 'fp':None},
             1046: {'fname':'msg1046.rtcm3', 'cnt':3, 'fp':None}
         }
+        self.base_scenario = {
+            1005: {'fname':'msg1005.rtcm3', 'cnt':1, 'fp':None},
+            1007: {'fname':'msg1007.rtcm3', 'cnt':1, 'fp':None},
+            1230: {'fname':'msg1230.rtcm3', 'cnt':1, 'fp':None},
+            1006: {'fname':'msg1006.rtcm3', 'cnt':1, 'fp':None},
+            1033: {'fname':'msg1033.rtcm3', 'cnt':1, 'fp':None}
+        }
+        
 
-    def save_eph(self, mNum:int, msg:bytes):
+    def save(self, mNum:int, msg:bytes, set:str = 'EPH'):
         """Save a messages from the input flow to file."""
 
-        s = self.scenario.get(mNum)
+        if set == 'EPH':
+            s = self.eph_scenario.get(mNum)
+        elif set == 'BASE':
+            s = self.base_scenario.get(mNum)
+
         if not s:
             return
         

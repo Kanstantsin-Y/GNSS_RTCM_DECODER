@@ -313,18 +313,8 @@ def main(local_args: str|None = None)-> None:
 
     pass
 
-#.......................................................................................................               
-# Uncomment 'ARGS' for test run.
 
-#ARGS = r"-o JSON temp\reference-3msg.rtcm3"
-ARGS = r"-o JSON temp\H7V3-A1.rtcm3"
-#ARGS = r"-o JSON-B temp\EPH\msg1019.rtcm3"
-#ARGS = r"-o JSON temp\EPH\msg1020.rtcm3"
-#ARGS = r"-o JSON temp\EPH\msg1041.rtcm3"
-#ARGS = r"-o JSON temp\EPH\msg1042.rtcm3"
-#ARGS = r"-o JSON temp\EPH\msg1046.rtcm3"
-# ARGS = r"-i addons.ini temp\reference-3msg.rtcm3"
-# ARGS = None
+
 
 if __name__ == '__main__':
     

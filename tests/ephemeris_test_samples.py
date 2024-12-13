@@ -1,19 +1,100 @@
 
+import os
+import json
+import gnss_types as gt
 
-from gnss_types import EphGPS
-from gnss_types import EphGLO
-#from gnss_types import EphGALF
-from gnss_types import EphGALI
-from gnss_types import EphBDS
-from gnss_types import EphNAVIC
-#from gnss_types import EphQZS
+from run_conversion import main as convert
+from sub_decoders import EphemerisDecoder as ED
+from printers import PrintJSON as PJ
 
 
-__all__ = ['getReferenceEphData']
+__all__ = ['test_eph_message']
+
+
+def eph_test_scenario(msg:int)->tuple[str,]:
+    """Provides attributes for epemeris test."""
+    match msg:
+        case 1019:
+            return r'RTCM3_TEST_DATA\EPH\msg1019.rtcm3', _G
+        case 1020:
+            return r'RTCM3_TEST_DATA\EPH\msg1020.rtcm3', _R
+        case 1046:
+            return r'RTCM3_TEST_DATA\EPH\msg1046.rtcm3', _EI
+        case 1042:
+            return r'RTCM3_TEST_DATA\EPH\msg1042.rtcm3', _B
+        case 1041:
+            return r'RTCM3_TEST_DATA\EPH\msg1041.rtcm3', _I
+        case _:
+            assert False, f'no test data for MSG{msg}'
+
+    
+
+def _determin_type(tname:str):
+    """Returns data class by the textual name of data class."""
+    assert tname in gt.__dict__.keys(), f'Product type is absent in the module "gnss_types"'
+    return gt.__dict__.get(tname)
+
+
+def _test_eph(msgNum:int, mode:str):
+    """Convert test data and compare with the reference"""
+
+    ts = eph_test_scenario(msgNum)
+    tpath = ts[0]
+    #cargs = "-o " + mode + ' ' + tpath
+    cargs = "-o " + mode + ' -i addons.ini' + ' ' + tpath
+    
+    ofile, *x = PJ.make_opath(tpath, msgNum, mode)
+    
+    convert(cargs)
+
+    assert os.path.isfile(ofile), f'Output file not found'
+
+    with open(ofile, 'r') as file:
+        ephs = json.load(file)
+
+    tp = ephs.pop(0)
+    tp = _determin_type(tp['source_type'])
+    
+    refs = ts[1]
+    assert len(ephs) == len(refs), f'Unexpected number of output products: {len(ephs)}.'
+
+    for i,_ in enumerate(ephs):
+        ref = refs[i]
+        eph = tp(**ephs[i])
+        if mode == 'JSON-B':
+            eph = ED.scale(eph)
+        assert eph.compare(ref,1e-15), f'Product {i} is not equal to reference.'
+
+    return True
+
+
+def test_eph_message(msgNum:int, mode:str):
+
+    print(f'-'*80)
+    print(f'TESTER: start conversion MSG{msgNum} to {mode}.')
+    
+    ret = False
+        
+    if not mode in ('JSON', 'JSON-B'):
+        print(f'TESTER: format {mode} is not supported in this test')
+        return ret
+    
+    try:
+        ret =_test_eph(msgNum, mode)
+        print(f'TESTER: status SUCCEED.')
+    except AssertionError as asrt:
+        print(f'TESTER: status FAILED. {asrt.args[0]}')
+    except Exception as expt:
+        print(f'TESTER: status FAILED. Unexpected error')
+    finally:
+        return ret
+        
+
+
 
 # according to file RTCM3_TEST_DATA\EPH\msg1019.rtcm3
 _G = [
-    EphGPS(
+    gt.EphGPS(
         msgNum  = 1019,
         satNum  = 32,
         weekNum = 197,
@@ -46,7 +127,7 @@ _G = [
         L2P_Data = 0,
         Fit      = 0
     ),
-    EphGPS(
+    gt.EphGPS(
         msgNum  = 1019,
         satNum  = 31,
         weekNum = 197,
@@ -79,7 +160,7 @@ _G = [
         L2P_Data = 0,
         Fit      = 0
     ),
-    EphGPS(
+    gt.EphGPS(
         msgNum  = 1019,
         satNum  = 29,
         weekNum = 197,
@@ -116,7 +197,7 @@ _G = [
 
 # according to file RTCM3_TEST_DATA\EPH\msg1020.rtcm3
 _R = [
-    EphGLO(
+    gt.EphGLO(
         msgNum     = 1020,                 
         satNum     = 12,
         frqSloNum  = 6-7,
@@ -154,7 +235,7 @@ _R = [
         tauGPS     = 5.0291419029235839843750000e-08,
         ln5        = 0
     ),
-    EphGLO(
+    gt.EphGLO(
         msgNum     = 1020,
         satNum     = 22,
         frqSloNum  = 4-7,
@@ -192,7 +273,7 @@ _R = [
         tauGPS     = 5.0291419029235839843750000e-08,
         ln5        = 0
     ),
-    EphGLO(
+    gt.EphGLO(
         msgNum     = 1020,
         satNum     = 2,
         frqSloNum  = 3-7,
@@ -234,7 +315,7 @@ _R = [
 
 # according to file RTCM3_TEST_DATA\EPH\msg1046.rtcm3
 _EI = [
-    EphGALI(
+    gt.EphGALI(
         msgNum = 1046,
         satNum = 31,
         weekNum = 1221,
@@ -267,7 +348,7 @@ _EI = [
         E5b_SHS = 0,
         E5b_DVS = 0
     ),
-    EphGALI(
+    gt.EphGALI(
         msgNum = 1046,
         satNum = 26,
         weekNum = 1221,
@@ -300,7 +381,7 @@ _EI = [
         E5b_SHS = 0,
         E5b_DVS = 0
     ),
-    EphGALI(
+    gt.EphGALI(
         msgNum = 1046,
         satNum = 24,
         weekNum = 1221,
@@ -337,7 +418,7 @@ _EI = [
 
 # according to file RTCM3_TEST_DATA\EPH\msg1042.rtcm3
 _B = [
-    EphBDS(
+    gt.EphBDS(
         msgNum      = 1042,
         satNum      = 11,
         weekNum     = 889,
@@ -368,7 +449,7 @@ _B = [
         TGD1        = 4.3000000000e-09,
         TGD2        = 1.7000000000e-09
     ),
-    EphBDS(
+    gt.EphBDS(
         msgNum          = 1042,
         satNum          = 12,
         weekNum         = 889,
@@ -399,7 +480,7 @@ _B = [
         TGD1            = 3.3000000000e-09,
         TGD2            = 0.0000000000e+00
     ),
-    EphBDS(
+    gt.EphBDS(
         msgNum = 1042,
         satNum = 8,
         weekNum = 889,
@@ -434,7 +515,7 @@ _B = [
 
 # according to file RTCM3_TEST_DATA\EPH\msg1041.rtcm3
 _I = [
-    EphNAVIC(
+    gt.EphNAVIC(
         msgNum = 1041,
         satNum = 6,
         weekNum = 197,
@@ -462,7 +543,7 @@ _I = [
         TGD = -1.8626451492309570312500000e-09,
         IODEC = 220
     ),
-    EphNAVIC(
+    gt.EphNAVIC(
         msgNum = 1041,
         satNum = 3,
         weekNum = 197,
@@ -490,7 +571,7 @@ _I = [
         TGD = -1.3969838619232177734375000e-09,
         IODEC = 7
     ),
-    EphNAVIC(
+    gt.EphNAVIC(
         msgNum = 1041,
         satNum = 2,
         weekNum = 197,
@@ -520,25 +601,3 @@ _I = [
     )
 ]
 
-EPH_TEST_SCENARIO = {
-    1019 : [r'RTCM3_TEST_DATA\EPH\msg1019.rtcm3', _G],
-    1020 : [r'RTCM3_TEST_DATA\EPH\msg1020.rtcm3', _R],
-    1046 : [r'RTCM3_TEST_DATA\EPH\msg1046.rtcm3', _EI],
-    1042 : [r'RTCM3_TEST_DATA\EPH\msg1042.rtcm3', _B],
-    1041 : [r'RTCM3_TEST_DATA\EPH\msg1041.rtcm3', _I]
-    }
-
-def getReferenceEphData(msgNum:int,satNum:int):
-    """Return decoded and scaled ephemeris message"""
-
-    test_sample = EPH_TEST_SCENARIO.get(msgNum)
-        
-    if not test_sample:
-        return None
-    
-    ephs = test_sample[1]    
-    for eph in ephs:
-        if eph.satNum == satNum:
-            return eph
-        
-    return None

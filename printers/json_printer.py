@@ -131,6 +131,25 @@ class PrintJSON():
         
         return
     
+    @staticmethod
+    def make_opath(base:str, msgNum:int, mode:str) -> tuple[str,str,str]:
+        """Utility function to acquire output products location.
+        
+        base: path to the source file to be converted.
+        msgNum: message number supported by JSON converter, see spec above
+        mode: conversion mode - 'JSON' or 'JSON-B'
+        """
+        
+        fpath, fname = os.path.split(base)
+        fname, ext = os.path.splitext(fname)
+        odir = '-'.join([fname,mode])
+        odir = os.path.join(fpath, odir)
+        olog = os.path.join(odir, '-'.join([fname,'log.txt']))
+        atr = JSON_SPEC.get(msgNum)
+        ofile = os.path.join(odir, atr[1], atr[3])
+
+        return ofile, odir, olog
+
     def __close(self):
         '''Close all opened files'''
         if len(self.__ofiles):
@@ -150,7 +169,7 @@ class PrintJSON():
             if not os.path.isdir(path):
                 os.makedirs(path)
             path = os.path.join(path, fname)
-            self.__ofiles[msg_num] = open(path,'w')
+            self.__ofiles[msg_num] = open(path,'w', encoding='utf-8')
         except OSError as oe:
             raise AssertionError(f"Failed to create target file '{path}: " + f"{type(oe)}: {oe}")
             

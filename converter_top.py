@@ -152,7 +152,7 @@ def strategy_MSM17_EPH_to_JSON(wfld: str, controls: BoxWithConverterControls) ->
     msm123 = SubdecoderMSM123(bare_data=False)
     msm4567 = SubdecoderMSM4567(bare_data=False)
     eph = SubdecoderEph(bare_data=False)
-    base = SubdecoderBaseStationData(bare_data=True)
+    base = SubdecoderBaseStationData(bare_data=False)
 
     if not conv.decoder.register_decoder(msm4567.io): 
         return None
