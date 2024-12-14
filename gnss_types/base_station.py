@@ -8,7 +8,7 @@
 """
 
 from dataclasses import dataclass, field
-from .methods import DataClassMethods
+from .data_class_methods import DataClassMethods
 
 __all__ = ['BaseRP', 'BaseRPH', 'BaseAD', 'BaseADSN', 'BaseSP', 'BaseTS', 'BaseADSNRC', 'BaseGLBS', 'BaseSPitem']
 

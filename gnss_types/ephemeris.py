@@ -6,7 +6,7 @@
 """
 
 from dataclasses import dataclass
-from .methods import DataClassMethods
+from .data_class_methods import DataClassMethods
 
 __all__ = ['EphGPS', 'EphGLO', 'EphGALF', 'EphGALI', 'EphBDS', 'EphQZS', 'EphNAVIC']
 
