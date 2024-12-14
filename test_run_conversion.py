@@ -7,9 +7,9 @@ from tests.ephemeris_test_samples import test_eph_message
 
 #ARGS = r"-o JSON temp\reference-3msg.rtcm3"
 #ARGS = r"-o JSON temp\H7V3-A1.rtcm3"
-ARGS = r"-o JSON temp\RTK134_202102051543.rtcm3"
+#ARGS = r"-o JSON temp\RTK134_202102051543.rtcm3"
 
-#ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1045.rtcm3"
+ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1045.rtcm3"
 #ARGS = r"-o JSON-B RTCM3_TEST_DATA\EPH\msg1019.rtcm3"
 #ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1020.rtcm3"
 #ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1041.rtcm3"
@@ -55,7 +55,7 @@ def test_base_messages()->bool:
     summary.append( test_base_message(1006, 'JSON') )
     summary.append( test_base_message(1007, 'JSON') )
     summary.append( test_base_message(1029, 'JSON') )
-    summary.append( test_base_message(1033, 'JSON') ) # covers 1008 90%
+    summary.append( test_base_message(1033, 'JSON') )
     summary.append( test_base_message(1230, 'JSON') )
     summary.append( test_base_message(1005, 'JSON-B') )
     summary.append( test_base_message(1006, 'JSON-B') )
@@ -91,8 +91,8 @@ if __name__ == '__main__':
 
     full_test()
     
-    #test_eph_message(1045, 'JSON')
-    #convert(ARGS)
+    # test_base_message(1029, 'JSON-B')
+    # convert(ARGS)
     # test_base_messages()
     # test_eph_messages()
     pass

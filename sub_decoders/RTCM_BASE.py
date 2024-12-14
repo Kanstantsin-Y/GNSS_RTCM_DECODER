@@ -118,11 +118,11 @@ class BaseStationDataDecoder(Bits):
         bs.bsID, offset = self.getbitu(buf, offset, 12), offset + 12                #DF003
         
         bs.descrLength, offset = self.getbitu(buf, offset, 8), offset + 8           #DF029
-        symb = list()
+        symb = ''
         for _ in range(bs.descrLength):
-            symb.append( self.getbitu(buf, offset, 8) )                             #DF030
+            symb += (hex( self.getbitu(buf, offset, 8) ) + ' ')                     #DF030
             offset += 8                                                   
-        bs.descr = bytes(symb).decode()                                             #DF030
+        bs.descr = symb.strip()                                                     #DF030
         bs.setupID, offset = self.getbitu(buf, offset, 8), offset + 8               #DF031
         
         if msgNum == 1007:
@@ -130,36 +130,36 @@ class BaseStationDataDecoder(Bits):
             return bs
 
         bs.serialNumberLength, offset = self.getbitu(buf, offset, 8), offset+8      #DF032
-        symb = list()
+        symb = ''
         for _ in range(bs.serialNumberLength):
-            symb.append( self.getbitu(buf, offset, 8) )
+            symb += (hex( self.getbitu(buf, offset, 8) ) + ' ')
             offset += 8                                                             #DF033
-        bs.serialNumber = bytes(symb).decode()                                      #DF033
+        bs.serialNumber = symb.strip()                                              #DF033
         
         if msgNum == 1008:
             self.__length_check(48+8*(bs.descrLength + bs.serialNumberLength), offset-24, len(buf))
             return bs
 
         bs.rcvDescriptorLength, offset = self.getbitu(buf, offset, 8), offset+8     #DF227
-        symb = list()
+        symb = ''
         for _ in range(bs.rcvDescriptorLength):
-            symb.append( self.getbitu(buf, offset, 8) )
+            symb += (hex( self.getbitu(buf, offset, 8) ) + ' ')
             offset += 8                                                             #DF228
-        bs.rcvDescriptor = bytes(symb).decode()                                     #DF228
+        bs.rcvDescriptor = symb.strip()                                             #DF228
 
         bs.rcvFWVersionLength, offset = self.getbitu(buf, offset, 8), offset+8      #DF229
-        symb = list()
+        symb = ''
         for _ in range(bs.rcvFWVersionLength):
-            symb.append( self.getbitu(buf, offset, 8) )
+            symb += (hex( self.getbitu(buf, offset, 8) ) + ' ')
             offset += 8                                                             #DF230
-        bs.rcvFWVersion = bytes(symb).decode()                                      #DF230
+        bs.rcvFWVersion = symb.strip()                                              #DF230
 
         bs.rcvSerNumLength, offset = self.getbitu(buf, offset, 8), offset+8         #DF231
-        symb = list()
+        symb = ''
         for _ in range(bs.rcvSerNumLength):
-            symb.append( self.getbitu(buf, offset, 8) )
+            symb += (hex( self.getbitu(buf, offset, 8) ) + ' ')
             offset += 8                                                             #DF232
-        bs.rcvSerNum = bytes(symb).decode()                                         #DF232
+        bs.rcvSerNum = symb.strip()                                                 #DF232
 
         strLen = bs.descrLength + bs.serialNumberLength + bs.rcvDescriptorLength
         strLen += bs.rcvFWVersionLength + bs.rcvSerNumLength
@@ -170,8 +170,30 @@ class BaseStationDataDecoder(Bits):
     @classmethod
     def __scale10078_1033(cls, ibs: BaseAD|BaseADSN|BaseADSNRC) -> BaseAD|BaseADSN|BaseADSNRC:
         """Scale MSG 1007/1008/1033 data"""
+
+        bs = ibs.deepcopy()
+        symbols = ibs.descr.split(' ')
+        bs.descr = bytes([int(s,16) for s in symbols]).decode('utf-8')
+
+        if bs.msgNum == 1007:
+            return bs
         
-        return ibs
+        symbols = ibs.serialNumber.split(' ')
+        bs.serialNumber = bytes([int(s,16) for s in symbols]).decode('utf-8')
+
+        if bs.msgNum == 1008:
+            return bs
+        
+        symbols = ibs.rcvDescriptor.split(' ')
+        bs.rcvDescriptor = bytes([int(s,16) for s in symbols]).decode('utf-8')
+
+        symbols = ibs.rcvFWVersion.split(' ')
+        bs.rcvFWVersion = bytes([int(s,16) for s in symbols]).decode('utf-8')
+
+        symbols = ibs.rcvSerNum.split(' ')
+        bs.rcvSerNum = bytes([int(s,16) for s in symbols]).decode('utf-8')
+        
+        return bs
 
             
     def __decode1013(self, buf:bytes) -> BaseSP:
@@ -224,12 +246,12 @@ class BaseStationDataDecoder(Bits):
         bs.charNum, offset              = self.getbitu(buf, offset, 7),  offset+7       #DF138
         bs.unitsNum, offset             = self.getbitu(buf, offset, 8),  offset+8       #DF139
 
-        msg = []
+        msg = ''
         for _ in range(bs.unitsNum):
-            msg.append( self.getbitu(buf, offset, 8) )
+            msg += (hex( self.getbitu(buf, offset, 8) ) + ' ')
             offset += 8
 
-        bs.message = bytes(msg).decode(encoding='utf-8')
+        bs.message = msg.strip()
         
         self.__length_check(72 + 8*bs.unitsNum, offset-24, len(buf))
         return bs
@@ -238,7 +260,12 @@ class BaseStationDataDecoder(Bits):
     @classmethod
     def __scale1029(cls, ibs: BaseTS) -> BaseTS:
         """Scale MSG 1029 data"""
-        return ibs
+
+        bs = ibs.deepcopy()
+        symbols = ibs.message.split(' ')
+        bs.message = bytes([int(s,16) for s in symbols]).decode('utf-8')
+
+        return bs
 
     
     def __decode1230(self, buf:bytes) -> BaseGLBS:
