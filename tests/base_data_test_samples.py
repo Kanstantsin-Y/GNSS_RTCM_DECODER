@@ -132,6 +132,7 @@ def try_base_messages():
 
 def _determin_type(tname:str):
     """Returns data class by the textual name of data class."""
+    
     assert tname in gt.__dict__.keys(), f'Product type is absent in the module "gnss_types"'
     return gt.__dict__.get(tname)
 

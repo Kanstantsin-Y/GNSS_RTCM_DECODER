@@ -20,9 +20,6 @@
 
 from gnss_types import *
 
-# from gnss_types import ObservablesMSM
-# from gnss_types import BareObservablesMSM4567, BareObservablesMSM123
-
 from utilities import Bits  
 from utilities import catch_bits_exceptions
 from utilities import CRC24Q
@@ -138,8 +135,6 @@ def catch_decoder_exceptions(func):
     def catch_exception_wrapper(*args, **kwargs):
         try:
             rv = func(*args, **kwargs)
-        # except ExceptionDecoderInit as di:
-        #     logger.error(di.args[0])
         except ExceptionDecoderDecode as de:
             logger.warning(de.args[0])
         except Exception as ex:
@@ -192,7 +187,7 @@ class DecoderTop():
         num = self.mnum(msg)
         dec = None
 
-        # self.TG.save(num, msg, 'BASE')
+        # self.TG.save(num, msg, 'EPH')
 
         for dec in self.decoders.values():
             if (num in dec.io_spec.keys()) and (num in dec.actual_messages):
