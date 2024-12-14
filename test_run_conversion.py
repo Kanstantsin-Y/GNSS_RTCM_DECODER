@@ -7,9 +7,9 @@ from tests.ephemeris_test_samples import test_eph_message
 
 #ARGS = r"-o JSON temp\reference-3msg.rtcm3"
 #ARGS = r"-o JSON temp\H7V3-A1.rtcm3"
-#ARGS = r"-o JSON temp\RTK134_202102051543.rtcm3"
+ARGS = r"-o JSON temp\RTK134_202102051543.rtcm3"
 
-ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1045.rtcm3"
+#ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1045.rtcm3"
 #ARGS = r"-o JSON-B RTCM3_TEST_DATA\EPH\msg1019.rtcm3"
 #ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1020.rtcm3"
 #ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1041.rtcm3"

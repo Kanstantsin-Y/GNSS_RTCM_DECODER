@@ -10,11 +10,8 @@
     2. SubDecoderInterface().
         2.1 Specifies available sub-decoders.
         2.2 Specifies list of RTCM messages for each sub-decoder.
-        2.3 Defines virtual methods and attributes which should be implemented in sub-decoder.
+        2.3 Defines virtual methods and attributes to be implemented in sub-decoder.
 """
-
-
-
 
 #--- Dependencies ---------------------------------------------------------------------------
 
@@ -26,7 +23,11 @@ from utilities import CRC24Q
 
 from logger import LOGGER_CF as logger
 from typing import Any
+from tests.test_utilities import TestDataGrabber as TDG
 
+# Use this switch to cut and safe some messages from the
+# input data flow. Set 'EPH' or 'BASE' (None to disable).
+TEST_DATA_GRABBER = None
 #----------------------------------------------------------------------------------------------
 
 class SubDecoderInterface():
@@ -157,7 +158,9 @@ class DecoderTop():
         self.__pars_err_cnt: int = 0
         self.__dec_attempts: int = 0
         self.__dec_succeeded: int = 0
-        # self.TG = TestDataGrabber()             #- used for saving rtcm3 samples
+        if TEST_DATA_GRABBER != None:
+            # used for grabbing and saving rtcm3 samples
+            self._TDG = TDG()
         return
 
 #--- RTCM decoding frame -----------------------------------------------------------------------------
@@ -187,7 +190,8 @@ class DecoderTop():
         num = self.mnum(msg)
         dec = None
 
-        # self.TG.save(num, msg, 'EPH')
+        if TEST_DATA_GRABBER != None:
+            self._TDG.save(num, msg, TEST_DATA_GRABBER)
 
         for dec in self.decoders.values():
             if (num in dec.io_spec.keys()) and (num in dec.actual_messages):
@@ -337,90 +341,3 @@ class DecoderTop():
         crc_get = Bits.getbitu(buf, data_len*8, 24)
         return crc_calc == crc_get
 
-#----------------------------------------------------------------------------------------------
-
-
-class TestDataGrabber():
-
-    def __init__(self):
-        self.eph_scenario = {
-            1019: {'fname':'msg1019.rtcm3', 'cnt':3, 'fp':None},
-            1020: {'fname':'msg1020.rtcm3', 'cnt':3, 'fp':None},
-            1041: {'fname':'msg1041.rtcm3', 'cnt':3, 'fp':None},
-            1042: {'fname':'msg1042.rtcm3', 'cnt':3, 'fp':None},
-            1044: {'fname':'msg1044.rtcm3', 'cnt':3, 'fp':None},
-            1045: {'fname':'msg1045.rtcm3', 'cnt':3, 'fp':None},
-            1046: {'fname':'msg1046.rtcm3', 'cnt':3, 'fp':None}
-        }
-        self.base_scenario = {
-            1005: {'fname':'msg1005.rtcm3', 'cnt':1, 'fp':None},
-            1007: {'fname':'msg1007.rtcm3', 'cnt':1, 'fp':None},
-            1230: {'fname':'msg1230.rtcm3', 'cnt':1, 'fp':None},
-            1006: {'fname':'msg1006.rtcm3', 'cnt':1, 'fp':None},
-            1033: {'fname':'msg1033.rtcm3', 'cnt':1, 'fp':None}
-        }
-        
-
-    def save(self, mNum:int, msg:bytes, set:str = 'EPH'):
-        """Save a messages from the input flow to file."""
-
-        if set == 'EPH':
-            s = self.eph_scenario.get(mNum)
-        elif set == 'BASE':
-            s = self.base_scenario.get(mNum)
-
-        if not s:
-            return
-        
-        if s['cnt'] == 0:
-            return
-        
-        if s['fp'] == None:
-            s['fp'] = open(s['fname'],'wb')
-
-        s['fp'].write(msg)
-        s['fp'].flush()
-        s['cnt'] -= 1
-        
-        if s['cnt'] == 0:
-            s['fp'].close()
-
-        
-
-
-# def _save_some_test_data(msg_list):
-#     '''Utility function. Accepts a bunch or RTCM messages.
-#         Makes some test files.'''
-
-#     f = open('reference-3msg.rtcm3','wb')
-#     f.write(b''.join([msg_list[0], msg_list[1], msg_list[2]]))
-#     f.close()
-
-#     f = open('reference-3msg-interleaved.rtcm3','wb')
-#     f.write(b'-'.join([msg_list[0], msg_list[1], msg_list[2]]))
-#     f.close()
-
-#     f = open('reference-3msg-noiseBefore.rtcm3','wb')
-#     f.write(b''.join([b'abra-cadabra', msg_list[0], msg_list[1], msg_list[2]]))
-#     f.close()
-
-#     f = open('reference-3msg-noiseAfter.rtcm3','wb')
-#     f.write(b''.join([msg_list[0], msg_list[1], msg_list[2], b'abra-cadabra']))
-#     f.close()
-    
-#     f = open('reference-3msg-1brokenCRC.rtcm3','wb')
-#     a = bytearray(msg_list[0])
-#     a[-1:] = b'0'
-#     a[-2:-1] = b'0'
-#     f.write(b''.join([a,msg_list[1],msg_list[2]]))
-#     f.close()
-    
-#     f = open('reference-3msg-2brokenCRC.rtcm3','wb')
-#     a = bytearray(msg_list[0])
-#     a[-1:] = b'0'
-#     a[-2:-1] = b'0'
-#     b = bytearray(msg_list[1])
-#     b[-5:-4] = b'0'
-#     b[-6:-5] = b'0'
-#     f.write(b''.join([a,b,msg_list[2]]))
-#     f.close()
