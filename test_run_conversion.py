@@ -7,13 +7,15 @@ from tests.ephemeris_test_samples import test_eph_message
 
 #ARGS = r"-o JSON temp\reference-3msg.rtcm3"
 #ARGS = r"-o JSON temp\H7V3-A1.rtcm3"
-ARGS = r"-o JSON temp\RTK134_202102051543.rtcm3"
+#ARGS = r"-o JSON temp\RTK134_202102051543.rtcm3"
 
-#ARGS = r"-o JSON-B temp\EPH\msg1019.rtcm3"
-#ARGS = r"-o JSON temp\EPH\msg1020.rtcm3"
-#ARGS = r"-o JSON temp\EPH\msg1041.rtcm3"
-#ARGS = r"-o JSON temp\EPH\msg1042.rtcm3"
-#ARGS = r"-o JSON temp\EPH\msg1046.rtcm3"
+ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1045.rtcm3"
+#ARGS = r"-o JSON-B RTCM3_TEST_DATA\EPH\msg1019.rtcm3"
+#ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1020.rtcm3"
+#ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1041.rtcm3"
+#ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1042.rtcm3"
+#ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1046.rtcm3"
+
 # ARGS = r"-i addons.ini temp\reference-3msg.rtcm3"
 # ARGS = None
 
@@ -27,11 +29,13 @@ def test_eph_messages()->bool:
     summary.append( test_eph_message(1020, 'JSON') )
     summary.append( test_eph_message(1041, 'JSON') )
     summary.append( test_eph_message(1042, 'JSON') )
+    summary.append( test_eph_message(1045, 'JSON') )
     summary.append( test_eph_message(1046, 'JSON') )
     summary.append( test_eph_message(1019, 'JSON-B') )
     summary.append( test_eph_message(1020, 'JSON-B') )
     summary.append( test_eph_message(1041, 'JSON-B') )
     summary.append( test_eph_message(1042, 'JSON-B') )
+    summary.append( test_eph_message(1045, 'JSON-B') )
     summary.append( test_eph_message(1046, 'JSON-B') )
     
     print(f'-'*80)
@@ -85,11 +89,13 @@ def full_test():
 
 if __name__ == '__main__':
 
-    #full_test()
+    full_test()
     
-    convert(ARGS)
+    #test_eph_message(1045, 'JSON')
+    #convert(ARGS)
     # test_base_messages()
     # test_eph_messages()
+    pass
 
     
     
