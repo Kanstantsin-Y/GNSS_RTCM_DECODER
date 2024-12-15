@@ -20,7 +20,7 @@ from controls import ConverterControls
 from argparse import ArgumentParser as ArgParser
 from converter_top import ConverterFactory, ConverterInterface
 
-VERSION = "1.10"
+VERSION = "1.20"
 DEFAULT_CONFIG = "defaults.ini"
 FILE_CHUNCK_LEN: int = 2**12 
 ARGS = None
