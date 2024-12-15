@@ -121,7 +121,7 @@ Example. File IC5A_MS0.obs.
 
 ## JSON
 
-Akin MARGO, JSON printer also sorts conversion products by GNSS and puts results into appropriate folders.
+JSON printer sorts conversion products by purpose and puts results into appropriate folders. Finally, there is always one individual file XXX-YYY-N.json per message number N.  
 
 [SOURCE_FILE_NAME-JSON]   
 |   
