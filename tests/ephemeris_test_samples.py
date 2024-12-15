@@ -1,19 +1,102 @@
 
+import os
+import json
+import gnss_types as gt
 
-from gnss_types import EphGPS
-from gnss_types import EphGLO
-#from gnss_types import EphGALF
-from gnss_types import EphGALI
-from gnss_types import EphBDS
-from gnss_types import EphNAVIC
-#from gnss_types import EphQZS
+from run_conversion import main as convert
+from sub_decoders import EphemerisDecoder as ED
+from printers import PrintJSON as PJ
 
 
-__all__ = ['getReferenceEphData']
+__all__ = ['test_eph_message']
+
+
+def eph_test_scenario(msg:int)->tuple[str,]:
+    """Provides attributes for epemeris test."""
+    match msg:
+        case 1019:
+            return r'RTCM3_TEST_DATA\EPH\msg1019.rtcm3', _G
+        case 1020:
+            return r'RTCM3_TEST_DATA\EPH\msg1020.rtcm3', _R
+        case 1045:
+            return r'RTCM3_TEST_DATA\EPH\msg1045.rtcm3', _EF
+        case 1046:
+            return r'RTCM3_TEST_DATA\EPH\msg1046.rtcm3', _EI
+        case 1042:
+            return r'RTCM3_TEST_DATA\EPH\msg1042.rtcm3', _B
+        case 1041:
+            return r'RTCM3_TEST_DATA\EPH\msg1041.rtcm3', _I
+        case _:
+            assert False, f'no test data for MSG{msg}'
+
+    
+
+def _determin_type(tname:str):
+    """Returns data class by the textual name of data class."""
+    assert tname in gt.__dict__.keys(), f'Product type is absent in the module "gnss_types"'
+    return gt.__dict__.get(tname)
+
+
+def _test_eph(msgNum:int, mode:str):
+    """Convert test data and compare with the reference"""
+
+    ts = eph_test_scenario(msgNum)
+    tpath = ts[0]
+    cargs = "-o " + mode + ' ' + tpath
+    #cargs = "-o " + mode + ' -i addons.ini' + ' ' + tpath
+    
+    ofile, *x = PJ.make_opath(tpath, msgNum, mode)
+    
+    convert(cargs)
+
+    assert os.path.isfile(ofile), f'Output file not found'
+
+    with open(ofile, 'r') as file:
+        ephs = json.load(file)
+
+    tp = ephs.pop(0)
+    tp = _determin_type(tp['source_type'])
+    
+    refs = ts[1]
+    assert len(ephs) == len(refs), f'Unexpected number of output products: {len(ephs)}.'
+
+    for i,_ in enumerate(ephs):
+        ref = refs[i]
+        eph = tp(**ephs[i])
+        if mode == 'JSON-B':
+            eph = ED.scale(eph)
+        assert eph.compare(ref,1e-15), f'Product {i} is not equal to reference.'
+
+    return True
+
+
+def test_eph_message(msgNum:int, mode:str):
+
+    print(f'-'*80)
+    print(f'TESTER: start conversion MSG{msgNum} to {mode}.')
+    
+    ret = False
+        
+    if not mode in ('JSON', 'JSON-B'):
+        print(f'TESTER: format {mode} is not supported in this test')
+        return ret
+    
+    try:
+        ret =_test_eph(msgNum, mode)
+        print(f'TESTER: status SUCCEED.')
+    except AssertionError as asrt:
+        print(f'TESTER: status FAILED. {asrt.args[0]}')
+    except Exception as expt:
+        print(f'TESTER: status FAILED. Unexpected error')
+    finally:
+        return ret
+        
+
+
 
 # according to file RTCM3_TEST_DATA\EPH\msg1019.rtcm3
 _G = [
-    EphGPS(
+    gt.EphGPS(
         msgNum  = 1019,
         satNum  = 32,
         weekNum = 197,
@@ -46,7 +129,7 @@ _G = [
         L2P_Data = 0,
         Fit      = 0
     ),
-    EphGPS(
+    gt.EphGPS(
         msgNum  = 1019,
         satNum  = 31,
         weekNum = 197,
@@ -79,7 +162,7 @@ _G = [
         L2P_Data = 0,
         Fit      = 0
     ),
-    EphGPS(
+    gt.EphGPS(
         msgNum  = 1019,
         satNum  = 29,
         weekNum = 197,
@@ -116,7 +199,7 @@ _G = [
 
 # according to file RTCM3_TEST_DATA\EPH\msg1020.rtcm3
 _R = [
-    EphGLO(
+    gt.EphGLO(
         msgNum     = 1020,                 
         satNum     = 12,
         frqSloNum  = 6-7,
@@ -154,7 +237,7 @@ _R = [
         tauGPS     = 5.0291419029235839843750000e-08,
         ln5        = 0
     ),
-    EphGLO(
+    gt.EphGLO(
         msgNum     = 1020,
         satNum     = 22,
         frqSloNum  = 4-7,
@@ -192,7 +275,7 @@ _R = [
         tauGPS     = 5.0291419029235839843750000e-08,
         ln5        = 0
     ),
-    EphGLO(
+    gt.EphGLO(
         msgNum     = 1020,
         satNum     = 2,
         frqSloNum  = 3-7,
@@ -234,7 +317,7 @@ _R = [
 
 # according to file RTCM3_TEST_DATA\EPH\msg1046.rtcm3
 _EI = [
-    EphGALI(
+    gt.EphGALI(
         msgNum = 1046,
         satNum = 31,
         weekNum = 1221,
@@ -267,7 +350,7 @@ _EI = [
         E5b_SHS = 0,
         E5b_DVS = 0
     ),
-    EphGALI(
+    gt.EphGALI(
         msgNum = 1046,
         satNum = 26,
         weekNum = 1221,
@@ -300,7 +383,7 @@ _EI = [
         E5b_SHS = 0,
         E5b_DVS = 0
     ),
-    EphGALI(
+    gt.EphGALI(
         msgNum = 1046,
         satNum = 24,
         weekNum = 1221,
@@ -335,9 +418,103 @@ _EI = [
     )
 ]
 
+_EF = [
+    gt.EphGALF(
+        msgNum = 1045,
+        satNum = 13,
+        weekNum = 1119,
+        tc = 489600,
+        af0 = -3.85084131266921758651733398e-04,
+        af1 = -4.234834705130197107791900634766e-12,
+        af2 = 0.0,
+        te = 489600,
+        delta_n = 1.20462573249824345111846923828e-09,
+        m0 = -4.1043115779757499694824219e-02,
+        e = 3.01621854305267333984375000e-04,
+        sqrt_a = 4.0959999980926513672e+03,
+        w = 2.6684320438653230667114258e-01,
+        i0 = 3.0373554164543747901916504e-01,
+        i_dot = -1.79625203600153326988220214844e-11,
+        omega0 = 2.9648526851087808609008789e-01,
+        omega_dot = -1.85616499948082491755485534668e-09,
+        crs = -2.73750e+01,
+        crc = 2.1028125e+02,
+        cuc = -1.426786184310913085937500e-06,
+        cus = 5.986541509628295898437500e-06,
+        cic = 2.980232238769531250000000e-08,
+        cis = 1.862645149230957031250000e-08,
+        IODnav = 48,
+        SISA = 107,
+        E5a_BGD = 2.79396772384643554687500000e-09,
+        E5a_SHS = 0,
+        E5a_DVS = 0
+    ),
+    gt.EphGALF (
+        msgNum = 1045,
+        satNum = 14,
+        weekNum = 1119,
+        tc = 485400,
+        af0 = -7.03603844158351421356201172e-04,
+        af1 = -7.815970093361102044582366943359e-12,
+        af2 = 0.0,
+        te = 485400,
+        delta_n = 1.16415321826934814453125000000e-09,
+        m0 = -9.3016382772475481033325195e-01,
+        e = 4.59732254967093467712402344e-05,
+        sqrt_a = 4.0959999980926513672e+03,
+        w = -7.8876551426947116851806641e-01,
+        i0 = 3.0394269200041890144348145e-01,
+        i_dot = 2.44426701101474463939666748047e-11,
+        omega0 = 1.3891745265573263168334961e-01,
+        omega_dot = -1.82819803740130737423896789551e-09,
+        crs = -2.55625e+01,
+        crc = 1.8734375e+02,
+        cuc = -1.391395926475524902343750e-06,
+        cus = 7.012858986854553222656250e-06,
+        cic = 2.980232238769531250000000e-08,
+        cis = 9.313225746154785156250000e-09,
+        IODnav = 41,
+        SISA = 107,
+        E5a_BGD = -3.02679836750030517578125000e-09,
+        E5a_SHS = 3,
+        E5a_DVS = 1
+    ),
+    gt.EphGALF (
+        msgNum = 1045,
+        satNum = 15,
+        weekNum = 1119,
+        tc = 489600,
+        af0 = -3.14562232233583927154541016e-04,
+        af1 = 3.097966327914036810398101806641e-12,
+        af2 = 0.0,
+        te = 489600,
+        delta_n = 1.19689502753317356109619140625e-09,
+        m0 = -2.9462144244462251663208008e-02,
+        e = 1.42013770528137683868408203e-04,
+        sqrt_a = 4.0959999980926513672e+03,
+        w = 5.0688092550262808799743652e-01,
+        i0 = 3.0373969580978155136108398e-01,
+        i_dot = -1.62572177941910922527313232422e-11,
+        omega0 = 2.9648230876773595809936523e-01,
+        omega_dot = -1.85491444426588714122772216797e-09,
+        crs = -2.88750e+01,
+        crc = 2.078125e+02,
+        cuc = -1.367181539535522460937500e-06,
+        cus = 5.939975380897521972656250e-06,
+        cic = 1.862645149230957031250000e-09,
+        cis = 6.705522537231445312500000e-08,
+        IODnav = 48,
+        SISA = 107,
+        E5a_BGD = 3.25962901115417480468750000e-09,
+        E5a_SHS = 0,
+        E5a_DVS = 0
+    )
+]
+
+
 # according to file RTCM3_TEST_DATA\EPH\msg1042.rtcm3
 _B = [
-    EphBDS(
+    gt.EphBDS(
         msgNum      = 1042,
         satNum      = 11,
         weekNum     = 889,
@@ -368,7 +545,7 @@ _B = [
         TGD1        = 4.3000000000e-09,
         TGD2        = 1.7000000000e-09
     ),
-    EphBDS(
+    gt.EphBDS(
         msgNum          = 1042,
         satNum          = 12,
         weekNum         = 889,
@@ -399,7 +576,7 @@ _B = [
         TGD1            = 3.3000000000e-09,
         TGD2            = 0.0000000000e+00
     ),
-    EphBDS(
+    gt.EphBDS(
         msgNum = 1042,
         satNum = 8,
         weekNum = 889,
@@ -434,7 +611,7 @@ _B = [
 
 # according to file RTCM3_TEST_DATA\EPH\msg1041.rtcm3
 _I = [
-    EphNAVIC(
+    gt.EphNAVIC(
         msgNum = 1041,
         satNum = 6,
         weekNum = 197,
@@ -462,7 +639,7 @@ _I = [
         TGD = -1.8626451492309570312500000e-09,
         IODEC = 220
     ),
-    EphNAVIC(
+    gt.EphNAVIC(
         msgNum = 1041,
         satNum = 3,
         weekNum = 197,
@@ -490,7 +667,7 @@ _I = [
         TGD = -1.3969838619232177734375000e-09,
         IODEC = 7
     ),
-    EphNAVIC(
+    gt.EphNAVIC(
         msgNum = 1041,
         satNum = 2,
         weekNum = 197,
@@ -520,25 +697,3 @@ _I = [
     )
 ]
 
-EPH_TEST_SCENARIO = {
-    1019 : [r'RTCM3_TEST_DATA\EPH\msg1019.rtcm3', _G],
-    1020 : [r'RTCM3_TEST_DATA\EPH\msg1020.rtcm3', _R],
-    1046 : [r'RTCM3_TEST_DATA\EPH\msg1046.rtcm3', _EI],
-    1042 : [r'RTCM3_TEST_DATA\EPH\msg1042.rtcm3', _B],
-    1041 : [r'RTCM3_TEST_DATA\EPH\msg1041.rtcm3', _I]
-    }
-
-def getReferenceEphData(msgNum:int,satNum:int):
-    """Return decoded and scaled ephemeris message"""
-
-    test_sample = EPH_TEST_SCENARIO.get(msgNum)
-        
-    if not test_sample:
-        return None
-    
-    ephs = test_sample[1]    
-    for eph in ephs:
-        if eph.satNum == satNum:
-            return eph
-        
-    return None

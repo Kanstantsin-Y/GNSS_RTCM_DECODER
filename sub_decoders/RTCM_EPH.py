@@ -45,7 +45,7 @@ class EphemerisDecoder(Bits):
             raise ExceptionEphemerisDecoder(f'data field length error: {Ndec} vs {Nexp}')
        
         Ndec = 6 + ((Ndec+7)>>3)
-        if Ndec != bufLen:
+        if bufLen < Ndec:
             raise ExceptionEphemerisDecoder(f'message length error: {bufLen} vs {Ndec}')
 
         

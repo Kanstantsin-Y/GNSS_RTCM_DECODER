@@ -5,68 +5,11 @@
     This file implements DTO classes for ephemerida data.
 """
 
-import math
-from dataclasses import dataclass, fields
-from dataclasses import is_dataclass
+from dataclasses import dataclass
+from .data_class_methods import DataClassMethods
 
-__all__ = ['isValidEphBlock', 'EphGPS', 'EphGLO', 'EphGALF', 'EphGALI', 'EphBDS', 'EphQZS', 'EphNAVIC']
+__all__ = ['EphGPS', 'EphGLO', 'EphGALF', 'EphGALI', 'EphBDS', 'EphQZS', 'EphNAVIC']
 
-DEF_FLOAT_CMP_TOLR = 1e-15
-
-def isValidEphBlock(ephBlock:object)->bool:
-    """Validate minimal requirements to ephemeris data block"""
-    valid = True
-    if not type(ephBlock) in (EphGALF, EphGALI, EphQZS, EphBDS, EphGPS, EphNAVIC, EphGLO):
-        valid = False
-    if not is_dataclass(ephBlock):
-        valid = False
-    if not "msgNum" in ephBlock.__dataclass_fields__.keys():
-        valid = False
-    if not "satNum" in ephBlock.__dataclass_fields__.keys():
-        valid = False
-
-    return valid
-
-
-@dataclass
-class EphMethods:
-    
-    def items(self):
-        for field in fields(self.__class__):
-            yield field.name, getattr(self, field.name)
-
-    def copy(self):
-        """Plain copy of the object"""
-        ret = self.__class__()
-        for key, value in self.items():
-            setattr(ret,key,value)
-
-        return ret
-    
-    def compare(self, refs, f_tolerance:float = DEF_FLOAT_CMP_TOLR) -> bool:
-        """ Compare versus 'refs' ephemeris field by field.
-            Integer and string fields shall match absolutely.
-            Floats are compared with predefined relative tolerance."""
-
-        if type(self) != type(refs):
-            return False
-        
-        eq = True
-        for key, value in self.items():
-            ref = getattr(refs,key)
-            if isinstance(value, int):
-                eq = eq and (value == ref)
-            elif isinstance(value, str):
-                eq = eq and (value == ref)
-            elif isinstance(value, float):
-                if math.fabs(ref > f_tolerance):
-                    diff = math.fabs((ref-value)/ref)
-                else:
-                    diff = math.fabs(ref-value)                    
-                eq = eq and (diff < f_tolerance)
-
-        return eq
-    
 
 @dataclass
 class EphHdr:
@@ -108,7 +51,7 @@ class Keplerians:
     
 
 @dataclass
-class EphGALF(EphMethods, Keplerians, ClockBias, EphHdr):
+class EphGALF(DataClassMethods, Keplerians, ClockBias, EphHdr):
     """ Galileo FNAV ephemeris, MSG 1045"""
     # 23 + 5 = 28 elements
     IODnav: int = 0
@@ -119,7 +62,7 @@ class EphGALF(EphMethods, Keplerians, ClockBias, EphHdr):
 
 
 @dataclass
-class EphGALI(EphMethods, Keplerians, ClockBias, EphHdr):
+class EphGALI(DataClassMethods, Keplerians, ClockBias, EphHdr):
     """ Galileo INAV ephemeris, MSG 1046"""
 
     #23 + 8 = 31 elements
@@ -134,7 +77,7 @@ class EphGALI(EphMethods, Keplerians, ClockBias, EphHdr):
 
       
 @dataclass
-class EphQZS(EphMethods, Keplerians, ClockBias, EphHdr):
+class EphQZS(DataClassMethods, Keplerians, ClockBias, EphHdr):
     """ QZSS L1 ephemeris, MSG 1044"""
 
     #23 + 7 = 30 elements
@@ -148,7 +91,7 @@ class EphQZS(EphMethods, Keplerians, ClockBias, EphHdr):
 
 
 @dataclass
-class EphBDS(EphMethods, Keplerians, ClockBias, EphHdr):
+class EphBDS(DataClassMethods, Keplerians, ClockBias, EphHdr):
     """ BeiDou D1 ephemeris, MSG 1042"""
 
     #23 + 6 = 29 elements
@@ -161,7 +104,7 @@ class EphBDS(EphMethods, Keplerians, ClockBias, EphHdr):
 
 
 @dataclass
-class EphGPS(EphMethods, Keplerians, ClockBias, EphHdr):
+class EphGPS(DataClassMethods, Keplerians, ClockBias, EphHdr):
     """ GPS LNAV/CNAV ephemeris, MSG 1019"""
 
     #23 + 8 = 31 elements
@@ -174,8 +117,9 @@ class EphGPS(EphMethods, Keplerians, ClockBias, EphHdr):
     URA: int|float = 0
     TGD: int|float = 0
 
+
 @dataclass
-class EphNAVIC(EphMethods, Keplerians, ClockBias, EphHdr):
+class EphNAVIC(DataClassMethods, Keplerians, ClockBias, EphHdr):
     """ Navic L5/S ephemeris, MSG 1041"""
 
     #23 + 5 = 28 elements
@@ -184,11 +128,10 @@ class EphNAVIC(EphMethods, Keplerians, ClockBias, EphHdr):
     IODEC: int = 0
     L5_Flag = 0
     S_Flag = 0
-    
 
 
 @dataclass
-class EphGLO(EphMethods):
+class EphGLO(DataClassMethods):
     """Glonass L1/L2 ephemeris, MSG 1020"""
 
     #36 items
@@ -228,10 +171,3 @@ class EphGLO(EphMethods):
     N4:             int = 0
     tauGPS:         int|float = 0   # [s]
     ln5:            int = 0
-
-
-
-
-
-
-

@@ -10,18 +10,12 @@
     2. SubDecoderInterface().
         2.1 Specifies available sub-decoders.
         2.2 Specifies list of RTCM messages for each sub-decoder.
-        2.3 Defines virtual methods and attributes which should be implemented in sub-decoder.
+        2.3 Defines virtual methods and attributes to be implemented in sub-decoder.
 """
-
-
-
 
 #--- Dependencies ---------------------------------------------------------------------------
 
-import gnss_types.ephemeris as mEph
-
-from gnss_types import ObservablesMSM
-from gnss_types import BareObservablesMSM4567, BareObservablesMSM123
+from gnss_types import *
 
 from utilities import Bits  
 from utilities import catch_bits_exceptions
@@ -29,7 +23,11 @@ from utilities import CRC24Q
 
 from logger import LOGGER_CF as logger
 from typing import Any
+from tests.test_utilities import TestDataGrabber as TDG
 
+# Use this switch to cut and safe some messages from the
+# input data flow. Set 'EPH' or 'BASE' (None to disable).
+TEST_DATA_GRABBER = None
 #----------------------------------------------------------------------------------------------
 
 class SubDecoderInterface():
@@ -69,13 +67,29 @@ class SubDecoderInterface():
         '''Defines IN/OUT interface of ephemeris decoder'''
 
         # Same types are used for bare/scaled data
-        rv = {  1045: mEph.EphGALF,
-                1046: mEph.EphGALI,
-                1020: mEph.EphGLO,
-                1019: mEph.EphGPS,
-                1044: mEph.EphQZS,
-                1042: mEph.EphBDS,
-                1041: mEph.EphNAVIC }
+        rv = {  1045: EphGALF,
+                1046: EphGALI,
+                1020: EphGLO,
+                1019: EphGPS,
+                1044: EphQZS,
+                1042: EphBDS,
+                1041: EphNAVIC }
+        return rv
+
+    @staticmethod
+    def __make_BASE_spec(bare:bool) -> dict:
+        '''Defines IN/OUT interface of Base Station Data decoder'''
+
+        # Same types are used for bare/scaled data
+        rv = {  1005: BaseRP,
+                1006: BaseRPH,
+                1007: BaseAD,
+                1008: BaseADSN,
+                1033: BaseADSNRC,
+                1013: BaseSP,
+                1029: BaseTS,
+                1230: BaseGLBS }
+        
         return rv
 
 
@@ -93,7 +107,8 @@ class SubDecoderInterface():
         'LEGO' : __make_LEGO_spec,
         'MSM13O' : __make_MSM13O_spec,
         'MSM47O' : __make_MSM47O_spec,
-        'EPH' : __make_EPH_spec
+        'EPH' : __make_EPH_spec,
+        'BASE': __make_BASE_spec
     }
 
     def __init__(self, subset:str , bare:bool = False) -> None:
@@ -121,8 +136,6 @@ def catch_decoder_exceptions(func):
     def catch_exception_wrapper(*args, **kwargs):
         try:
             rv = func(*args, **kwargs)
-        # except ExceptionDecoderInit as di:
-        #     logger.error(di.args[0])
         except ExceptionDecoderDecode as de:
             logger.warning(de.args[0])
         except Exception as ex:
@@ -145,7 +158,9 @@ class DecoderTop():
         self.__pars_err_cnt: int = 0
         self.__dec_attempts: int = 0
         self.__dec_succeeded: int = 0
-        #self.TG = TestDataGrabber() - used for saving rtcm3 samples
+        if TEST_DATA_GRABBER != None:
+            # used for grabbing and saving rtcm3 samples
+            self._TDG = TDG()
         return
 
 #--- RTCM decoding frame -----------------------------------------------------------------------------
@@ -175,7 +190,8 @@ class DecoderTop():
         num = self.mnum(msg)
         dec = None
 
-        #self.TG.save_eph(num,msg)
+        if TEST_DATA_GRABBER != None:
+            self._TDG.save(num, msg, TEST_DATA_GRABBER)
 
         for dec in self.decoders.values():
             if (num in dec.io_spec.keys()) and (num in dec.actual_messages):
@@ -325,78 +341,3 @@ class DecoderTop():
         crc_get = Bits.getbitu(buf, data_len*8, 24)
         return crc_calc == crc_get
 
-#----------------------------------------------------------------------------------------------
-
-
-class TestDataGrabber():
-
-    def __init__(self):
-        self.scenario = {
-            1019: {'fname':'msg1019.rtcm3', 'cnt':3, 'fp':None},
-            1020: {'fname':'msg1020.rtcm3', 'cnt':3, 'fp':None},
-            1041: {'fname':'msg1041.rtcm3', 'cnt':3, 'fp':None},
-            1042: {'fname':'msg1042.rtcm3', 'cnt':3, 'fp':None},
-            1044: {'fname':'msg1044.rtcm3', 'cnt':3, 'fp':None},
-            1045: {'fname':'msg1045.rtcm3', 'cnt':3, 'fp':None},
-            1046: {'fname':'msg1046.rtcm3', 'cnt':3, 'fp':None}
-        }
-
-    def save_eph(self, mNum:int, msg:bytes):
-        """Save a messages from the input flow to file."""
-
-        s = self.scenario.get(mNum)
-        if not s:
-            return
-        
-        if s['cnt'] == 0:
-            return
-        
-        if s['fp'] == None:
-            s['fp'] = open(s['fname'],'wb')
-
-        s['fp'].write(msg)
-        s['fp'].flush()
-        s['cnt'] -= 1
-        
-        if s['cnt'] == 0:
-            s['fp'].close()
-
-        
-
-
-# def _save_some_test_data(msg_list):
-#     '''Utility function. Accepts a bunch or RTCM messages.
-#         Makes some test files.'''
-
-#     f = open('reference-3msg.rtcm3','wb')
-#     f.write(b''.join([msg_list[0], msg_list[1], msg_list[2]]))
-#     f.close()
-
-#     f = open('reference-3msg-interleaved.rtcm3','wb')
-#     f.write(b'-'.join([msg_list[0], msg_list[1], msg_list[2]]))
-#     f.close()
-
-#     f = open('reference-3msg-noiseBefore.rtcm3','wb')
-#     f.write(b''.join([b'abra-cadabra', msg_list[0], msg_list[1], msg_list[2]]))
-#     f.close()
-
-#     f = open('reference-3msg-noiseAfter.rtcm3','wb')
-#     f.write(b''.join([msg_list[0], msg_list[1], msg_list[2], b'abra-cadabra']))
-#     f.close()
-    
-#     f = open('reference-3msg-1brokenCRC.rtcm3','wb')
-#     a = bytearray(msg_list[0])
-#     a[-1:] = b'0'
-#     a[-2:-1] = b'0'
-#     f.write(b''.join([a,msg_list[1],msg_list[2]]))
-#     f.close()
-    
-#     f = open('reference-3msg-2brokenCRC.rtcm3','wb')
-#     a = bytearray(msg_list[0])
-#     a[-1:] = b'0'
-#     a[-2:-1] = b'0'
-#     b = bytearray(msg_list[1])
-#     b[-5:-4] = b'0'
-#     b[-6:-5] = b'0'
-#     f.write(b''.join([a,b,msg_list[2]]))
-#     f.close()

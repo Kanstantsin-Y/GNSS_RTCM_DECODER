@@ -56,7 +56,7 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
 from decoder_top import DecoderTop
-from sub_decoders import SubdecoderMSM4567, SubdecoderMSM123, SubdecoderEph
+from sub_decoders import SubdecoderMSM4567, SubdecoderMSM123, SubdecoderEph, SubdecoderBaseStationData
 
 from printer_top import PrinterTop
 from printers import PrintMARGO as MargoPrinter
@@ -72,6 +72,8 @@ class ConverterStatistics:
     decoding_attempts: int = 0
     parsing_errors: int = 0
     decoding_errors: int = 0
+    printing_attempts: int = 0
+    printing_errors: int = 0
 
 
 class ConverterInterface(ABC):
@@ -121,6 +123,8 @@ class Converter(ConverterInterface):
         rv.decoding_attempts = self.decoder.dec_attempts
         rv.decoding_errors = self.decoder.dec_errors
         rv.parsing_errors = self.decoder.parse_errors
+        rv.printing_attempts = self.printer.attempts
+        rv.printing_errors = self.printer.errors
         return rv
 
 
@@ -148,13 +152,17 @@ def strategy_MSM17_EPH_to_JSON(wfld: str, controls: BoxWithConverterControls) ->
     msm123 = SubdecoderMSM123(bare_data=False)
     msm4567 = SubdecoderMSM4567(bare_data=False)
     eph = SubdecoderEph(bare_data=False)
+    base = SubdecoderBaseStationData(bare_data=False)
+
     if not conv.decoder.register_decoder(msm4567.io): 
         return None
     if not conv.decoder.register_decoder(msm123.io):
         return None
     if not conv.decoder.register_decoder(eph.io):
         return None
-        
+    if not conv.decoder.register_decoder(base.io):
+        return None
+            
     # Implement and register printers
     conv.printer.format = 'JSON'
     msm_to_json = JsonPrinter(wfld,controls.JSON)
@@ -169,11 +177,15 @@ def strategy_MSM17_EPH_to_JSON_BareData(wfld: str, controls: BoxWithConverterCon
     msm123 = SubdecoderMSM123(bare_data=True)
     msm4567 = SubdecoderMSM4567(bare_data=True)
     eph = SubdecoderEph(bare_data=True)
+    base = SubdecoderBaseStationData(bare_data=True)
+
     if not conv.decoder.register_decoder(msm4567.io): 
         return None
     if not conv.decoder.register_decoder(msm123.io):
         return None
     if not conv.decoder.register_decoder(eph.io):
+        return None
+    if not conv.decoder.register_decoder(base.io):
         return None
     
 

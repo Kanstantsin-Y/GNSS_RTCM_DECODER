@@ -121,15 +121,17 @@ Example. File IC5A_MS0.obs.
 
 ## JSON
 
-Akin MARGO, JSON printer also sorts conversion products by GNSS and puts results into appropriate folders.
+JSON printer sorts conversion products by purpose and puts results into appropriate folders. Finally, there is always one individual file XXX-YYY-N.json per message number N.  
 
 [SOURCE_FILE_NAME-JSON]   
 |   
-|-> [GPS] -> MSM7.json, MSM6.json, ...   
-|-> [GLN] -> MSM7.json, MSM6.json, ...    
-|-> [GAL] -> MSM7.json, MSM6.json, ...    
-|-> [BDS] -> MSM7.json, MSM6.json, ...    
-|-> [NAVIC] -> MSM7.json, MSM6.json, ...  
+|-> [BASE] -> RefPoint-1005.json, RefPointHeight-1006.json, ..., GloBias-1230.json   
+|-> [EPH] -> GPS-EPH-1019.json, GLN-EPH-1020.json, NAVIC-EPH-1041.json, ... GAL-EPH-1046.json      
+|-> [MSM7] -> GPS-MSM7-1077.json, GLN-MSM7-1087.json, ..., NAVIC-MSM7-1137.json            
+| ...       
+|-> [MSM1] -> GPS-MSM1-1071.json, GLN-MSM1-1081.json, ..., NAVIC-MSM1-1131.json             
+  
+MSMx.
 
 Each file accepts observables derived from definite MSM subset. That can help sort conversion products if multiple subsets used simultaneously.
 Particular output file has following structure:

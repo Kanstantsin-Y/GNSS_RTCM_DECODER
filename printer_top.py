@@ -23,14 +23,16 @@ _MARGO_SPECS = {
     'LEGO'  : set(),    # to be fulfilled with valid data types when developed
     'MSM13O': {ObservablesMSM,},
     'MSM47O': {ObservablesMSM,},
-    'EPH'   : {EphGPS, EphGLO, EphBDS, EphGALF, EphGALI, EphNAVIC, EphQZS}
+    'EPH'   : set(),     # <-- {EphGPS, EphGLO, EphBDS, EphGALF, EphGALI, EphNAVIC, EphQZS} TODO
+    'BASE'  : set()
     }
 
 _JSON_SPECS = {
     'LEGO'  : set(),    # to be fulfilled with valid data types when developed
     'MSM13O': {BareObservablesMSM123, ObservablesMSM},
     'MSM47O': {BareObservablesMSM4567, ObservablesMSM},
-    'EPH'   : {EphGPS, EphGLO, EphBDS, EphGALF, EphGALI, EphNAVIC, EphQZS}
+    'EPH'   : {EphGPS, EphGLO, EphBDS, EphGALF, EphGALI, EphNAVIC, EphQZS},
+    'BASE'  : {BaseRP, BaseRPH, BaseAD, BaseADSN, BaseADSNRC, BaseSP, BaseTS, BaseGLBS}
     }
 
 _SPECS_LIST = {
@@ -81,7 +83,7 @@ def catch_printer_asserts(func):
         try:
             rv = func(*args, **kwargs)
         except AssertionError as ae:
-            logger.error(f"MARGOPRNT. {ae.args[0]}")
+            logger.error(f"{ae.args[0]}")
             return None
         else:
             return rv
@@ -126,6 +128,10 @@ class PrinterTop():
     @property
     def succeeded(self):
         return self.__succeeded_cnt
+    
+    @property
+    def errors(self):
+        return self.__attempts_cnt - self.__succeeded_cnt
 
     def add_subprinter(self, io: SubPrinterInterface)->bool:
         '''

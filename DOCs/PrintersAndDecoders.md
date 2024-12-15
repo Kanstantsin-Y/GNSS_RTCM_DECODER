@@ -11,6 +11,7 @@ A list of sub-decoders to be implemented.
 | 'MSM13O'         | MSM1, MSM2, MSM3        | yes           | Observables modulo 1ms  | 'ObservablesMSM' or 'BareObservablesMSM123' [1]
 | 'LEG0'           | 1001..1004, 1009..1012  | not yet       | Observables GPS, GLONASS| Not defined  
 | 'EPH'            | 1019, 1020, 1041..1046  | yes           | ephemeris, all systems  | 'EphGPS', 'EphGLO', 'EphGALF', 'EphGALI', 'EphBDS', 'EphQZS', 'EphNAVIC' [2]
+| 'BASE'           | 1005, 1006, 1007, 1008, 1013, 1029, 1033, 1230  | yes           | Base Station Data           | 'BaseRP', 'BaseRPH', 'BaseAD', 'BaseADSN', 'BaseSP', 'BaseTS', 'BaseADSNRC', 'BaseGLBS'
 
 [1]: Sub-decoder 'MSM47O' and 'MSM13O' can produce optionally two types of outputs:
 
@@ -35,4 +36,11 @@ Printers are software entities used for saving products pf decoding in appropria
 | 'MARGO'          |  no            | 'EphGPS', 'EphGLO', 'EphGALF', 'EphGALI', 'EphBDS', 'EphQZS', 'EphNAVIC'
 | 'JSON'           |  yes           | 'EphGPS', 'EphGLO', 'EphGALF', 'EphGALI', 'EphBDS', 'EphQZS', 'EphNAVIC'
 | 'JSON-B'         |  yes           | 'EphGPS', 'EphGLO', 'EphGALF', 'EphGALI', 'EphBDS', 'EphQZS', 'EphNAVIC'
+| -----------      | -----------    | -----------
+| 'MARGO'          |  no            | 'BaseRP', 'BaseRPH', 'BaseAD', 'BaseADSN', 'BaseSP', 'BaseTS', 'BaseADSNRC', 'BaseGLBS'
+| 'JSON'           |  yes           | 'BaseRP', 'BaseRPH', 'BaseAD', 'BaseADSN', 'BaseSP', 'BaseTS', 'BaseADSNRC', 'BaseGLBS'
+| 'JSON-B'         |  yes           | 'BaseRP', 'BaseRPH', 'BaseAD', 'BaseADSN', 'BaseSP', 'BaseTS', 'BaseADSNRC', 'BaseGLBS'
+
+
+
 

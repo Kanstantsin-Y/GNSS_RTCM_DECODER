@@ -1,0 +1,15 @@
+[{"source_type": "BaseADSNRC"},{
+  "msgNum": 1033,
+  "bsID": 0,
+  "descrLength": 14,
+  "descr": "ADVNULLANTENNA",
+  "setupID": 233,
+  "serialNumberLength": 5,
+  "serialNumber": "a0001",
+  "rcvDescriptorLength": 7,
+  "rcvDescriptor": "UNICORE",
+  "rcvFWVersionLength": 7,
+  "rcvFWVersion": "unknown",
+  "rcvSerNumLength": 7,
+  "rcvSerNum": "unknown"
+}]

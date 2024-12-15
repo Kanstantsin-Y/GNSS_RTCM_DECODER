@@ -20,7 +20,7 @@ from controls import ConverterControls
 from argparse import ArgumentParser as ArgParser
 from converter_top import ConverterFactory, ConverterInterface
 
-VERSION = "1.10"
+VERSION = "1.20"
 DEFAULT_CONFIG = "defaults.ini"
 FILE_CHUNCK_LEN: int = 2**12 
 ARGS = None
@@ -110,11 +110,12 @@ def decode_rtcm_file(fpath: str, converter: ConverterInterface)->bool:
                     converter.print(xblock)
 
             aux_data = converter.get_statistics()
-            logger.progress('{0:2.2%}, {1:d} messages, p-d errors {2:d}-{3:d}.'.format(
+            logger.progress('{0:2.2%}, {1:d} messages, prs-dec-prnt errors {2:d}-{3:d}-{4:d}.'.format(
                             float(bytes_processed)/float(file_size),
                             aux_data.decoding_attempts,
                             aux_data.parsing_errors,
-                            aux_data.decoding_errors ))
+                            aux_data.decoding_errors,
+                            aux_data.printing_errors ))
             
             chunk = f.read(FILE_CHUNCK_LEN)
     
@@ -300,7 +301,11 @@ def main(local_args: str|None = None)-> None:
             continue
 
         if decode_rtcm_file(fpath, converter):
-            logger.progress("Finished successfully.")
+            err = converter.get_statistics()
+            if err.printing_errors or err.decoding_errors or err.printing_errors:
+                logger.progress("Finished with errors.")
+            else:
+                logger.progress("Finished without errors.")
         else:
             logger.error("Decoding was terminated.")
 
@@ -308,18 +313,8 @@ def main(local_args: str|None = None)-> None:
 
     pass
 
-#.......................................................................................................               
-# Uncomment 'ARGS' for test run.
 
-#ARGS = r"-o JSON temp\reference-3msg.rtcm3"
-#ARGS = r"-o JSON temp\H7V3-A1.rtcm3"
-#ARGS = r"-o JSON-B temp\EPH\msg1019.rtcm3"
-#ARGS = r"-o JSON temp\EPH\msg1020.rtcm3"
-#ARGS = r"-o JSON temp\EPH\msg1041.rtcm3"
-#ARGS = r"-o JSON temp\EPH\msg1042.rtcm3"
-#ARGS = r"-o JSON temp\EPH\msg1046.rtcm3"
-# ARGS = r"-i addons.ini temp\reference-3msg.rtcm3"
-# ARGS = None
+
 
 if __name__ == '__main__':
     
