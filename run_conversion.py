@@ -1,4 +1,3 @@
-
 """
     Author: Kanstantsin Yuryeu
     Mail: konstantin.yuriev83@gmail.com
@@ -15,125 +14,140 @@ import os
 import shutil
 import glob
 
+from argparse import ArgumentParser as ArgParser
 from logger import LOGGER_CF as logger
 from controls import ConverterControls
-from argparse import ArgumentParser as ArgParser
 from converter_top import ConverterFactory, ConverterInterface
 
 VERSION = "1.20"
 DEFAULT_CONFIG = "defaults.ini"
-FILE_CHUNCK_LEN: int = 2**12 
+FILE_CHUNCK_LEN: int = 2**12
 ARGS = None
 
-#.......................................................................................................               
+# pylint: disable = line-too-long, broad-exception-caught, consider-using-f-string
+
+# ............................................................................
+
 
 def create_work_folder(src_file_path: str, postfix: str) -> str | None:
-    """ Create a new folder for decoding products.
-    If folder already exists - delete content. 
+    """Create a new folder for decoding products.
+    If folder already exists - delete content.
     Return path to the folder if everything OK.
     Else return None."""
-        
-    fld, ext = os.path.splitext(src_file_path)
-    fld = fld + '-' + postfix
+
+    fld, _ = os.path.splitext(src_file_path)
+    fld = fld + "-" + postfix
     # Remove directory, if exists
     if os.path.isdir(fld):
         try:
             shutil.rmtree(fld)
         except OSError as oe:
-            print(f"There was an error during directory deletion.")
+            print("There was an error during directory deletion.")
             print(f"{type(oe)}: {oe}")
             return None
-    
+
     # Create new empty directory
     try:
         os.makedirs(fld)
-        print(f'Created work folder.')
+        print("Created work folder.")
         return fld
     except OSError as oe:
-        print(f"Work folder wasn't created")
+        print("Work folder wasn't created")
         print(f"{type(oe)}: {oe}")
         return None
 
-#.......................................................................................................               
+
+# ............................................................................
+
 
 def make_log_file_name(src_file_path: str):
     """Make name for log file. Based on source file name."""
 
-    fpath, fname = os.path.split(src_file_path)
-    fname, ext = os.path.splitext(fname)
+    fpath, fname = os.path.split(src_file_path)  # pylint: disable = unused-variable
+    fname, _ = os.path.splitext(fname)
 
-    return fname + '-log.txt'
+    return fname + "-log.txt"
 
-#.......................................................................................................               
+
+# ............................................................................
+
 
 def init_logger(path: str):
     """Create log file and init logger."""
-        
+
     try:
-        log = open(path,'w')
+        log = open(path, "w", encoding="utf-8")
     except OSError as er:
-        print(f"Failed to create log file." )
+        print("Failed to create log file.")
         print(f"{type(er)}: {er}")
-    except:
-        print(f"Undefined error in 'init_logger()'.")
+    except Exception as er:
+        print("Undefined error in 'init_logger()'.")
         print(f"{type(er)}: {er}")
     else:
-        #Initial record
-        welcome_msg = f"New log file was created."
-        log.write(welcome_msg+'\n')
-        log.write('-'*len(welcome_msg)+'\n')
+        # Initial record
+        welcome_msg = "New log file was created."
+        log.write(welcome_msg + "\n")
+        log.write("-" * len(welcome_msg) + "\n")
         log.close()
         print(welcome_msg)
-        #Init logger. Opens file 'path' in append mode
-        logger.init_2CH(path, 'RTCMDEC')
+        # Init logger. Opens file 'path' in append mode
+        logger.init_2CH(path, "RTCMDEC")
 
-#.......................................................................................................               
 
-def decode_rtcm_file(fpath: str, converter: ConverterInterface)->bool:
-    
+# ............................................................................
+
+
+def decode_rtcm_file(fpath: str, converter: ConverterInterface) -> bool:
+    """Convert single file."""
+
+    f = None
+
     try:
-        f = open(fpath,'rb')
+        f = open(fpath, "rb")
 
-        logger.info(f'Opened file {fpath}.')
+        logger.info(f"Opened file {fpath}.")
         file_size = os.path.getsize(fpath)
         bytes_processed = 0
-        
+
         chunk = f.read(FILE_CHUNCK_LEN)
         while len(chunk):
-                        
+
             bytes_processed += len(chunk)
             rtcm3_lines = converter.parse_bytes(chunk)
-            
+
             for msg in rtcm3_lines:
                 xblock = converter.decode(msg)
-                if xblock != None:
+                if xblock is None:
                     converter.print(xblock)
 
             aux_data = converter.get_statistics()
-            logger.progress('{0:2.2%}, {1:d} messages, prs-dec-prnt errors {2:d}-{3:d}-{4:d}.'.format(
-                            float(bytes_processed)/float(file_size),
-                            aux_data.decoding_attempts,
-                            aux_data.parsing_errors,
-                            aux_data.decoding_errors,
-                            aux_data.printing_errors ))
-            
+            logger.progress(
+                "{0:2.2%}, {1:d} messages, prs-dec-prnt errors {2:d}-{3:d}-{4:d}.".format(
+                    float(bytes_processed) / float(file_size),
+                    aux_data.decoding_attempts,
+                    aux_data.parsing_errors,
+                    aux_data.decoding_errors,
+                    aux_data.printing_errors,
+                )
+            )
+
             chunk = f.read(FILE_CHUNCK_LEN)
-    
+
     except KeyboardInterrupt:
-        logger.error(f"Processing terminated by the user.")
+        logger.error("Processing terminated by the user.")
         return False
     except FileNotFoundError as fe:
-        logger.error(f"Got FileNotFoundError exception.")
+        logger.error("Got FileNotFoundError exception.")
         logger.error(f"{type(fe)}: {fe}")
         return False
     except Exception as ex:
-        logger.error(f"Got unexpected exception.")
+        logger.error("Got unexpected exception.")
         logger.error(f"{type(ex)}: {ex}")
         return False
     finally:
         converter.release()
-            
-        if f:
+
+        if not f is None:
             logger.info(f"Closing file {fpath}.")
             f.close()
         else:
@@ -141,66 +155,75 @@ def decode_rtcm_file(fpath: str, converter: ConverterInterface)->bool:
 
     return True
 
-#.......................................................................................................               
 
-def create_argument_parser(description: str = 'No description') -> ArgParser:
-    """ Setup argument parser.
+# ............................................................................
+
+
+def create_argument_parser(description: str = "No description") -> ArgParser:
+    """Setup argument parser.
     See https://docs.python.org/3/library/argparse.html#module-argparse for help.
     """
     arg_parser = ArgParser(description)
-    
+
     # Arbitrary argument: output format.
-    arg_parser.add_argument (
-        '-o','--output',
-        dest ='format',
-        metavar ='FORMAT',
-        type = str,
-        action = 'store',
-        default = 'MARGO',
-        choices = ['MARGO', 'JSON', 'JSON-B'],
-        help = 'FORMAT defines form of representation of output data. Choose from: MARGO | JSON | JSON-B.'
+    arg_parser.add_argument(
+        "-o",
+        "--output",
+        dest="format",
+        metavar="FORMAT",
+        type=str,
+        action="store",
+        default="MARGO",
+        choices=["MARGO", "JSON", "JSON-B"],
+        help="FORMAT defines form of representation of output data. Choose from: MARGO | JSON | JSON-B.",
     )
     # Arbitrary argument: configuration file.
-    arg_parser.add_argument (
-        '-i','--ini',
-        dest ='ini_file',
-        metavar ='PATH',
-        type = str,
-        action = 'store',
-        default = None,
-        help = 'PATH is a path to configuration file.'
+    arg_parser.add_argument(
+        "-i",
+        "--ini",
+        dest="ini_file",
+        metavar="PATH",
+        type=str,
+        action="store",
+        default=None,
+        help="PATH is a path to configuration file.",
     )
     # Mandatory argument: list of source files or source directory.
-    arg_parser.add_argument (
-        'source',
-        metavar = 'SRC',
-        type = str,
-        nargs = '+',
-        help = 'List of source files to be processed'
+    arg_parser.add_argument(
+        "source",
+        metavar="SRC",
+        type=str,
+        nargs="+",
+        help="List of source files to be processed",
     )
     # Arbitrary argument (action): show version.
-    arg_parser.add_argument (
-        '-v','--version',
-        dest = 'ver',
-        action = 'version',
-        version = '%(prog)s ver. '+VERSION
+    arg_parser.add_argument(
+        "-v",
+        "--version",
+        dest="ver",
+        action="version",
+        version="%(prog)s ver. " + VERSION,
     )
-    # Arbitrary argument 'extension'. Files with extension 'rtcm_ext' are RTCM files. 
-    arg_parser.add_argument (
-        '-ext',
-        dest = 'rtcm_ext',
-        action = 'store',
-        default = 'rtcm3',
-        metavar = 'EXT',
-        help = 'EXT regarded as an extension in RTCM file names. Default: rtcm3'
+    # Arbitrary argument 'extension'. Files with extension 'rtcm_ext' are RTCM files.
+    arg_parser.add_argument(
+        "-ext",
+        dest="rtcm_ext",
+        action="store",
+        default="rtcm3",
+        metavar="EXT",
+        help="EXT regarded as an extension in RTCM file names. Default: rtcm3",
     )
 
     return arg_parser
 
-#.......................................................................................................               
 
-def make_list_of_source_files(f_arguments: list[str], rtcm_ext: str='rtcm3') -> list[str]:
-    """ Create list of source  files.
+# ............................................................................
+
+
+def make_list_of_source_files(
+    f_arguments: list[str], rtcm_ext: str = "rtcm3"
+) -> list[str]:
+    """Create list of source  files.
     Implements formal check of files listed in f_arguments.
     Implements interactive interface if 'f_arguments' specifies directory."""
 
@@ -208,9 +231,9 @@ def make_list_of_source_files(f_arguments: list[str], rtcm_ext: str='rtcm3') -> 
     # Two scenarios:
     # 1. Files listed directly in f_arguments.
     # 2. Source folder specified in f_arguments. Folder should be scanned and
-    #    list of source files should be specified interactively.    
-    
-    # Check, weather f_arguments specifies directory.  
+    #    list of source files should be specified interactively.
+
+    # Check, weather f_arguments specifies directory.
     src_is_dir = False
     if len(f_arguments) == 1:
         path = os.path.abspath(f_arguments[0])
@@ -222,53 +245,58 @@ def make_list_of_source_files(f_arguments: list[str], rtcm_ext: str='rtcm3') -> 
     if not src_is_dir:
         for path in f_arguments:
             full_path = os.path.abspath(path)
-            if (os.path.isfile(full_path)):
+            if os.path.isfile(full_path):
                 files.append(full_path)
             else:
                 print(f"{full_path} is not a file.")
     # If f_arguments[0] is a directory, interact with the user.
     else:
-        fpattern = '.'.join(['*',rtcm_ext])
+        fpattern = ".".join(["*", rtcm_ext])
         path = os.path.abspath(f_arguments[0])
-        pattern = os.path.join(path,fpattern)
+        pattern = os.path.join(path, fpattern)
         # Find files matching pattern
-        dir = glob.glob(pattern)
-        if not len(dir):
+        file_list = glob.glob(pattern)
+        if 0 == len(file_list):
             print(f"There are no files matching {fpattern} in {path}.")
         else:
-            print(f"Found {len(dir)} files matching {fpattern} pattern:")
-            for idx,src in enumerate(dir,start=1):
-                print(f"{idx:2d} : {src.__repr__()}") 
-            
-            idx = input("Please, select source files (use indexes and spaces):").split(' ')
+            print(f"Found {len(file_list)} files matching {fpattern} pattern:")
+            for idx, src in enumerate(file_list, start=1):
+                print(f"{idx:2d} : {repr(src)}")
+
+            idx = input("Please, select source files (use indexes and spaces):").split(
+                " "
+            )
             try:
-                idx = [int(i)-1 for i in idx if 0 < int(i) <= len(dir)]
+                idx = [int(i) - 1 for i in idx if 0 < int(i) <= len(file_list)]
             except ValueError:
                 print("Incorrect input. Use space separated indexes.")
             else:
-                files = [dir[i] for i in idx]
-    
+                files = [file_list[i] for i in idx]
+
     return files
 
-#.......................................................................................................               
 
-def main(local_args: str|None = None)-> None:
+# ............................................................................
+
+
+def main(local_args: str | None = None) -> None:
+    """Convert one or multiple RTCM files"""
 
     ctrl_strg = ConverterControls()
     ctrl_strg.init_from_file(DEFAULT_CONFIG)
     boxed_controls = ctrl_strg.boxed_controls
 
-    #Parse arguments
+    # Parse arguments
     arg_parser = create_argument_parser("Convert some RTCM files")
-    if local_args==None:
+    if local_args is None:
         # Parse command prompt args.
         args = arg_parser.parse_args()
     else:
         # Parse explicitly defined args.
-        args = arg_parser.parse_args(local_args.split(' '))
-    
+        args = arg_parser.parse_args(local_args.split(" "))
+
     # Process additional controls
-    if args.ini_file != None:
+    if not args.ini_file is None:
         ctrl_strg.update_from_file(args.ini_file)
         print(args.ini_file)
         boxed_controls = ctrl_strg.boxed_controls
@@ -278,8 +306,8 @@ def main(local_args: str|None = None)-> None:
     output_format = args.format
 
     for fpath in files:
-        
-        print("-"*80)
+
+        print("-" * 80)
         print(f"Started decoding: {fpath}")
 
         # Create work folder. Work folder will have the same name as source file.
@@ -289,14 +317,14 @@ def main(local_args: str|None = None)-> None:
             continue
 
         # Init logger
-        lfile = os.path.join(wfld,make_log_file_name(fpath))
+        lfile = os.path.join(wfld, make_log_file_name(fpath))
         init_logger(lfile)
 
         # Create converter.
         cf = ConverterFactory(output_format)
         converter = cf(wfld, boxed_controls)
         if not converter:
-            logger.error(f"Conversion aborted.")
+            logger.error("Conversion aborted.")
             logger.deinit()
             continue
 
@@ -311,11 +339,7 @@ def main(local_args: str|None = None)-> None:
 
         logger.deinit()
 
-    pass
 
+if __name__ == "__main__":
 
-
-
-if __name__ == '__main__':
-    
     main(ARGS)
