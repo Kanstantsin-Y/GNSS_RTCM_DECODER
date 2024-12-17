@@ -117,7 +117,7 @@ def decode_rtcm_file(fpath: str, converter: ConverterInterface) -> bool:
 
             for msg in rtcm3_lines:
                 xblock = converter.decode(msg)
-                if xblock is None:
+                if xblock is not None:
                     converter.print(xblock)
 
             aux_data = converter.get_statistics()
@@ -320,11 +320,17 @@ def main(local_args: str | None = None) -> None:
         lfile = os.path.join(wfld, make_log_file_name(fpath))
         init_logger(lfile)
 
+        # Check availability of controls
+        if boxed_controls is None:
+            logger.error("Conversion aborted. No valid controls.")
+            logger.deinit()
+            continue
+
         # Create converter.
         cf = ConverterFactory(output_format)
         converter = cf(wfld, boxed_controls)
-        if not converter:
-            logger.error("Conversion aborted.")
+        if converter is None:
+            logger.error("Conversion aborted. Converter hasn't been created.")
             logger.deinit()
             continue
 
