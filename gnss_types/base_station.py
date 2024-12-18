@@ -107,7 +107,9 @@ class BaseSP(DataClassMethods):
 
     # let it be a dictionary:
     # {MsgID:(SyncFlag,Period),}
-    shedule: dict[int, tuple[int, int]] = field(default_factory=dict)
+    shedule: dict[int, tuple[int, int] | tuple[bool, float]] = field(
+        default_factory=dict
+    )
 
 
 @dataclass
