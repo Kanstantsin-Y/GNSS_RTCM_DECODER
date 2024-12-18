@@ -9,11 +9,14 @@
     3. JSONControls() - DTO for control parameters.
 """
 
-import io, os
-from gnss_types import *
+# pylint: disable = invalid-name, unused-import, consider-iterating-dictionary
+
+import io
+import os
 from dataclasses import asdict, is_dataclass
-from printer_top import SubPrinterInterface
 from json import dumps as jdumps
+from printer_top import SubPrinterInterface
+from gnss_types import *  # pylint: disable = wildcard-import, unused-wildcard-import
 
 __OBS_M123 = {ObservablesMSM, BareObservablesMSM123}
 __OBS_M4567 = {ObservablesMSM, BareObservablesMSM4567}
@@ -88,6 +91,7 @@ JSON_SPEC = {
 
 
 class JSONControls:
+    """A DTO class for JSON printer controls."""
 
     __slots__ = ("enable_hdr_data", "enable_aux_data", "enable_pretty_view")
 
@@ -98,6 +102,7 @@ class JSONControls:
 
 
 class PrintJSON:
+    """Provides functionality for printing RTCM data in JSON format."""
 
     def __init__(self, work_dir: str, controls: JSONControls | None = None):
 
@@ -121,8 +126,6 @@ class PrintJSON:
         self.io.close = self.__close
         self.io.format = "JSON"
 
-        return
-
     @staticmethod
     def make_opath(base: str, msgNum: int, mode: str) -> tuple[str, str, str]:
         """Utility function to acquire output products location.
@@ -133,7 +136,7 @@ class PrintJSON:
         """
 
         fpath, fname = os.path.split(base)
-        fname, ext = os.path.splitext(fname)
+        fname, ext = os.path.splitext(fname)  # pylint: disable = unused-variable
         odir = "-".join([fname, mode])
         odir = os.path.join(fpath, odir)
         olog = os.path.join(odir, "-".join([fname, "log.txt"]))
@@ -168,7 +171,7 @@ class PrintJSON:
         except OSError as oe:
             raise AssertionError(
                 f"Failed to create target file '{path}: " + f"{type(oe)}: {oe}"
-            )
+            ) from oe
 
     def __append(self, msg_num: int, line: str):
         """Append a new row of observables to the file.
@@ -179,7 +182,7 @@ class PrintJSON:
             self.__create_ofile(msg_num)
             hdr = {"source_type": self.__src_obj_type.__name__}
             hdr = jdumps(hdr, indent=None)
-            self.__ofiles[msg_num].write(f"[\r" + hdr)
+            self.__ofiles[msg_num].write("[\r" + hdr)
 
         self.__ofiles[msg_num].write(line)
 
@@ -195,7 +198,7 @@ class PrintJSON:
         elif isinstance(iblock, (BareObservablesMSM4567, BareObservablesMSM123)):
             data_string = self.core.BareObservablesMSMtoPrintBuffer(iblock)
             msgNum = iblock.atr.msg_number
-        elif True == self.core.is_json_dataclass(iblock):
+        elif True is self.core.is_json_dataclass(iblock):
             data_string = self.core.dataClassToPrintBuffer(iblock)
             msgNum = getattr(iblock, "msgNum")
         else:
@@ -225,11 +228,11 @@ class JSONCore:
         try:
             # Repack ObservablesMSM into a dictionary
             time = pdata.hdr.time + pdata.hdr.day * 86400000
-            obs = {s: pdata.obs.__getattribute__(s) for s in pdata.obs.__slots__}
-            hdr = {s: pdata.hdr.__getattribute__(s) for s in pdata.hdr.__slots__}
-            aux = {s: pdata.aux.__getattribute__(s) for s in pdata.aux.__slots__}
+            obs = {s: getattr(pdata.obs, s) for s in pdata.obs.__slots__}
+            hdr = {s: getattr(pdata.hdr, s) for s in pdata.hdr.__slots__}
+            aux = {s: getattr(pdata.aux, s) for s in pdata.aux.__slots__}
 
-            summary = dict()
+            summary = {}
 
             if self.ctrls.enable_hdr_data:
                 summary.update({"hdr": hdr})
@@ -247,14 +250,14 @@ class JSONCore:
 
         except AttributeError as ke:
             raise AssertionError(
-                f"'ObservablesMSM' wasn't converted to dict: " + f"{type(ke)}: {ke}"
-            )
-        except TypeError:
-            raise AssertionError(f"JSON: can't serialize 'ObservablesMSM'")
-        except:
+                "'ObservablesMSM' wasn't converted to dict: " + f"{type(ke)}: {ke}"
+            ) from ke
+        except TypeError as te:
+            raise AssertionError("JSON: can't serialize 'ObservablesMSM'") from te
+        except Exception as ex:
             raise AssertionError(
-                f"JSON: unexpected error in ObservablesMSMtoPrintBuffer()"
-            )
+                "JSON: unexpected error in ObservablesMSMtoPrintBuffer()"
+            ) from ex
 
         return asStr
 
@@ -267,10 +270,10 @@ class JSONCore:
         try:
             # Repack 'BareObservablesMSMxxx' into a dictionary
             time = pdata.time
-            sat = {s: pdata.sat.__getattribute__(s) for s in pdata.sat.__slots__}
-            sgn = {s: pdata.sgn.__getattribute__(s) for s in pdata.sgn.__slots__}
-            hdr = {s: pdata.hdr.__getattribute__(s) for s in pdata.hdr.__slots__}
-            atr = {s: pdata.atr.__getattribute__(s) for s in pdata.atr.__slots__}
+            sat = {s: getattr(pdata.sat, s) for s in pdata.sat.__slots__}
+            sgn = {s: getattr(pdata.sgn, s) for s in pdata.sgn.__slots__}
+            hdr = {s: getattr(pdata.hdr, s) for s in pdata.hdr.__slots__}
+            atr = {s: getattr(pdata.atr, s) for s in pdata.atr.__slots__}
 
             summary = dict()
             if self.ctrls.enable_hdr_data:
@@ -289,14 +292,14 @@ class JSONCore:
 
         except AttributeError as ke:
             raise AssertionError(
-                f"'BareObservablesMSM' wasn't converted to dict:" + f"{type(ke)}: {ke}"
-            )
-        except TypeError:
-            raise AssertionError(f"JSON: can't serialize 'BareObservablesMSM'")
-        except:
+                "'BareObservablesMSM' wasn't converted to dict:" + f"{type(ke)}: {ke}"
+            ) from ke
+        except TypeError as te:
+            raise AssertionError("JSON: can't serialize 'BareObservablesMSM'") from te
+        except Exception as ex:
             raise AssertionError(
-                f"JSON: unexpected error in BareObservablesMSMtoPrintBuffer()"
-            )
+                "JSON: unexpected error in BareObservablesMSMtoPrintBuffer()"
+            ) from ex
 
         return asStr
 
@@ -310,16 +313,18 @@ class JSONCore:
 
         asStr = ""
         try:
-            asDictionary = asdict(pdata)
+            asDictionary = asdict(pdata)  # type: ignore
             indent = 2 if self.ctrls.enable_pretty_view else None
             asStr = jdumps(
                 asDictionary, indent=indent, allow_nan=True, ensure_ascii=False
             )
-        except TypeError:
-            raise AssertionError(f"JSON: can't serialize {type(pdata)} dictionary")
-        except:
+        except TypeError as te:
             raise AssertionError(
-                f"JSON: unexpected error in BareObservablesMSMtoPrintBuffer()"
-            )
+                f"JSON: can't serialize {type(pdata)} dictionary"
+            ) from te
+        except Exception as ex:
+            raise AssertionError(
+                "JSON: unexpected error in BareObservablesMSMtoPrintBuffer()"
+            ) from ex
 
         return asStr

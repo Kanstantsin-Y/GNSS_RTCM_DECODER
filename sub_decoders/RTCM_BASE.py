@@ -12,12 +12,13 @@
        are not scaled and shall be interpreted on the user side.
 """
 
+# pylint: disable = invalid-name
+
 import math
 
-from gnss_types import *
-
-from decoder_top import SubDecoderInterface
 from typing import Any
+from gnss_types import *  # pylint: disable = wildcard-import, unused-wildcard-import
+from decoder_top import SubDecoderInterface
 from utilities import Bits
 from utilities import ExceptionBitsError
 from logger import LOGGER_CF as logger
@@ -41,6 +42,7 @@ class BaseStationDataDecoder(Bits):
         self.msgList = (1005, 1006, 1007, 1008, 1033, 1013, 1029, 1230)
 
     def get_msg_num(self, buf: bytes) -> int:
+        """Extract message number."""
         return self.getbitu(buf, 24, 12)
 
     @staticmethod
@@ -421,7 +423,7 @@ class BaseStationDataDecoder(Bits):
 
         baseData = self.__decode(buf)
 
-        if is_bare_output == False:
+        if not is_bare_output:
             baseData = self.scale(baseData)
 
         return baseData
@@ -438,6 +440,7 @@ class SubdecoderBaseStationData:
         self.io.actual_messages = set(self.decoder.msgList)
 
     def decode(self, buf: bytes) -> Any | None:
+        """Unpack bytes object to data structure."""
 
         bsMsg = None
         msgNum = self.decoder.get_msg_num(buf)
@@ -458,7 +461,7 @@ class SubdecoderBaseStationData:
             logger.error(
                 f"Msg {msgNum}. Decoding failed. Arithm error: {type(ae)}: {ae}"
             )
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable = broad-exception-caught
             logger.error(
                 f"Msg {msgNum}. Decoding failed. Unexpected error:"
                 + f"{type(ex)}: {ex}"

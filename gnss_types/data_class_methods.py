@@ -12,7 +12,7 @@ import copy
 
 from typing import Any
 from itertools import zip_longest
-from dataclasses import dataclass, fields, is_dataclass
+from dataclasses import dataclass, fields, is_dataclass, asdict
 from collections.abc import Iterable
 
 
@@ -57,9 +57,8 @@ class DataClassMethods:
             return False
 
         if is_dataclass(A):
-            return False
-            # A = asdict(A)
-            # B = asdict(B)
+            A = asdict(A)  # type: ignore
+            B = asdict(B)
 
         if isinstance(A, (int, str, bool)):
             return A == B

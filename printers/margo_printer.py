@@ -9,7 +9,7 @@
     3. MargoControls() - DTO for control parameters.
 """
 
-# pylint: disable = invalid-name
+# pylint: disable = invalid-name, unused-import, consider-iterating-dictionary
 
 import io
 import os
@@ -148,8 +148,9 @@ class MargoCore:
 
     @classmethod
     def MAX_SATS(cls, gnss):
+        """Get the number of satellites in the GNSS constellation."""
         rv = cls.__MAX_SATS.get(gnss)
-        assert rv != None, f"GNSS {gnss} not supported by MAX_SATS()."
+        assert rv is not None, f"GNSS {gnss} not supported by MAX_SATS()."
         return rv
 
     @classmethod
@@ -341,7 +342,7 @@ class MargoCore:
         # Observables
         obs_str = ",".join([f"{float(x):{width}.{frc}f}" for x in g])
 
-        rv = time_str + obs_str + f"\n"
+        rv = time_str + obs_str + "\n"
         return rv
 
     def make_header(self, ofile_name: str):
@@ -368,6 +369,7 @@ class MargoCore:
 
 
 class PrintMARGO:
+    """Provides methods to print RTCM data in MARGO format."""
 
     def __init__(self, work_dir: str, ctrls: MargoControls):
 
@@ -385,8 +387,6 @@ class PrintMARGO:
         self.io.print = self.__print
         self.io.close = self.__close
         self.io.format = "MARGO"
-
-        return
 
     def __close(self):
         """Close all opened files"""
