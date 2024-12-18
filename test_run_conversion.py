@@ -12,8 +12,8 @@ from tests.ephemeris_test_samples import test_eph_message
 
 # ARGS = r"-o JSON temp\reference-3msg.rtcm3"
 # ARGS = r"-o JSON temp\H7V3-A1.rtcm3"
-# ARGS = r"-o MARGO -i addons.ini temp\RTK134_202102051543.rtcm3"
-ARGS = r"-o MARGO -i addons.ini temp\H7V3-A1.rtcm3"
+ARGS = r"-o MARGO -i addons.ini temp\RTK134_202102051543.rtcm3"
+# ARGS = r"-o MARGO -i addons.ini temp\H7V3-A1.rtcm3"
 
 # ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1045.rtcm3"
 # ARGS = r"-o JSON-B RTCM3_TEST_DATA\EPH\msg1019.rtcm3"
@@ -95,9 +95,9 @@ def full_test():
 
 if __name__ == "__main__":
 
-    # full_test()
+    full_test()
 
     # test_base_message(1029, 'JSON-B')
-    convert(ARGS)
+    # convert(ARGS)
     # test_base_messages()
     # test_eph_messages()

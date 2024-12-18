@@ -5,7 +5,7 @@
     Implements classes:
     1. PrinterTop(). Aggregates sub-printers, finds and calls appropriate printing method
         for input DTO object.
-    2. SubPrinterInterface(). 
+    2. SubPrinterInterface().
         2.1 Specifies available sub-printers.
         2.2 Specifies list of DTO classes to be supported by each sub-printer.
         2.3 Defines virtual methods and attributes which should be implemented in sub-printer.
@@ -79,12 +79,12 @@ class SubPrinterInterface:
         return rv
 
     @staticmethod
-    def stub_print(x: object):
+    def stub_print(iblock: object) -> None:
         """Stub for virtual method .print(x)."""
         raise NotImplementedError("Virtual method .print() not defined")
 
     @staticmethod
-    def stub_close():
+    def stub_close() -> None:
         """Stub for virtual method .close()."""
         raise NotImplementedError("Virtual method .close() not defined")
 
