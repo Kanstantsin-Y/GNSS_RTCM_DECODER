@@ -3,7 +3,7 @@
     Mail: konstantin.yuriev83@gmail.com
 
     Implements classes:
-    1. DecoderTop(). Top level of RTCM decoder. Implements 2 main tasks: 
+    1. DecoderTop(). Top level of RTCM decoder. Implements 2 main tasks:
         1.1 Scans RTCM3 byte flow, extracts messages.
         2.2 Aggregates sub-decoders, finds and calls appropriate decoding method
         for each message.
@@ -26,7 +26,7 @@ from utilities import CRC24Q
 from tests.test_utilities import TestDataGrabber as TDG
 
 # Use this switch to cut and safe some messages from the
-# input data flow. Set 'EPH' or 'BASE' (None to disable).
+# input data flow. Set 'EPH' or 'BASE' or 'MSM7' (None to disable).
 TEST_DATA_GRABBER = None
 # ----------------------------------------------------------------------------------------------
 
@@ -98,7 +98,9 @@ class SubDecoderInterface:
         return rv if bare else rv
 
     @staticmethod
-    def __make_LEGO_spec(bare: bool) -> dict:  # pylint: disable = unused-argument
+    def __make_LEGO_spec(
+        bare: bool,  # pylint: disable = unused-argument
+    ) -> dict:
         """Defines IN/OUT interface of Legacy observables decoder"""
         return {}
 
@@ -178,7 +180,9 @@ class DecoderTop:
         elif io.decode == SubDecoderInterface.default_decode:
             logger.error(f"Virtual method 'decode' not defined in {type(io)}")
         elif len(io.actual_messages) == 0:
-            logger.error(f"Empty message list. Update or delete subdecoder {type(io)}")
+            logger.error(
+                f"Empty message list. Update or delete subdecoder {type(io)}"
+            )
         else:
             self.decoders.update({io.subset: io})
             rv = True
@@ -304,7 +308,8 @@ class DecoderTop:
                 synch_ok = True
             else:
                 if (self._tail[ofs + 1] & 0xFC) == 0:
-                    self._tail = self._tail[ofs:]  # <-- rebase left border to 'D3'
+                    # rebase left border to 'D3'
+                    self._tail = self._tail[ofs:]
                     synch_ok = True
                 else:  # skip this "0xD3", find next one
                     ptr = ofs + 1
