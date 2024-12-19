@@ -72,20 +72,52 @@ class TestDataGrabber:
 
     def __init__(self):
         self.eph_scenario = {
-            1019: {"fname": "msg1019.rtcm3", "cnt": 3, "fp": None},
-            1020: {"fname": "msg1020.rtcm3", "cnt": 3, "fp": None},
-            1041: {"fname": "msg1041.rtcm3", "cnt": 3, "fp": None},
-            1042: {"fname": "msg1042.rtcm3", "cnt": 3, "fp": None},
-            1044: {"fname": "msg1044.rtcm3", "cnt": 3, "fp": None},
-            1045: {"fname": "msg1045.rtcm3", "cnt": 3, "fp": None},
-            1046: {"fname": "msg1046.rtcm3", "cnt": 3, "fp": None},
+            1019: {"fname": "msg1019.rtcm3", "cnt": 3, "delay": 0, "fp": None},
+            1020: {"fname": "msg1020.rtcm3", "cnt": 3, "delay": 0, "fp": None},
+            1041: {"fname": "msg1041.rtcm3", "cnt": 3, "delay": 0, "fp": None},
+            1042: {"fname": "msg1042.rtcm3", "cnt": 3, "delay": 0, "fp": None},
+            1044: {"fname": "msg1044.rtcm3", "cnt": 3, "delay": 0, "fp": None},
+            1045: {"fname": "msg1045.rtcm3", "cnt": 3, "delay": 0, "fp": None},
+            1046: {"fname": "msg1046.rtcm3", "cnt": 3, "delay": 0, "fp": None},
         }
         self.base_scenario = {
-            1005: {"fname": "msg1005.rtcm3", "cnt": 1, "fp": None},
-            1007: {"fname": "msg1007.rtcm3", "cnt": 1, "fp": None},
-            1230: {"fname": "msg1230.rtcm3", "cnt": 1, "fp": None},
-            1006: {"fname": "msg1006.rtcm3", "cnt": 1, "fp": None},
-            1033: {"fname": "msg1033.rtcm3", "cnt": 1, "fp": None},
+            1005: {"fname": "msg1005.rtcm3", "cnt": 1, "delay": 0, "fp": None},
+            1007: {"fname": "msg1007.rtcm3", "cnt": 1, "delay": 0, "fp": None},
+            1230: {"fname": "msg1230.rtcm3", "cnt": 1, "delay": 0, "fp": None},
+            1006: {"fname": "msg1006.rtcm3", "cnt": 1, "delay": 0, "fp": None},
+            1033: {"fname": "msg1033.rtcm3", "cnt": 1, "delay": 0, "fp": None},
+        }
+        self.msm7_scenario = {
+            1077: {
+                "fname": "msg1077.rtcm3",
+                "cnt": 1,
+                "delay": 10,
+                "fp": None,
+            },
+            1087: {
+                "fname": "msg1087.rtcm3",
+                "cnt": 1,
+                "delay": 10,
+                "fp": None,
+            },
+            1097: {
+                "fname": "msg1097.rtcm3",
+                "cnt": 1,
+                "delay": 10,
+                "fp": None,
+            },
+            1127: {
+                "fname": "msg1127.rtcm3",
+                "cnt": 1,
+                "delay": 10,
+                "fp": None,
+            },
+            1137: {
+                "fname": "msg1137.rtcm3",
+                "cnt": 1,
+                "delay": 10,
+                "fp": None,
+            },
         }
 
     def save(self, mNum: int, msg: bytes, mode: str = "EPH"):
@@ -96,8 +128,14 @@ class TestDataGrabber:
             s = self.eph_scenario.get(mNum)
         elif mode == "BASE":
             s = self.base_scenario.get(mNum)
+        elif mode == "MSM7":
+            s = self.msm7_scenario.get(mNum)
 
         if s is None:
+            return
+
+        if s["delay"] != 0:
+            s["delay"] -= 1
             return
 
         if s["cnt"] == 0:
