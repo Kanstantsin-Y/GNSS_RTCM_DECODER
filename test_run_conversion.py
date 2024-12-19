@@ -8,7 +8,7 @@
 from run_conversion import main as convert  # pylint: disable = unused-import
 from tests.base_data_test_samples import test_base_message
 from tests.ephemeris_test_samples import test_eph_message
-
+from tests.msm_test_samples import test_msm_message
 
 # ARGS = r"-o JSON temp\reference-3msg.rtcm3"
 # ARGS = r"-o JSON temp\H7V3-A1.rtcm3"
@@ -79,6 +79,26 @@ def test_base_messages() -> bool:
     return result == "SUCCEED"
 
 
+def test_msm_messages() -> bool:
+    """Run conversion over MSM messages"""
+
+    print("Start MSM-to-MARGO test procedure.")
+
+    summary = []
+
+    summary.append(test_msm_message(1077, "MARGO"))
+    summary.append(test_msm_message(1087, "MARGO"))
+    summary.append(test_msm_message(1097, "MARGO"))
+    summary.append(test_msm_message(1127, "MARGO"))
+    summary.append(test_msm_message(1137, "MARGO"))
+
+    print("-" * 80)
+    result = "FAILED" if False in summary else "SUCCEED"
+    print(f"End MSM conversion test procedure. Final result: {result}")
+
+    return result == "SUCCEED"
+
+
 def full_test():
     """Run summary of tests"""
 
@@ -87,6 +107,7 @@ def full_test():
     summary = []
     summary.append(test_eph_messages())
     summary.append(test_base_messages())
+    summary.append(test_msm_messages())
 
     print("-" * 80)
     summary = "FAILED" if False in summary else "SUCCEED"

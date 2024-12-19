@@ -141,9 +141,7 @@ class MargoCore:
     def MARGO_FILE_ID(cls, parameter):
         """Return first letter of file name."""
         rv = cls.__MARGO_FILE_ID.get(parameter)
-        assert (
-            rv is not None
-        ), f"Parameter {parameter} not supported by MARGO_FILE_ID()."
+        assert rv is not None, f"Parameter {parameter} not supported by MARGO_FILE_ID()."
         return rv
 
     @classmethod
@@ -205,9 +203,7 @@ class MargoCore:
         lm = ((MSMT.CRNG_1MS * 1e-3) / f for f in frequencies)
         return tuple(lm)
 
-    def ObservablesMSMtoPrintBuffer(
-        self, pdata: ObservablesMSM
-    ) -> dict[str, list[int | float | str]]:
+    def ObservablesMSMtoPrintBuffer(self, pdata: ObservablesMSM) -> dict[str, list[int | float | str]]:
         """
         Return a dictionary of the form {'file_name':'string of observables'}.
         Return empty dictionary if 'pdata' is empty or inconsistent.
@@ -219,9 +215,7 @@ class MargoCore:
         assert gnss in self.GNSSTUPLE(), f"Got {gnss=} in ObservablesMSM. Not supported"
 
         if gnss != "G":
-            time = self.conv_to_gps_time(
-                pdata.hdr.time, pdata.hdr.day, self.utc_shift, gnss
-            )
+            time = self.conv_to_gps_time(pdata.hdr.time, pdata.hdr.day, self.utc_shift, gnss)
         else:
             time = pdata.hdr.time
 
@@ -312,7 +306,7 @@ class MargoCore:
 
                 values = pattern[:]
                 for sat in range(1, max_sats + 1):
-                    value = obs[sat] if sat in obs.keys() else "NaN"
+                    value = obs[sat] * 0.001 if sat in obs.keys() else "NaN"
                     values.append(value)
 
                 rv.update({fn: values})
@@ -326,7 +320,10 @@ class MargoCore:
 
                 values = pattern[:]
                 for sat in range(1, max_sats + 1):
-                    value = obs[sat] if sat in obs.keys() else "NaN"
+                    if sat in obs.keys():
+                        value = 1.0 if obs[sat] else 0.0
+                    else:
+                        value = "NaN"
                     values.append(value)
 
                 rv.update({fn: values})
@@ -447,9 +444,7 @@ class PrintMARGO:
     def __print(self, iblock: object):
         """Margo printer"""
 
-        assert isinstance(
-            iblock, tuple(self.io.actual_spec)
-        ), f"Printer does not support {type(iblock)}"
+        assert isinstance(iblock, tuple(self.io.actual_spec)), f"Printer does not support {type(iblock)}"
 
         if isinstance(iblock, ObservablesMSM):
             self.__print_ObservablesMSM(iblock)

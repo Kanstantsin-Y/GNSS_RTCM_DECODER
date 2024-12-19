@@ -42,7 +42,9 @@ def eph_test_scenario(msg: int) -> tuple[str, list[Any]]:
 
 def _determin_type(tname: str) -> type:
     """Returns data class by the textual name of data class."""
-    assert tname in gt.__dict__.keys(), 'Product type is absent in the module "gnss_types"'
+    assert (
+        tname in gt.__dict__.keys()
+    ), 'Product type is absent in the module "gnss_types"'
     return gt.__dict__.get(tname)  # type: ignore
 
 
@@ -54,7 +56,9 @@ def _test_eph(msgNum: int, mode: str) -> bool:
     cargs = "-o " + mode + " " + tpath
     # cargs = "-o " + mode + ' -i addons.ini' + ' ' + tpath
 
-    ofile, *x = PJ.make_opath(tpath, msgNum, mode)  # pylint: disable = unused-variable
+    ofile, *x = PJ.make_opath(  # pylint: disable = unused-variable
+        tpath, msgNum, mode
+    )
 
     convert(cargs)
 
@@ -67,7 +71,9 @@ def _test_eph(msgNum: int, mode: str) -> bool:
     tp = _determin_type(tp["source_type"])
 
     refs = ts[1]
-    assert len(ephs) == len(refs), f"Unexpected number of output products: {len(ephs)}."
+    assert len(ephs) == len(
+        refs
+    ), f"Unexpected number of output products: {len(ephs)}."
 
     for i, _ in enumerate(ephs):
         ref = refs[i]
@@ -75,7 +81,9 @@ def _test_eph(msgNum: int, mode: str) -> bool:
         if mode == "JSON-B":
             eph = ED.scale(eph)
         if isinstance(eph, gt.DataClassMethods):
-            assert eph.compare(ref, 1e-15), f"Product {i} is not equal to reference."
+            assert eph.compare(
+                ref, 1e-15
+            ), f"Product {i} is not equal to reference."
 
     return True
 
