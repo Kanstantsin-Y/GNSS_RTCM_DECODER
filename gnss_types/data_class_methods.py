@@ -64,6 +64,12 @@ class DataClassMethods:
             return A == B
 
         if isinstance(A, float):
+            if math.isnan(A) and math.isnan(B):
+                return True
+
+            if math.isnan(A) or math.isnan(B):
+                return False
+
             if math.fabs(B > f_tolerance):
                 diff = math.fabs((B - A) / B)
             else:
