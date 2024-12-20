@@ -26,7 +26,7 @@ from utilities import CRC24Q
 from tests.test_utilities import TestDataGrabber as TDG
 
 # Use this switch to cut and safe some messages from the
-# input data flow. Set 'EPH' or 'BASE' or 'MSM7' (None to disable).
+# input data flow. Set 'EPH' / 'BASE' / 'MSM7' / 'MSM5' / None (to disable).
 TEST_DATA_GRABBER = None
 # ----------------------------------------------------------------------------------------------
 
