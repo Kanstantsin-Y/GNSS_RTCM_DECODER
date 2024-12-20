@@ -120,6 +120,39 @@ class TestDataGrabber:
             },
         }
 
+        self.msm5_scenario = {
+            1075: {
+                "fname": "msg1075.rtcm3",
+                "cnt": 20,
+                "delay": 10,
+                "fp": None,
+            },
+            1085: {
+                "fname": "msg1085.rtcm3",
+                "cnt": 20,
+                "delay": 10,
+                "fp": None,
+            },
+            1095: {
+                "fname": "msg1095.rtcm3",
+                "cnt": 20,
+                "delay": 10,
+                "fp": None,
+            },
+            1125: {
+                "fname": "msg1125.rtcm3",
+                "cnt": 20,
+                "delay": 10,
+                "fp": None,
+            },
+            1135: {
+                "fname": "msg1135.rtcm3",
+                "cnt": 20,
+                "delay": 10,
+                "fp": None,
+            },
+        }
+
     def save(self, mNum: int, msg: bytes, mode: str = "EPH"):
         """Save a messages from the input flow to file."""
 
@@ -130,6 +163,8 @@ class TestDataGrabber:
             s = self.base_scenario.get(mNum)
         elif mode == "MSM7":
             s = self.msm7_scenario.get(mNum)
+        elif mode == "MSM5":
+            s = self.msm5_scenario.get(mNum)
 
         if s is None:
             return

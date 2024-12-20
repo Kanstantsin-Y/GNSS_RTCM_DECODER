@@ -46,6 +46,26 @@ MSM_TEST_SCENARIO = {
         r"RTCM3_TEST_DATA\MSM7\msg1137.rtcm3",
         r"RTCM3_TEST_DATA\MSM7\REF\msg1137-MARGO",
     ],
+    1075: [
+        r"GPS",
+        r"RTCM3_TEST_DATA\MSM5\msg1075.rtcm3",
+        r"RTCM3_TEST_DATA\MSM5\REF\msg1075-MARGO",
+    ],
+    1085: [
+        r"GLN",
+        r"RTCM3_TEST_DATA\MSM5\msg1085.rtcm3",
+        r"RTCM3_TEST_DATA\MSM5\REF\msg1085-MARGO",
+    ],
+    1095: [
+        r"GAL",
+        r"RTCM3_TEST_DATA\MSM5\msg1095.rtcm3",
+        r"RTCM3_TEST_DATA\MSM5\REF\msg1095-MARGO",
+    ],
+    1125: [
+        r"BDS",
+        r"RTCM3_TEST_DATA\MSM5\msg1125.rtcm3",
+        r"RTCM3_TEST_DATA\MSM5\REF\msg1125-MARGO",
+    ],
 }
 
 
