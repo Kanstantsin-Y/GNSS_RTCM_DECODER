@@ -6,7 +6,6 @@
 """
 
 # pylint: disable = invalid-name
-# , unused-import, consider-iterating-dictionary
 
 
 def make_1029():
