@@ -10,21 +10,14 @@ from tests.base_data_test_samples import test_base_message
 from tests.ephemeris_test_samples import test_eph_message
 from tests.msm_test_samples import test_msm_message
 
+# ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1045.rtcm3"
+# ARGS = r"-o JSON-B RTCM3_TEST_DATA\EPH\msg1019.rtcm3"
+ARGS = r"-i addons.ini RTCM3_TEST_DATA\reference-3msg.rtcm3"
+
 # ARGS = r"-o JSON temp\reference-3msg.rtcm3"
 # ARGS = r"-o JSON temp\H7V3-A1.rtcm3"
 # ARGS = r"-o MARGO -i addons.ini temp\RTK134_202102051543.rtcm3"
 # ARGS = r"-o MARGO -i addons.ini temp\H7V3-A1.rtcm3"
-ARGS = r"-o MARGO -i addons.ini RTCM3_TEST_DATA\MSM5\msg1045.rtcm3"
-
-# ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1045.rtcm3"
-# ARGS = r"-o JSON-B RTCM3_TEST_DATA\EPH\msg1019.rtcm3"
-# ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1020.rtcm3"
-# ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1041.rtcm3"
-# ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1042.rtcm3"
-# ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1046.rtcm3"
-
-# ARGS = r"-i addons.ini temp\reference-3msg.rtcm3"
-# ARGS = None
 
 
 def test_eph_messages() -> bool:
@@ -85,9 +78,9 @@ def test_base_messages() -> bool:
 def test_msm_messages() -> bool:
     """Run conversion over MSM messages"""
 
-    print("Start MSM-to-MARGO test procedure.")
-
     summary = []
+
+    print("Start MSM-to-MARGO test procedure.")
 
     summary.append(test_msm_message(1077, "MARGO"))
     summary.append(test_msm_message(1087, "MARGO"))
@@ -99,6 +92,19 @@ def test_msm_messages() -> bool:
     summary.append(test_msm_message(1085, "MARGO"))
     summary.append(test_msm_message(1095, "MARGO"))
     summary.append(test_msm_message(1125, "MARGO"))
+
+    print("Start MSM-to-JSON test procedure.")
+
+    summary.append(test_msm_message(1077, "JSON"))
+    summary.append(test_msm_message(1087, "JSON"))
+    summary.append(test_msm_message(1097, "JSON"))
+    summary.append(test_msm_message(1127, "JSON"))
+    summary.append(test_msm_message(1137, "JSON"))
+
+    summary.append(test_msm_message(1075, "JSON"))
+    summary.append(test_msm_message(1085, "JSON"))
+    summary.append(test_msm_message(1095, "JSON"))
+    summary.append(test_msm_message(1125, "JSON"))
 
     print("-" * 80)
     result = "FAILED" if False in summary else "SUCCEED"
@@ -126,11 +132,8 @@ if __name__ == "__main__":
 
     full_test()
 
-    # test_base_message(1029, 'JSON-B')
-    # convert(r"-o MARGO -i addons.ini RTCM3_TEST_DATA\MSM5\msg1075.rtcm3")
-    # convert(r"-o MARGO -i addons.ini RTCM3_TEST_DATA\MSM5\msg1085.rtcm3")
-    # convert(r"-o MARGO -i addons.ini RTCM3_TEST_DATA\MSM5\msg1095.rtcm3")
-    # convert(r"-o MARGO -i addons.ini RTCM3_TEST_DATA\MSM5\msg1125.rtcm3")
+    # convert(ARGS)
 
     # test_base_messages()
     # test_eph_messages()
+    # test_msm_messages()
