@@ -59,3 +59,9 @@ been fixed. Files can be loaded using the standard JSON.load() method.
    - Loads files in the folder, decodes files' names and creates appropriate variables;
    - Packs all data into a single well-structured data class variable.
    See tests\msm_test_samples.extract_Margo().
+
+-------
+**Version 1.22.**
+
+1. New functionality.
+   - Implemented a new conversion mode - JARGO - a combination of MARGO and JSON outputs. Observables are saved in MARGO (comma separated values) format, while ephemeris and base station messages are saved in JSON format. Use '-o JARGO' argument to run JARGO conversion, see example in test_run_conversion.py.

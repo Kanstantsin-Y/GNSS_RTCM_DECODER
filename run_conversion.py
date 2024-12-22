@@ -19,7 +19,7 @@ from logger import LOGGER_CF as logger
 from controls import ConverterControls
 from converter_top import ConverterFactory, ConverterInterface
 
-VERSION = "1.20"
+VERSION = "1.22"
 DEFAULT_CONFIG = "defaults.ini"
 FILE_CHUNCK_LEN: int = 2**12
 ARGS = None
