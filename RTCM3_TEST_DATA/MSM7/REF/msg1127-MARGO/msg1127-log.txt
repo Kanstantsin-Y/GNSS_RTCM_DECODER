@@ -1,0 +1,7 @@
+New log file was created.
+-------------------------
+RTCMDEC:INFO: Opened file E:\PROJECTS\PY\RTCM_DECODER\RTCM3_TEST_DATA\MSM7\msg1127.rtcm3.
+RTCMDEC:INFO: Msg 1127. Decoding succeeded. t = 399428000, sats = 9.
+RTCMDEC:PROGRESS: 100.00%, 1 messages, prs-dec-prnt errors 0-0-0.
+RTCMDEC:INFO: Closing file E:\PROJECTS\PY\RTCM_DECODER\RTCM3_TEST_DATA\MSM7\msg1127.rtcm3.
+RTCMDEC:PROGRESS: Finished without errors.
