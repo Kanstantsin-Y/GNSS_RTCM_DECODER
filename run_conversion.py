@@ -174,7 +174,7 @@ def create_argument_parser(description: str = "No description") -> ArgParser:
         type=str,
         action="store",
         default="MARGO",
-        choices=["MARGO", "JSON", "JSON-B"],
+        choices=["MARGO", "JSON", "JSON-B", "JARGO"],
         help="FORMAT defines form of representation of output data. Choose from: MARGO | JSON | JSON-B.",
     )
     # Arbitrary argument: configuration file.

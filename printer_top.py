@@ -21,14 +21,14 @@ from logger import LOGGER_CF as logger
 # --- Specification of input data types for different printers -------------------------------
 
 _MARGO_SPECS = {
-    "LEGO": set(),  # to be fulfilled with valid data types when developed
+    "LEGO": set(),
     "MSM13O": {
         ObservablesMSM,
     },
     "MSM47O": {
         ObservablesMSM,
     },
-    "EPH": set(),  # ToDo {EphGPS, EphGLO, EphBDS, EphGALF, EphGALI, EphNAVIC, EphQZS}
+    "EPH": set(),
     "BASE": set(),
 }
 
@@ -37,10 +37,41 @@ _JSON_SPECS = {
     "MSM13O": {BareObservablesMSM123, ObservablesMSM},
     "MSM47O": {BareObservablesMSM4567, ObservablesMSM},
     "EPH": {EphGPS, EphGLO, EphBDS, EphGALF, EphGALI, EphNAVIC, EphQZS},
-    "BASE": {BaseRP, BaseRPH, BaseAD, BaseADSN, BaseADSNRC, BaseSP, BaseTS, BaseGLBS},
+    "BASE": {
+        BaseRP,
+        BaseRPH,
+        BaseAD,
+        BaseADSN,
+        BaseADSNRC,
+        BaseSP,
+        BaseTS,
+        BaseGLBS,
+    },
 }
 
-_SPECS_LIST = {"MARGO": _MARGO_SPECS, "JSON": _JSON_SPECS}
+_JARGO_SPECS = {
+    "LEGO": set(),
+    "MSM13O": {},
+    "MSM47O": {},
+    "EPH": {EphGPS, EphGLO, EphBDS, EphGALF, EphGALI, EphNAVIC, EphQZS},
+    "BASE": {
+        BaseRP,
+        BaseRPH,
+        BaseAD,
+        BaseADSN,
+        BaseADSNRC,
+        BaseSP,
+        BaseTS,
+        BaseGLBS,
+    },
+}
+
+
+_SPECS_LIST = {
+    "MARGO": _MARGO_SPECS,
+    "JSON": _JSON_SPECS,
+    "JARGO": _JARGO_SPECS,
+}
 
 
 class SubPrinterInterface:
@@ -71,7 +102,9 @@ class SubPrinterInterface:
         rv = set()
         specs = _SPECS_LIST.get(oformat)
         if specs is not None:
-            type_iterator = (dtype for dtypes in specs.values() for dtype in dtypes)
+            type_iterator = (
+                dtype for dtypes in specs.values() for dtype in dtypes
+            )
             rv = set(type_iterator)
         else:
             assert False, "Undefined printing format."
@@ -162,12 +195,14 @@ class PrinterTop:
             return rv
 
         if not isinstance(io, SubPrinterInterface):
-            logger.error(f"Registered object is not 'SubPrinterInterface': {type(io)}")
+            logger.error(
+                f"Registered object is not 'SubPrinterInterface': {type(io)}"
+            )
             return rv
 
-        if io.format != self.format:
-            logger.error(f"Alien sub-printer {io.format}")
-            return rv
+        # if io.format != self.format:
+        #     logger.error(f"Alien sub-printer {io.format}")
+        #     return rv
 
         if io.print == SubPrinterInterface.stub_print:
             logger.error(f"Virtual method 'print' not defined in {type(io)}")
@@ -178,7 +213,9 @@ class PrinterTop:
             return rv
 
         if 0 == len(io.actual_spec):
-            logger.error(f"Empty d-blocks list. Update or delete subprinter {type(io)}")
+            logger.error(
+                f"Empty d-blocks list. Update or delete subprinter {type(io)}"
+            )
             return rv
 
         self.printers.add(io)

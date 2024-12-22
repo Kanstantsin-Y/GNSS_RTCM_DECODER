@@ -104,7 +104,12 @@ class JSONControls:
 class PrintJSON:
     """Provides functionality for printing RTCM data in JSON format."""
 
-    def __init__(self, work_dir: str, controls: JSONControls | None = None):
+    def __init__(
+        self,
+        work_dir: str,
+        controls: JSONControls | None = None,
+        mode: str = "JSON",
+    ):
 
         assert os.path.isdir(work_dir), f"Output directory {work_dir} not found"
 
@@ -116,7 +121,7 @@ class PrintJSON:
         self.__ofiles: dict[int, io.TextIOWrapper] = {}
 
         self.io = SubPrinterInterface()
-        self.io.data_spec = SubPrinterInterface.make_specs("JSON")
+        self.io.data_spec = SubPrinterInterface.make_specs(mode)
 
         self.io.actual_spec = set()
         for val in JSON_SPEC.values():
@@ -124,7 +129,7 @@ class PrintJSON:
 
         self.io.print = self.__print
         self.io.close = self.__close
-        self.io.format = "JSON"
+        self.io.format = mode
 
     @staticmethod
     def make_opath(base: str, msgNum: int, mode: str) -> tuple[str, str, str]:
@@ -136,7 +141,7 @@ class PrintJSON:
         """
 
         fpath, fname = os.path.split(base)
-        fname, ext = os.path.splitext(fname)  # pylint: disable = unused-variable
+        fname, _ = os.path.splitext(fname)
         odir = "-".join([fname, mode])
         odir = os.path.join(fpath, odir)
         olog = os.path.join(odir, "-".join([fname, "log.txt"]))
@@ -195,14 +200,18 @@ class PrintJSON:
         if isinstance(iblock, ObservablesMSM):
             data_string = self.core.ObservablesMSMtoPrintBuffer(iblock)
             msgNum = iblock.atr.msg_number
-        elif isinstance(iblock, (BareObservablesMSM4567, BareObservablesMSM123)):
+        elif isinstance(
+            iblock, (BareObservablesMSM4567, BareObservablesMSM123)
+        ):
             data_string = self.core.BareObservablesMSMtoPrintBuffer(iblock)
             msgNum = iblock.atr.msg_number
         elif True is self.core.is_json_dataclass(iblock):
             data_string = self.core.dataClassToPrintBuffer(iblock)
             msgNum = getattr(iblock, "msgNum")
         else:
-            raise AssertionError(f"JSON printer does not support {self.__src_obj_type}")
+            raise AssertionError(
+                f"JSON printer does not support {self.__src_obj_type}"
+            )
 
         assert (
             msgNum in JSON_SPEC.keys()
@@ -245,15 +254,21 @@ class JSONCore:
             # serialize to JSON string
             indent = 2 if self.ctrls.enable_pretty_view else None
             asStr = jdumps(
-                {time: summary}, indent=indent, allow_nan=True, ensure_ascii=False
+                {time: summary},
+                indent=indent,
+                allow_nan=True,
+                ensure_ascii=False,
             )
 
         except AttributeError as ke:
             raise AssertionError(
-                "'ObservablesMSM' wasn't converted to dict: " + f"{type(ke)}: {ke}"
+                "'ObservablesMSM' wasn't converted to dict: "
+                + f"{type(ke)}: {ke}"
             ) from ke
         except TypeError as te:
-            raise AssertionError("JSON: can't serialize 'ObservablesMSM'") from te
+            raise AssertionError(
+                "JSON: can't serialize 'ObservablesMSM'"
+            ) from te
         except Exception as ex:
             raise AssertionError(
                 "JSON: unexpected error in ObservablesMSMtoPrintBuffer()"
@@ -287,15 +302,21 @@ class JSONCore:
             # serialize to JSON string
             indent = 2 if self.ctrls.enable_pretty_view else None
             asStr = jdumps(
-                {time: summary}, indent=indent, allow_nan=True, ensure_ascii=False
+                {time: summary},
+                indent=indent,
+                allow_nan=True,
+                ensure_ascii=False,
             )
 
         except AttributeError as ke:
             raise AssertionError(
-                "'BareObservablesMSM' wasn't converted to dict:" + f"{type(ke)}: {ke}"
+                "'BareObservablesMSM' wasn't converted to dict:"
+                + f"{type(ke)}: {ke}"
             ) from ke
         except TypeError as te:
-            raise AssertionError("JSON: can't serialize 'BareObservablesMSM'") from te
+            raise AssertionError(
+                "JSON: can't serialize 'BareObservablesMSM'"
+            ) from te
         except Exception as ex:
             raise AssertionError(
                 "JSON: unexpected error in BareObservablesMSMtoPrintBuffer()"
@@ -306,7 +327,9 @@ class JSONCore:
     def is_json_dataclass(self, data: object) -> bool:
         """Validate minimal requirements to gnss data block"""
 
-        return is_dataclass(data) and ("msgNum" in data.__dataclass_fields__.keys())
+        return is_dataclass(data) and (
+            "msgNum" in data.__dataclass_fields__.keys()
+        )
 
     def dataClassToPrintBuffer(self, pdata: object) -> str:
         """Return a JSON string encoding data class."""

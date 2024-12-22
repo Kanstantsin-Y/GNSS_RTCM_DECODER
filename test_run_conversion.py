@@ -12,10 +12,11 @@ from tests.msm_test_samples import test_msm_message
 
 # ARGS = r"-o JSON RTCM3_TEST_DATA\EPH\msg1045.rtcm3"
 # ARGS = r"-o JSON-B RTCM3_TEST_DATA\EPH\msg1019.rtcm3"
-ARGS = r"-i addons.ini RTCM3_TEST_DATA\reference-3msg.rtcm3"
+# ARGS = r"-i addons.ini RTCM3_TEST_DATA\reference-3msg.rtcm3"
+# ARGS = r"-o JSON RTCM3_TEST_DATA\reference-3msg.rtcm3"
+# ARGS = r"-o JARGO RTCM3_TEST_DATA\H7-A2.rtcm3"
+ARGS = r"-o JARGO -i addons.ini RTCM3_TEST_DATA\RTK134_202102051543.rtcm3"
 
-# ARGS = r"-o JSON temp\reference-3msg.rtcm3"
-# ARGS = r"-o JSON temp\H7V3-A1.rtcm3"
 # ARGS = r"-o MARGO -i addons.ini temp\RTK134_202102051543.rtcm3"
 # ARGS = r"-o MARGO -i addons.ini temp\H7V3-A1.rtcm3"
 
