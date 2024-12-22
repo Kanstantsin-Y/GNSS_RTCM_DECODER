@@ -155,7 +155,7 @@ def strategy_MSM17toMARGO(
     return conv
 
 
-def strategy_MSM17_EPH_to_JSON(
+def strategy_MSM17_EPH_BASE_to_JSON(
     wfld: str, controls: BoxWithConverterControls
 ) -> ConverterInterface | None:
     """Converts
@@ -189,7 +189,7 @@ def strategy_MSM17_EPH_to_JSON(
     return conv
 
 
-def strategy_MSM17_EPH_to_JSON_BareData(
+def strategy_MSM17_EPH_BASE_to_JSON_BareData(
     wfld: str, controls: BoxWithConverterControls
 ) -> ConverterInterface | None:
     """Converts
@@ -223,19 +223,58 @@ def strategy_MSM17_EPH_to_JSON_BareData(
     return conv
 
 
+def strategy_RTCM3_to_JARGO(
+    wfld: str, controls: BoxWithConverterControls
+) -> ConverterInterface | None:
+    """Converts:
+    - MSM 1..7 to MARGO;
+    - Ephemerids and Base Station Data messages
+      to JSON.
+    """
+
+    conv = Converter()
+    # Implement and register decoders
+    msm123 = SubdecoderMSM123(bare_data=False)
+    msm4567 = SubdecoderMSM4567(bare_data=False)
+    eph = SubdecoderEph(bare_data=False)
+    base = SubdecoderBaseStationData(bare_data=False)
+
+    if not conv.decoder.register_decoder(msm4567.io):
+        return None
+    if not conv.decoder.register_decoder(msm123.io):
+        return None
+    if not conv.decoder.register_decoder(eph.io):
+        return None
+    if not conv.decoder.register_decoder(base.io):
+        return None
+
+    # Implement and register printers
+    conv.printer.format = "JARGO"
+    rtcm3_to_json = JsonPrinter(wfld, controls.JSON, "JARGO")
+    if not conv.printer.add_subprinter(rtcm3_to_json.io):
+        return None
+    rtcm3_to_margo = MargoPrinter(wfld, controls.MARGO, "MARGO")
+    if not conv.printer.add_subprinter(rtcm3_to_margo.io):
+        return None
+
+    return conv
+
+
 class ConverterFactory:
     """Return an instance of converter with predefined properties.
 
     Available conversion modes are:
     - 'MARGO'
     - 'JSON'
-    - 'JSON-B'.
+    - 'JSON-B'
+    - 'JARGO'.
     """
 
     __FACTORY = {
         "MARGO": strategy_MSM17toMARGO,
-        "JSON": strategy_MSM17_EPH_to_JSON,
-        "JSON-B": strategy_MSM17_EPH_to_JSON_BareData,
+        "JSON": strategy_MSM17_EPH_BASE_to_JSON,
+        "JSON-B": strategy_MSM17_EPH_BASE_to_JSON_BareData,
+        "JARGO": strategy_RTCM3_to_JARGO,
     }
 
     def __init__(self, mode: str = "MARGO") -> None:

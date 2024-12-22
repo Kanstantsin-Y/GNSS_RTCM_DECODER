@@ -134,14 +134,18 @@ class MargoCore:
     def FORMAT(cls, parameter):
         """Return tuple with column formatting data."""
         rv = cls.__FORMAT_COLUMNS.get(parameter)
-        assert rv is not None, f"parameter {parameter} not supported by FORMAT()."
+        assert (
+            rv is not None
+        ), f"parameter {parameter} not supported by FORMAT()."
         return rv
 
     @classmethod
     def MARGO_FILE_ID(cls, parameter):
         """Return first letter of file name."""
         rv = cls.__MARGO_FILE_ID.get(parameter)
-        assert rv is not None, f"Parameter {parameter} not supported by MARGO_FILE_ID()."
+        assert (
+            rv is not None
+        ), f"Parameter {parameter} not supported by MARGO_FILE_ID()."
         return rv
 
     @classmethod
@@ -170,7 +174,9 @@ class MargoCore:
         return rv
 
     @classmethod
-    def conv_to_gps_time(cls, time: int, day: int, utc_shift: int, src_gnss: str):
+    def conv_to_gps_time(
+        cls, time: int, day: int, utc_shift: int, src_gnss: str
+    ):
         """Convert any time to GPS time."""
 
         if src_gnss == "B":
@@ -203,7 +209,9 @@ class MargoCore:
         lm = ((MSMT.CRNG_1MS * 1e-3) / f for f in frequencies)
         return tuple(lm)
 
-    def ObservablesMSMtoPrintBuffer(self, pdata: ObservablesMSM) -> dict[str, list[int | float | str]]:
+    def ObservablesMSMtoPrintBuffer(
+        self, pdata: ObservablesMSM
+    ) -> dict[str, list[int | float | str]]:
         """
         Return a dictionary of the form {'file_name':'string of observables'}.
         Return empty dictionary if 'pdata' is empty or inconsistent.
@@ -212,10 +220,14 @@ class MargoCore:
         rv = dict()
         gnss = pdata.atr.gnss
 
-        assert gnss in self.GNSSTUPLE(), f"Got {gnss=} in ObservablesMSM. Not supported"
+        assert (
+            gnss in self.GNSSTUPLE()
+        ), f"Got {gnss=} in ObservablesMSM. Not supported"
 
         if gnss != "G":
-            time = self.conv_to_gps_time(pdata.hdr.time, pdata.hdr.day, self.utc_shift, gnss)
+            time = self.conv_to_gps_time(
+                pdata.hdr.time, pdata.hdr.day, self.utc_shift, gnss
+            )
         else:
             time = pdata.hdr.time
 
@@ -368,7 +380,9 @@ class MargoCore:
 class PrintMARGO:
     """Provides methods to print RTCM data in MARGO format."""
 
-    def __init__(self, work_dir: str, ctrls: MargoControls):
+    def __init__(
+        self, work_dir: str, ctrls: MargoControls, mode: str = "MARGO"
+    ):
 
         assert os.path.isdir(work_dir), f"Output directory {work_dir} not found"
 
@@ -379,11 +393,11 @@ class PrintMARGO:
         self.__ofiles: dict[str, io.TextIOWrapper] = {}
 
         self.io = SubPrinterInterface()
-        self.io.data_spec = SubPrinterInterface.make_specs("MARGO")
+        self.io.data_spec = SubPrinterInterface.make_specs(mode)
         self.io.actual_spec = {ObservablesMSM}  # shall match self.__print()
         self.io.print = self.__print
         self.io.close = self.__close
-        self.io.format = "MARGO"
+        self.io.format = mode
 
     def __close(self):
         """Close all opened files"""
@@ -435,7 +449,9 @@ class PrintMARGO:
             ptype = f[1]  # C, L, D, S,...
             # Make textual representation of values
             column_format = self.core.FORMAT(ptype)
-            obs_string = self.core.format_obs_string(observables, *column_format)
+            obs_string = self.core.format_obs_string(
+                observables, *column_format
+            )
             self.__append(f, obs_string)
 
     # def __print_BareObservablesMSM4567(self, obs: BareObservablesMSM4567):
@@ -444,7 +460,9 @@ class PrintMARGO:
     def __print(self, iblock: object):
         """Margo printer"""
 
-        assert isinstance(iblock, tuple(self.io.actual_spec)), f"Printer does not support {type(iblock)}"
+        assert isinstance(
+            iblock, tuple(self.io.actual_spec)
+        ), f"Printer does not support {type(iblock)}"
 
         if isinstance(iblock, ObservablesMSM):
             self.__print_ObservablesMSM(iblock)

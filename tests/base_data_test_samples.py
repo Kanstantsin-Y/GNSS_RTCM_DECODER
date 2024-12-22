@@ -66,16 +66,12 @@ def _test_base(msgNum: int, mode: str) -> bool:
     if ts is None:
         return False
 
-    tpath = ts[0]
-
+    tpath, rfile = ts
     cargs = "-o " + mode + " " + tpath
     # cargs = "-o " + mode + ' -i addons.ini' + ' ' + tpath
-
     convert(cargs)
 
-    ofile, *x = PJ.make_opath(  # pylint: disable = unused-variable
-        tpath, msgNum, mode
-    )
+    ofile, *_ = PJ.make_opath(tpath, msgNum, mode)
     assert os.path.isfile(ofile), "Output file not found"
 
     with open(ofile, "r", encoding="utf-8") as file:
@@ -84,7 +80,7 @@ def _test_base(msgNum: int, mode: str) -> bool:
     tp = baseMsgs.pop(0)
     tp = _determin_type(tp["source_type"])
 
-    rfile = ts[1]
+    # rfile = ts[1]
     assert os.path.isfile(rfile), "Reference file not found"
     with open(rfile, "r", encoding="utf-8") as file2:
         refMsgs = json.load(file2)
