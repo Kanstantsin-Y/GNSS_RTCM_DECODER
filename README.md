@@ -2,12 +2,12 @@
 
 ### GNSS_RTCM_DECODER
 
-This project implements a tool for binary RTCM data unpacking and conversion into textual representation. Main purpose - representation of GNSS data in a readable, editable form convenient for further manual or automated analysis and geodetic computations. Run **main.py** with command line arguments to start conversion. See 
+This project implements a tool for binary RTCM data unpacking and conversion into textual representation. Main purpose - representation of GNSS data in a readable, editable form convenient for further manual or automated analysis and geodetic computations. Run **main.py** with command line arguments to start conversion. See
 [Home](DOCs/Home.md) for details.
 
 ### Notes.
 
-**Version 1.01.** 
+**Version 1.01.**
 
 Initial version.
 MSM messages are decoded. Observables are available in JSON, JSON-B (data as-it-is in the message, no scaling) and MARGO formats.
@@ -39,7 +39,23 @@ been fixed. Files can be loaded using the standard JSON.load() method.
    - Refactored tests, and added tests for Base Station Data messages.
 3. ToDo.
    - Message 1013 (System Parameters) is undertested. Need some real data to develop a thorough test case.
-   
 
- 
+-------
+**Version 1.21.**
 
+1. No new functionality.
+2. Massive refactoring.
+   - Applied formatting (VSCode, black-formatter).
+   - Resolved linter warnings.
+3. Fixed minor issue in ephemeris decoder.
+4. Fixed potential issue in MARGO printer.
+5. Added test cases for MSM7->JSON, MSM5->JSON, MSM7->MARGO, MSM5->MARGO conversion. Test files are converted and compared verus reference files within the test procedure. The content of reference files is manually verified versus the third-party converter results.
+6. ToDo:
+   - No test for MSM->JSON-B conversion.
+   - No test for 1135->JSON,MARGO conversion.
+   - No tests for MSM1, MSM2, MSM3, MSM4, MSM6 subsets.
+7. MSM tester provides a useful function that:
+   - Has a path to a MARGO-folder as an input;
+   - Loads files in the folder, decodes files' names and creates appropriate variables;
+   - Packs all data into a single well-structured data class variable.
+   See tests\msm_test_samples.extract_Margo().
