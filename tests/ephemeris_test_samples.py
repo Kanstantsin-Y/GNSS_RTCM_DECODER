@@ -52,16 +52,12 @@ def _test_eph(msgNum: int, mode: str) -> bool:
     """Convert test data and compare with the reference"""
 
     ts = eph_test_scenario(msgNum)
-    tpath = ts[0]
+    tpath, refs = ts
     cargs = "-o " + mode + " " + tpath
     # cargs = "-o " + mode + ' -i addons.ini' + ' ' + tpath
-
-    ofile, *x = PJ.make_opath(  # pylint: disable = unused-variable
-        tpath, msgNum, mode
-    )
-
     convert(cargs)
 
+    ofile, *_ = PJ.make_opath(tpath, msgNum, mode)
     assert os.path.isfile(ofile), "Output file not found"
 
     with open(ofile, "r", encoding="utf-8") as file:
@@ -70,7 +66,6 @@ def _test_eph(msgNum: int, mode: str) -> bool:
     tp = ephs.pop(0)
     tp = _determin_type(tp["source_type"])
 
-    refs = ts[1]
     assert len(ephs) == len(
         refs
     ), f"Unexpected number of output products: {len(ephs)}."

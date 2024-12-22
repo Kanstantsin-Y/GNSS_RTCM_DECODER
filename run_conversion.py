@@ -2,7 +2,7 @@
     Author: Kanstantsin Yuryeu
     Mail: konstantin.yuriev83@gmail.com
 
-    
+
     This file is a top module of a project. Use main.main(argv) to launch RTCM converter.
     This module:
     - implements command line interface;
@@ -63,7 +63,7 @@ def create_work_folder(src_file_path: str, postfix: str) -> str | None:
 def make_log_file_name(src_file_path: str):
     """Make name for log file. Based on source file name."""
 
-    fpath, fname = os.path.split(src_file_path)  # pylint: disable = unused-variable
+    _, fname = os.path.split(src_file_path)
     fname, _ = os.path.splitext(fname)
 
     return fname + "-log.txt"
@@ -263,9 +263,9 @@ def make_list_of_source_files(
             for idx, src in enumerate(file_list, start=1):
                 print(f"{idx:2d} : {repr(src)}")
 
-            idx = input("Please, select source files (use indexes and spaces):").split(
-                " "
-            )
+            idx = input(
+                "Please, select source files (use indexes and spaces):"
+            ).split(" ")
             try:
                 idx = [int(i) - 1 for i in idx if 0 < int(i) <= len(file_list)]
             except ValueError:
@@ -296,9 +296,9 @@ def main(local_args: str | None = None) -> None:
         args = arg_parser.parse_args(local_args.split(" "))
 
     # Process additional controls
-    if not args.ini_file is None:
+    if args.ini_file is not None:
+        print("Loading controls from: " + args.ini_file)
         ctrl_strg.update_from_file(args.ini_file)
-        print(args.ini_file)
         boxed_controls = ctrl_strg.boxed_controls
 
     files = make_list_of_source_files(args.source, args.rtcm_ext)
@@ -336,7 +336,11 @@ def main(local_args: str | None = None) -> None:
 
         if decode_rtcm_file(fpath, converter):
             err = converter.get_statistics()
-            if err.printing_errors or err.decoding_errors or err.printing_errors:
+            if (
+                err.printing_errors
+                or err.decoding_errors
+                or err.printing_errors
+            ):
                 logger.progress("Finished with errors.")
             else:
                 logger.progress("Finished without errors.")
