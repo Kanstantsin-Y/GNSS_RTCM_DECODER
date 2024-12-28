@@ -26,87 +26,87 @@ __all__ = ["test_msm_message"]
 MSM_TEST_SCENARIO = {
     1077: (
         r"GPS",
-        r"RTCM3_TEST_DATA\MSM7\msg1077.rtcm3",
-        r"RTCM3_TEST_DATA\MSM7\REF\msg1077-MARGO",
+        r"RTCM3_TEST_DATA/MSM7/msg1077.rtcm3",
+        r"RTCM3_TEST_DATA/MSM7/REF/msg1077-MARGO",
     ),
     1087: (
         r"GLN",
-        r"RTCM3_TEST_DATA\MSM7\msg1087.rtcm3",
-        r"RTCM3_TEST_DATA\MSM7\REF\msg1087-MARGO",
+        r"RTCM3_TEST_DATA/MSM7/msg1087.rtcm3",
+        r"RTCM3_TEST_DATA/MSM7/REF/msg1087-MARGO",
     ),
     1097: (
         r"GAL",
-        r"RTCM3_TEST_DATA\MSM7\msg1097.rtcm3",
-        r"RTCM3_TEST_DATA\MSM7\REF\msg1097-MARGO",
+        r"RTCM3_TEST_DATA/MSM7/msg1097.rtcm3",
+        r"RTCM3_TEST_DATA/MSM7/REF/msg1097-MARGO",
     ),
     1127: (
         r"BDS",
-        r"RTCM3_TEST_DATA\MSM7\msg1127.rtcm3",
-        r"RTCM3_TEST_DATA\MSM7\REF\msg1127-MARGO",
+        r"RTCM3_TEST_DATA/MSM7/msg1127.rtcm3",
+        r"RTCM3_TEST_DATA/MSM7/REF/msg1127-MARGO",
     ),
     1137: (
         r"NAVIC",
-        r"RTCM3_TEST_DATA\MSM7\msg1137.rtcm3",
-        r"RTCM3_TEST_DATA\MSM7\REF\msg1137-MARGO",
+        r"RTCM3_TEST_DATA/MSM7/msg1137.rtcm3",
+        r"RTCM3_TEST_DATA/MSM7/REF/msg1137-MARGO",
     ),
     1075: (
         r"GPS",
-        r"RTCM3_TEST_DATA\MSM5\msg1075.rtcm3",
-        r"RTCM3_TEST_DATA\MSM5\REF\msg1075-MARGO",
+        r"RTCM3_TEST_DATA/MSM5/msg1075.rtcm3",
+        r"RTCM3_TEST_DATA/MSM5/REF/msg1075-MARGO",
     ),
     1085: (
         r"GLN",
-        r"RTCM3_TEST_DATA\MSM5\msg1085.rtcm3",
-        r"RTCM3_TEST_DATA\MSM5\REF\msg1085-MARGO",
+        r"RTCM3_TEST_DATA/MSM5/msg1085.rtcm3",
+        r"RTCM3_TEST_DATA/MSM5/REF/msg1085-MARGO",
     ),
     1095: (
         r"GAL",
-        r"RTCM3_TEST_DATA\MSM5\msg1095.rtcm3",
-        r"RTCM3_TEST_DATA\MSM5\REF\msg1095-MARGO",
+        r"RTCM3_TEST_DATA/MSM5/msg1095.rtcm3",
+        r"RTCM3_TEST_DATA/MSM5/REF/msg1095-MARGO",
     ),
     1125: (
         r"BDS",
-        r"RTCM3_TEST_DATA\MSM5\msg1125.rtcm3",
-        r"RTCM3_TEST_DATA\MSM5\REF\msg1125-MARGO",
+        r"RTCM3_TEST_DATA/MSM5/msg1125.rtcm3",
+        r"RTCM3_TEST_DATA/MSM5/REF/msg1125-MARGO",
     ),
 }
 
 MSM_TEST_SCENARIO2 = {
     1075: (
-        r"RTCM3_TEST_DATA\MSM5\msg1075.rtcm3",
-        r"RTCM3_TEST_DATA\MSM5\REF\msg1075-JSON\MSM5\GPS-MSM5-1075.json",
+        r"RTCM3_TEST_DATA/MSM5/msg1075.rtcm3",
+        r"RTCM3_TEST_DATA/MSM5/REF/msg1075-JSON/MSM5/GPS-MSM5-1075.json",
     ),
     1085: (
-        r"RTCM3_TEST_DATA\MSM5\msg1085.rtcm3",
-        r"RTCM3_TEST_DATA\MSM5\REF\msg1085-JSON\MSM5\GLN-MSM5-1085.json",
+        r"RTCM3_TEST_DATA/MSM5/msg1085.rtcm3",
+        r"RTCM3_TEST_DATA/MSM5/REF/msg1085-JSON/MSM5/GLN-MSM5-1085.json",
     ),
     1095: (
-        r"RTCM3_TEST_DATA\MSM5\msg1095.rtcm3",
-        r"RTCM3_TEST_DATA\MSM5\REF\msg1095-JSON\MSM5\GAL-MSM5-1095.json",
+        r"RTCM3_TEST_DATA/MSM5/msg1095.rtcm3",
+        r"RTCM3_TEST_DATA/MSM5/REF/msg1095-JSON/MSM5/GAL-MSM5-1095.json",
     ),
     1125: (
-        r"RTCM3_TEST_DATA\MSM5\msg1125.rtcm3",
-        r"RTCM3_TEST_DATA\MSM5\REF\msg1125-JSON\MSM5\BDS-MSM5-1125.json",
+        r"RTCM3_TEST_DATA/MSM5/msg1125.rtcm3",
+        r"RTCM3_TEST_DATA/MSM5/REF/msg1125-JSON/MSM5/BDS-MSM5-1125.json",
     ),
     1077: (
-        r"RTCM3_TEST_DATA\MSM7\msg1077.rtcm3",
-        r"RTCM3_TEST_DATA\MSM7\REF\msg1077-JSON\MSM7\GPS-MSM7-1077.json",
+        r"RTCM3_TEST_DATA/MSM7/msg1077.rtcm3",
+        r"RTCM3_TEST_DATA/MSM7/REF/msg1077-JSON/MSM7/GPS-MSM7-1077.json",
     ),
     1087: (
-        r"RTCM3_TEST_DATA\MSM7\msg1087.rtcm3",
-        r"RTCM3_TEST_DATA\MSM7\REF\msg1087-JSON\MSM7\GLN-MSM7-1087.json",
+        r"RTCM3_TEST_DATA/MSM7/msg1087.rtcm3",
+        r"RTCM3_TEST_DATA/MSM7/REF/msg1087-JSON/MSM7/GLN-MSM7-1087.json",
     ),
     1097: (
-        r"RTCM3_TEST_DATA\MSM7\msg1097.rtcm3",
-        r"RTCM3_TEST_DATA\MSM7\REF\msg1097-JSON\MSM7\GAL-MSM7-1097.json",
+        r"RTCM3_TEST_DATA/MSM7/msg1097.rtcm3",
+        r"RTCM3_TEST_DATA/MSM7/REF/msg1097-JSON/MSM7/GAL-MSM7-1097.json",
     ),
     1127: (
-        r"RTCM3_TEST_DATA\MSM7\msg1127.rtcm3",
-        r"RTCM3_TEST_DATA\MSM7\REF\msg1127-JSON\MSM7\BDS-MSM7-1127.json",
+        r"RTCM3_TEST_DATA/MSM7/msg1127.rtcm3",
+        r"RTCM3_TEST_DATA/MSM7/REF/msg1127-JSON/MSM7/BDS-MSM7-1127.json",
     ),
     1137: (
-        r"RTCM3_TEST_DATA\MSM7\msg1137.rtcm3",
-        r"RTCM3_TEST_DATA\MSM7\REF\msg1137-JSON\MSM7\NAVIC-MSM7-1137.json",
+        r"RTCM3_TEST_DATA/MSM7/msg1137.rtcm3",
+        r"RTCM3_TEST_DATA/MSM7/REF/msg1137-JSON/MSM7/NAVIC-MSM7-1137.json",
     ),
 }
 

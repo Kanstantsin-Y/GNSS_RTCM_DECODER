@@ -25,17 +25,17 @@ def eph_test_scenario(msg: int) -> tuple[str, list[Any]]:
     """Provides attributes for epemeris test."""
     match msg:
         case 1019:
-            return r"RTCM3_TEST_DATA\EPH\msg1019.rtcm3", _G
+            return r"RTCM3_TEST_DATA/EPH/msg1019.rtcm3", _G
         case 1020:
-            return r"RTCM3_TEST_DATA\EPH\msg1020.rtcm3", _R
+            return r"RTCM3_TEST_DATA/EPH/msg1020.rtcm3", _R
         case 1045:
-            return r"RTCM3_TEST_DATA\EPH\msg1045.rtcm3", _EF
+            return r"RTCM3_TEST_DATA/EPH/msg1045.rtcm3", _EF
         case 1046:
-            return r"RTCM3_TEST_DATA\EPH\msg1046.rtcm3", _EI
+            return r"RTCM3_TEST_DATA/EPH/msg1046.rtcm3", _EI
         case 1042:
-            return r"RTCM3_TEST_DATA\EPH\msg1042.rtcm3", _B
+            return r"RTCM3_TEST_DATA/EPH/msg1042.rtcm3", _B
         case 1041:
-            return r"RTCM3_TEST_DATA\EPH\msg1041.rtcm3", _I
+            return r"RTCM3_TEST_DATA/EPH/msg1041.rtcm3", _I
         case _:
             assert False, f"no test data for MSG{msg}"
 
@@ -106,7 +106,7 @@ def test_eph_message(msgNum: int, mode: str) -> bool:
     return ret
 
 
-# according to file RTCM3_TEST_DATA\EPH\msg1019.rtcm3
+# according to file RTCM3_TEST_DATA/EPH/msg1019.rtcm3
 _G = [
     gt.EphGPS(
         msgNum=1019,
@@ -209,7 +209,7 @@ _G = [
     ),
 ]
 
-# according to file RTCM3_TEST_DATA\EPH\msg1020.rtcm3
+# according to file RTCM3_TEST_DATA/EPH/msg1020.rtcm3
 _R = [
     gt.EphGLO(
         msgNum=1020,
@@ -327,7 +327,7 @@ _R = [
     ),
 ]
 
-# according to file RTCM3_TEST_DATA\EPH\msg1046.rtcm3
+# according to file RTCM3_TEST_DATA/EPH/msg1046.rtcm3
 _EI = [
     gt.EphGALI(
         msgNum=1046,
@@ -524,7 +524,7 @@ _EF = [
 ]
 
 
-# according to file RTCM3_TEST_DATA\EPH\msg1042.rtcm3
+# according to file RTCM3_TEST_DATA/EPH/msg1042.rtcm3
 _B = [
     gt.EphBDS(
         msgNum=1042,
@@ -621,7 +621,7 @@ _B = [
     ),
 ]
 
-# according to file RTCM3_TEST_DATA\EPH\msg1041.rtcm3
+# according to file RTCM3_TEST_DATA/EPH/msg1041.rtcm3
 _I = [
     gt.EphNAVIC(
         msgNum=1041,

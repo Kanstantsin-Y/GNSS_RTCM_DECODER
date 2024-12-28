@@ -1,4 +1,5 @@
 .venv
+.uenv
 .vscode
 .mypy_cache
 DOCs/drafts

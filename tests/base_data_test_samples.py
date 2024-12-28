@@ -21,28 +21,28 @@ __all__ = ["test_base_message"]
 
 BASE_TEST_SCENARIO = {
     1005: [
-        r"RTCM3_TEST_DATA\BASE\msg1005.rtcm3",
-        r"RTCM3_TEST_DATA\BASE\REF\RefPoint-1005.json",
+        r"RTCM3_TEST_DATA/BASE/msg1005.rtcm3",
+        r"RTCM3_TEST_DATA/BASE/REF/RefPoint-1005.json",
     ],
     1006: [
-        r"RTCM3_TEST_DATA\BASE\msg1006.rtcm3",
-        r"RTCM3_TEST_DATA\BASE\REF\RefPointHeight-1006.json",
+        r"RTCM3_TEST_DATA/BASE/msg1006.rtcm3",
+        r"RTCM3_TEST_DATA/BASE/REF/RefPointHeight-1006.json",
     ],
     1007: [
-        r"RTCM3_TEST_DATA\BASE\msg1007.rtcm3",
-        r"RTCM3_TEST_DATA\BASE\REF\AntDesc-1007.json",
+        r"RTCM3_TEST_DATA/BASE/msg1007.rtcm3",
+        r"RTCM3_TEST_DATA/BASE/REF/AntDesc-1007.json",
     ],
     1029: [
-        r"RTCM3_TEST_DATA\BASE\msg1029.rtcm3",
-        r"RTCM3_TEST_DATA\BASE\REF\TextStr-1029.json",
+        r"RTCM3_TEST_DATA/BASE/msg1029.rtcm3",
+        r"RTCM3_TEST_DATA/BASE/REF/TextStr-1029.json",
     ],
     1033: [
-        r"RTCM3_TEST_DATA\BASE\msg1033.rtcm3",
-        r"RTCM3_TEST_DATA\BASE\REF\AntAndRcvDesc-1033.json",
+        r"RTCM3_TEST_DATA/BASE/msg1033.rtcm3",
+        r"RTCM3_TEST_DATA/BASE/REF/AntAndRcvDesc-1033.json",
     ],
     1230: [
-        r"RTCM3_TEST_DATA\BASE\msg1230.rtcm3",
-        r"RTCM3_TEST_DATA\BASE\REF\GloBias-1230.json",
+        r"RTCM3_TEST_DATA/BASE/msg1230.rtcm3",
+        r"RTCM3_TEST_DATA/BASE/REF/GloBias-1230.json",
     ],
 }
 
