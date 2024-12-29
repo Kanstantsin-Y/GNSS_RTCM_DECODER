@@ -65,3 +65,9 @@ been fixed. Files can be loaded using the standard JSON.load() method.
 
 1. New functionality.
    - Implemented a new conversion mode - JARGO - a combination of MARGO and JSON outputs. Observables are saved in MARGO (comma separated values) format, while ephemeris and base station messages are saved in JSON format. Use '-o JARGO' argument to run JARGO conversion, see example in test_run_conversion.py.
+
+-------
+**Version 1.23.**
+
+1. Minor fix.
+   - Changed path formatting to forward-slash style.The explicit path definitions are used in tests only to link test files. Tests are runnable in Linux environment now. Conversion has been validated in Ubuntu 24.04.01.
